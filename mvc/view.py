@@ -1,8 +1,12 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QHeaderView
 
 class View:
-    def __init__(self, ui):
+    def __init__(self, ui, authenticated):
         self.ui = ui
+
+        if not authenticated:
+            self.ui.tabWidget.setTabEnabled(1, False)
+            self.ui.tabWidget.setTabEnabled(2, False)
 
         self.group_comboboxes = [ # Список комбобоксов групп
             self.ui.add_tab_group_frame_select_group_frame_comboBox,

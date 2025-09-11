@@ -457,6 +457,14 @@ class Model(QObject):
     def open_config_file(self):
         """Функция открывает файл конфигурации"""
         os.startfile(self.config_file_path)
+
+    def get_config_data(self):
+        """Функция возвращает данные файла конфигурации"""
+        return self.__get_config_data()
+
+    def get_config_data(self):
+        """Функция возвращает данные файла конфигурации"""
+        return self.__get_config_data()
     
     def verefy_versions(self, group):
         """Функция вызывает проверку актуальной и новой версий и возвращает результаты"""
