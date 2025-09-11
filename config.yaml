@@ -2,3 +2,4 @@ versions_path: '\\SRV\PNDatabases\File Archive' # Путь к папкам с в
 server_program_path: '\\SRV\PNPrograms\File Archive' # Путь к программе на сервере
 program_name: 'File Archive' # Наименование программы
 program_version_number: '2.0.0' # Версия программы
+password: '191919' # Пароль для доступа к функциям добавления и удаления
