@@ -31,7 +31,7 @@ class MyWindow(QMainWindow):
     def check_password(self):
         config_data = self.model.get_config_data()
         if not config_data:
-            return True # Не удалось загрузить конфиг, разрешаем доступ
+            return False # Не удалось загрузить конфиг, разрешаем доступ
 
         password = config_data.get('password')
         if password:
