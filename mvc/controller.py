@@ -84,9 +84,9 @@ class Controller(QObject):
 
             if action:
                 self.model.update_program()
-                exit() # Закрываем основное приложение после запуска обновления
+                sys.exit() # Закрываем основное приложение после запуска обновления
             else:
-                exit()
+                sys.exit()
 
     def get_in_group_status(self):
         """Функция которая возвращает состояние нахождения таблицы в группе"""
