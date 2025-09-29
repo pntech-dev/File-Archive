@@ -53,14 +53,18 @@ class Model(QObject):
 
         return config_path
     
-    def __get_config_data(self):
+    def __get_config_data(self, config_path=None):
         """Функция возвращает данные файла конфигурации"""
+        config_file_path = self.config_file_path
+        if config_path is not None:
+            config_file_path = config_path
+           
         # Проверяем что путь к файлу конфигурации существует
-        if not self.config_file_path or not os.path.exists(self.config_file_path):
+        if not config_file_path or not os.path.exists(config_file_path):
             return None
 
         config_data = {} # Данные файла конфигурации
-        with open(self.config_file_path, "r", encoding="utf-8") as f: # Чиатем файл конфигурации
+        with open(config_file_path, "r", encoding="utf-8") as f: # Чиатем файл конфигурации
             config_data = yaml.safe_load(f) # Сохраняем данные
 
         return config_data
@@ -458,14 +462,16 @@ class Model(QObject):
         """Функция открывает файл конфигурации"""
         os.startfile(self.config_file_path)
 
-    def get_config_data(self):
-        """Функция возвращает данные файла конфигурации"""
-        return self.__get_config_data()
+    def get_password(self):
+        """Функция возвращает пароль из файла конфигурации"""
+        server_config_file_path = os.path.join(self.program_server_path, "config.yaml")
+        if os.path.exists(server_config_file_path):
+            config_data = self.__get_config_data(config_path=server_config_file_path)
+            return config_data
+        else:
+            self.show_notification.emit("error", f"Не найден файл конфигурации на сервере. Путь: {server_config_file_path}\nДоступ возможен в обычном режиме.")
+            return None
 
-    def get_config_data(self):
-        """Функция возвращает данные файла конфигурации"""
-        return self.__get_config_data()
-    
     def verefy_versions(self, group):
         """Функция вызывает проверку актуальной и новой версий и возвращает результаты"""
 

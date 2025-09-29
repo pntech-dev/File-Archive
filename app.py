@@ -28,7 +28,7 @@ class MyWindow(QMainWindow):
             self.controller = Controller(model=self.model, view=self.view)
 
     def check_password(self):
-        config_data = self.model.get_config_data()
+        config_data = self.model.get_password()
         if not config_data:
             return False # Treat as unauthenticated
 
