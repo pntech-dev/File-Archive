@@ -37,6 +37,7 @@ class Model(QObject):
 
         self.new_group_name = "" # Имя новой группы
         self.new_file_path = "" # Путь к папке новой версии
+        self.new_instruction_path = "" # Путь к файлу новой иструкции
 
     def __get_config_file_path(self):
         """Функция возвращает путь к файлу конфигурации"""
@@ -53,14 +54,18 @@ class Model(QObject):
 
         return config_path
     
-    def __get_config_data(self):
+    def __get_config_data(self, config_path=None):
         """Функция возвращает данные файла конфигурации"""
+        config_file_path = self.config_file_path
+        if config_path is not None:
+            config_file_path = config_path
+           
         # Проверяем что путь к файлу конфигурации существует
-        if not self.config_file_path or not os.path.exists(self.config_file_path):
+        if not config_file_path or not os.path.exists(config_file_path):
             return None
 
         config_data = {} # Данные файла конфигурации
-        with open(self.config_file_path, "r", encoding="utf-8") as f: # Чиатем файл конфигурации
+        with open(config_file_path, "r", encoding="utf-8") as f: # Чиатем файл конфигурации
             config_data = yaml.safe_load(f) # Сохраняем данные
 
         return config_data
@@ -166,6 +171,12 @@ class Model(QObject):
                 # Создаем корневую папку назначения, даже если она пустая
                 os.makedirs(dst, exist_ok=True)
 
+                # Проверяем, если выбран файл, копируем
+                if os.path.isfile(src):
+                    self.progress_changed.emit(0)
+                    shutil.copy2(src, dst)
+                    self.progress_changed.emit(100)  # Завершаем прогресс
+
                 # Собираем список файлов для копирования
                 files = []
                 for root, dirs, file_names in os.walk(src):
@@ -199,7 +210,7 @@ class Model(QObject):
                 self.show_notification.emit("error", f"Ошибка при загрузке файла: {e}")
 
     def __add_file(self, group, signal):
-        """Функция добавляет новую версию в выбранную группу (копируется вся папка с прогрессом)"""
+        """Функция добавляет новую версию в выбранную группу"""
         self.progress_changed.emit(0)  # Устанавливаем прогресс в 0% перед началом
 
         # Проверяем, что группа выбрана
@@ -211,7 +222,7 @@ class Model(QObject):
         src = self.new_file_path  # Путь к папке новой версии
         dst = os.path.join(self.versions_path, group, os.path.basename(self.new_file_path))  # Путь назначения на сервере
 
-        # Проверяем, что исходная папка существует
+        # Проверяем, что исходная и целевая папки существуют
         if not os.path.exists(src):
             self.progress_changed.emit(100)
             self.show_notification.emit("error", f"Путь к папке новой версии не существует или недоступен\nПуть: {src}")
@@ -263,6 +274,39 @@ class Model(QObject):
         except Exception as e:
             self.progress_changed.emit(100)
             self.show_notification.emit("error", f"Ошибка при добавлении папки на сервер: {e}")
+
+    def __add_instruction(self, group, signal):
+        """Функция добавляет инструкцию"""
+        self.progress_changed.emit(0)  # Устанавливаем прогресс в 0% перед началом
+
+        # Проверяем, что группа выбрана
+        if not group:
+            self.progress_changed.emit(100)
+            self.show_notification.emit("error", "Не выбрана группа в которую будет добавляться версия")
+            return
+
+        src = self.new_instruction_path  # Путь к файлу новой инструкции
+        dst = os.path.join(self.versions_path, group, os.path.basename(self.new_instruction_path))  # Путь назначения на сервере
+    
+        # Проверяем, что исходный и целовой файлы не существует
+        if not os.path.exists(src):
+            self.progress_changed.emit(100)
+            self.show_notification.emit("error", f"Путь к файлу новой инструкции не существует или недоступен\nПуть: {src}")
+            return
+
+        if os.path.exists(dst):
+            self.progress_changed.emit(100)
+            self.show_notification.emit("error", f"Такой файл иннструкции уже существует!\nПуть: {dst}")
+            return
+
+        try:
+            shutil.copy2(src, dst)
+            self.progress_changed.emit(100)  # Завершаем прогресс
+            self.show_notification.emit("info", "Инструкция успешно добавлена на сервер!")
+            signal.emit()  # Сигнал об успешном завершении
+        except Exception as e:
+            self.progress_changed.emit(100)
+            self.show_notification.emit("error", f"Ошибка при добавлении инструкции на сервер: {e}")
 
     def __delete_group(self, group, signal):
         """Функция удаляет переданную группу с прогрессом удаления файлов"""
@@ -320,7 +364,7 @@ class Model(QObject):
             self.show_notification.emit("error", "Не выбранна группа или файл для удаления")
             return
 
-        file_path = os.path.join(self.versions_path, group, file)  # Путь к папке версии
+        file_path = os.path.join(self.versions_path, group, file) # Путь к файлу
 
         # Проверяем, что папка версии существует
         if not os.path.exists(file_path):
@@ -328,6 +372,15 @@ class Model(QObject):
             return
 
         try:
+            # Если файл для удаления, тогда удаляем файл
+            if os.path.isfile(file_path):
+                self.progress_changed.emit(0)
+                os.remove(file_path)
+                self.progress_changed.emit(100)
+                self.show_notification.emit("info", f"Файл '{file}' в группе '{group}' успешно удален")
+                signal.emit()  # Сигнал об успешном завершении
+                return
+
             # Собираем список всех файлов и папок внутри версии
             items = []
             for root, dirs, file_names in os.walk(file_path):
@@ -414,7 +467,7 @@ class Model(QObject):
 
         # Возвращаем в виде: файлы без измененний, файлы с изменениями, новые файлы, пропавшие файлы
         return unchanged, changed, new_files, deleted_files
-    
+
     def check_program_version(self):
         """Функция проверяет версию программы"""
         if not self.program_server_path or not os.path.exists(self.program_server_path):
@@ -458,14 +511,16 @@ class Model(QObject):
         """Функция открывает файл конфигурации"""
         os.startfile(self.config_file_path)
 
-    def get_config_data(self):
-        """Функция возвращает данные файла конфигурации"""
-        return self.__get_config_data()
+    def get_password(self):
+        """Функция возвращает пароль из файла конфигурации"""
+        server_config_file_path = os.path.join(self.program_server_path, "config.yaml")
+        if os.path.exists(server_config_file_path):
+            config_data = self.__get_config_data(config_path=server_config_file_path)
+            return config_data
+        else:
+            self.show_notification.emit("error", f"Не найден файл конфигурации на сервере. Путь: {server_config_file_path}\nДоступ возможен в обычном режиме.")
+            return None
 
-    def get_config_data(self):
-        """Функция возвращает данные файла конфигурации"""
-        return self.__get_config_data()
-    
     def verefy_versions(self, group):
         """Функция вызывает проверку актуальной и новой версий и возвращает результаты"""
 
@@ -555,33 +610,40 @@ class Model(QObject):
         groups_versions = sorted(os.listdir(self.versions_path)) # Получаем и сортируем список групп
         self.versions_groups = groups_versions # Сохраняем новые данные
 
-    def download_file_in_theard(self):
+    def download_file_in_thread(self):
         """Функция вызывает загрузку файла в новом потоке"""
-        theard = threading.Thread(target=self.__download_file) # Создаем поток для загрузки файла
-        theard.daemon = True # Делаем поток демоном
-        theard.start() # Запускаем поток
-        return theard
+        thread = threading.Thread(target=self.__download_file) # Создаем поток для загрузки файла
+        thread.daemon = True # Делаем поток демоном
+        thread.start() # Запускаем поток
+        return thread
     
-    def add_file_in_theard(self, group, signal):
+    def add_file_in_thread(self, group, signal):
         """Функция вызывает добавление папки версии в новом потоке"""
-        theard = threading.Thread(target=self.__add_file, args=(group, signal,)) # Создаем поток для добавления файла
-        theard.daemon = True
-        theard.start()
-        return theard
+        thread = threading.Thread(target=self.__add_file, args=(group, signal,)) # Создаем поток для добавления файла
+        thread.daemon = True
+        thread.start()
+        return thread
     
-    def delete_group_in_theard(self, group, signal):
+    def delete_group_in_thread(self, group, signal):
         """Функция вызывает удаление группы в новом потоке"""
-        theard = threading.Thread(target=self.__delete_group, args=(group, signal,)) # Создаем поток для удаления группы
-        theard.daemon = True
-        theard.start()
-        return theard
+        thread = threading.Thread(target=self.__delete_group, args=(group, signal,)) # Создаем поток для удаления группы
+        thread.daemon = True
+        thread.start()
+        return thread
     
-    def delete_file_in_theard(self, group, file, signal):
+    def delete_file_in_thread(self, group, file, signal):
         """Функция вызывает удаление группы в новом потоке"""
-        theard = threading.Thread(target=self.__delete_file, args=(group, file, signal,)) # Создаем поток для удаления файла
-        theard.daemon = True
-        theard.start()
-        return theard
+        thread = threading.Thread(target=self.__delete_file, args=(group, file, signal,)) # Создаем поток для удаления файла
+        thread.daemon = True
+        thread.start()
+        return thread
+    
+    def add_instruction_in_thread(self, group, signal):
+        """Функция вызывает добавление инструкций в новом потоке"""
+        thread = threading.Thread(target=self.__add_instruction, args=(group, signal,)) # Создаем поток для добавления инструкции
+        thread.daemon = True
+        thread.start()
+        return thread
     
     def search(self, text, search_all):
         """Функция возвращает список резульатов поиска для переданного текста"""

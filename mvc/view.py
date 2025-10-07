@@ -4,9 +4,9 @@ class View:
     def __init__(self, ui, authenticated):
         self.ui = ui
 
-        if not authenticated:
-            self.ui.tabWidget.setTabEnabled(1, False)
-            self.ui.tabWidget.setTabEnabled(2, False)
+        if not authenticated: # Если пользователь не аутентифицирован 
+            self.ui.tabWidget.setTabEnabled(1, False) # Отключаем вкладку "Добавить"
+            self.ui.tabWidget.setTabEnabled(2, False) # Отключаем вкладку "Удалить"
 
         self.group_comboboxes = [ # Список комбобоксов групп
             self.ui.add_tab_group_frame_select_group_frame_comboBox,
@@ -23,9 +23,13 @@ class View:
             self.ui.delete_tab_file_groupBox_checkBox
         ]
 
-        self.choose_buttons_dir = { # Словарь, где ключи - кнопка "Выбрать", значение - лайнэдит соответствующей копки
+        self.choose_folder_buttons_dir = { # Словарь, где ключи - кнопка "Выбрать", значение - лайнэдит соответствующей копки
             self.ui.download_tab_select_save_path_frame_editing_frame_choose_pushButton: self.ui.download_tab_select_save_path_frame_editing_frame_lineEdit,
-            self.ui.add_tab_choose_file_frame_editing_frame_choose_pushButton: self.ui.add_tab_choose_file_frame_editing_frame_lineEdit
+            self.ui.add_tab_versions_actions_choose_pushButton: self.ui.add_tab_versions_actions_folder_path_lineEdit
+        }
+
+        self.choose_file_buttons_dir = { # Словарь, где ключи - кнопка "Выбрать", значениие - лайнэдит соответствующей копки
+            self.ui.add_tab_instruction_actions_choose_pushButton: self.ui.add_tab_instruction_actions_folder_path_lineEdit
         }
         
         # Растяжение колонок в таблице
@@ -70,7 +74,12 @@ class View:
     
     def get_new_file_lineedit_text(self):
         """Функция возвращает текст из строки ввода пути к папке новой версии"""
-        text = self.ui.add_tab_choose_file_frame_editing_frame_lineEdit.text()
+        text = self.ui.add_tab_versions_actions_folder_path_lineEdit.text()
+        return text
+    
+    def get_new_instruction_lineedit_text(self):
+        """Функция возвращает текст из строки ввода пути к файлу новой инструкции"""
+        text = self.ui.add_tab_instruction_actions_folder_path_lineEdit.text()
         return text
     
     def get_add_group_combobox_text(self):
@@ -164,10 +173,18 @@ class View:
     def update_add_version_button_state(self):
         """Функция обновляет состояние кнопки 'Добавить' версию"""
         # Если в комбобоксе группы есть текст и в строке пути к папке с файлами версии есть текст
-        if self.ui.add_tab_group_frame_select_group_frame_comboBox.currentText() and self.ui.add_tab_choose_file_frame_editing_frame_lineEdit.text():
-            self.ui.add_tab_add_pushButton.setEnabled(True) # Включаем кнопку
+        if self.ui.add_tab_group_frame_select_group_frame_comboBox.currentText() and self.ui.add_tab_versions_actions_folder_path_lineEdit.text():
+            self.ui.add_tab_versions_add_pushButton.setEnabled(True) # Включаем кнопку
         else:
-            self.ui.add_tab_add_pushButton.setEnabled(False) # Выключаем кнопку
+            self.ui.add_tab_versions_add_pushButton.setEnabled(False) # Выключаем кнопку
+
+    def update_add_instruction_button_state(self):
+        """Функция обновляет состояние кнопки 'Добавить' инструкцию"""
+        # Если в комбобоксе группы есть текст и в строке пути к файлу инструкции есть текст
+        if self.ui.add_tab_group_frame_select_group_frame_comboBox.currentText() and self.ui.add_tab_instruction_actions_folder_path_lineEdit.text():
+            self.ui.add_tab_instruction_add_pushButton.setEnabled(True) # Включаем кнопку
+        else:
+            self.ui.add_tab_instruction_add_pushButton.setEnabled(False) # Выключаем кнопку
     
     def update_download_version_button_state(self):
         """Функция обновляет состояние кнопки 'Скачать'"""
@@ -245,8 +262,12 @@ class View:
         self.ui.add_tab_group_frame_new_group_frame_editing_frame_lineEdit.textChanged.connect(handler)
 
     def add_version_folder_path_lineedit_text_changed(self, handler):
-        """Функция вызывает обработку нажатия на кнопку добавления версии"""
-        self.ui.add_tab_choose_file_frame_editing_frame_lineEdit.textChanged.connect(handler)
+        """Функция вызывает обработку при изменени состояния строки ввода пути к папке версии"""
+        self.ui.add_tab_versions_actions_folder_path_lineEdit.textChanged.connect(handler)
+
+    def add_instruction_file_path_lineedit_text_changed(self, handler):
+        """Функция вызывает обработку при изменени состояния строки ввода пути к файлу нструкции"""
+        self.ui.add_tab_instruction_actions_folder_path_lineEdit.textChanged.connect(handler)
 
     def checkboxes_checked_state_changed(self, handler):
         """Функция вызывает обработку изменения состояния включения чекбоксов"""
@@ -254,8 +275,13 @@ class View:
             checkbox.stateChanged.connect(handler)
 
     def choose_folder_path_buttons_clicked(self, handler):
-        """Функция вызывает обработку нажатия на кнопки выбор папки"""
-        for key, value in self.choose_buttons_dir.items():
+        """Функция вызывает обработку нажатия на кнопки выбора папки"""
+        for key, value in self.choose_folder_buttons_dir.items():
+            key.clicked.connect(lambda state, btn=key, line=value: handler(btn, line))
+
+    def choose_file_path_buttons_clicked(self, handler):
+        """Функция вызывает обработку нажатия на кнопки выбора файла"""
+        for key, value in self.choose_file_buttons_dir.items():
             key.clicked.connect(lambda state, btn=key, line=value: handler(btn, line))
 
     def choosen_path_to_download_lineedit_text_changed(self, handler):
@@ -271,9 +297,13 @@ class View:
         """Функция вызывает обработку нажатия на кнопку добавления группы"""
         self.ui.add_tab_group_frame_new_group_frame_editing_frame_add_pushButton.clicked.connect(handler)
     
-    def add_file_button_pressed(self, handler):
+    def add_version_button_pressed(self, handler):
         """Функция вызывает обработку нажатия на кнопку добавления файла"""
-        self.ui.add_tab_add_pushButton.clicked.connect(handler)
+        self.ui.add_tab_versions_add_pushButton.clicked.connect(handler)
+
+    def add_instruction_button_pressed(self, handler):
+        """Функция вызывает обработку нажатия на кнопку добавления инструкции"""
+        self.ui.add_tab_instruction_add_pushButton.clicked.connect(handler)
 
     def delete_group_button_pressed(self, handler):
         """Функция вызывает обработку нажатия на кнопку удаления группы"""

@@ -38,10 +38,12 @@ class Controller(QObject):
         # Кнопки
         self.view.back_button_clicked(handler=self.on_back_button_clicked) # Подключаем обработчик нажатия на кнопку "Назад"
         self.view.clear_button_clicked(handler=self.on_clear_button_clicked) # Подключаем обработчик нажатия на кнопку "Очистить"
-        self.view.choose_folder_path_buttons_clicked(handler=self.on_choose_folder_path_buttons_clicked) # Подключаем обработчик нажатия на кнопку "Выбрать"
+        self.view.choose_folder_path_buttons_clicked(handler=self.on_choose_folder_path_buttons_clicked) # Подключаем обработчик нажатия на кнопку "Выбрать" папку
+        self.view.choose_file_path_buttons_clicked(handler=self.on_choose_file_buttons_clicked) #Подключаем обработчик нажатия на кнопку "Выбрать" файл
         self.view.download_button_clicked(handler=self.on_download_button_clicked) # Подключаем обработчик нажатия на кнопку "Скачать"
         self.view.add_group_button_pressed(handler=self.on_add_group_button_pressed) # Подключаем обработчк нажатия на кнопку "Добавить" группу
-        self.view.add_file_button_pressed(handler=self.on_add_file_button_pressed) # Подключаем обработчк нажатия на кнопку "Добавить" файл
+        self.view.add_version_button_pressed(handler=self.on_add_version_button_pressed) # Подключаем обработчк нажатия на кнопку "Добавить" версию
+        self.view.add_instruction_button_pressed(handler=self.on_add_instruction_button_pressed) # Подключаем обработчк нажатия на кнопку "Добавить" инструкцию
         self.view.delete_group_button_pressed(handler=self.on_delete_group_button_clicked) # Подключаем обработчик нажатия на кнопку "Удалить" группу
         self.view.delete_file_button_pressed(handler=self.on_delete_file_button_clicked) # Подключаем обработчик нажатия на кнопку "Удалить" файл
 
@@ -49,6 +51,7 @@ class Controller(QObject):
         self.view.search_lineedit_text_changed(handler=self.on_search_lineedit_text_changed) # Подключаем обработчик изменения текста в строке поиска
         self.view.new_group_lineedit_text_changed(handler=self.on_new_group_lineedit_text_changed) # Подключаем обработчик изменения текста в строке названия новой группы
         self.view.add_version_folder_path_lineedit_text_changed(handler=self.on_add_version_folder_path_lineedit_text_changed) # Подключаем обработчик изменения текста в строке пути к версии
+        self.view.add_instruction_file_path_lineedit_text_changed(handler=self.on_add_instruction_file_path_lineedit_text_changed) # Подключаем обработчик изменения текста в строке пути к версии
         self.view.choosen_path_to_download_lineedit_text_changed(handler=self.on_choosen_path_to_download_lineedit_text_changed) # Подключаем обработчик изменения текста в строке пути лайнэдита загрузки
 
         # Сигналы
@@ -84,9 +87,9 @@ class Controller(QObject):
 
             if action:
                 self.model.update_program()
-                exit() # Закрываем основное приложение после запуска обновления
+                sys.exit() # Закрываем основное приложение после запуска обновления
             else:
-                exit()
+                sys.exit()
 
     def get_in_group_status(self):
         """Функция которая возвращает состояние нахождения таблицы в группе"""
@@ -267,6 +270,12 @@ class Controller(QObject):
         self.model.new_file_path = file_path # Записываем путь к папке новой версии
         self.view.update_add_version_button_state()
 
+    def on_add_instruction_file_path_lineedit_text_changed(self):
+        """Функция обрабатывает изменение текста в строке пути к файлу инструкции"""
+        file_path = self.view.get_new_instruction_lineedit_text() # Получяем текст из строки ввода пути к файлу инструкции
+        self.model.new_instruction_path = file_path # Записываем путь к файлу инструкции
+        self.view.update_add_instruction_button_state()
+
     def on_checkboxes_checked_state_changed(self):
         """Функция обрабатывает изменение состояния включения чекбоксов"""
         self.view.update_delete_group_button_state()
@@ -279,9 +288,21 @@ class Controller(QObject):
         if folder_path:
             self.view.set_lineedit_path(lineedit, path=folder_path)
 
+    def on_choose_file_buttons_clicked(self, button, lineedit):
+        """Функция которая получает путь к файлу через окно проводника и вызывает запись этого пути"""
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            None,
+            "Выбрать файл",
+            "",
+            "Докумен Word (*.doc *.docx);;All Files (*)"
+        )
+
+        if file_path:
+            self.view.set_lineedit_path(lineedit, path=file_path)
+
     def on_download_button_clicked(self):
         """Функция обробатывает нажатие на кнопку 'Скачать'"""
-        self.model.download_file_in_theard()
+        self.model.download_file_in_thread()
 
     def on_choosen_path_to_download_lineedit_text_changed(self, text):
         """Функция обрабатывает изменение текста в строке пути загрузки"""
@@ -294,8 +315,8 @@ class Controller(QObject):
 
         self.load_table_data()
 
-    def on_add_file_button_pressed(self):
-        """Функция обрабатывает нажатие на кнопку 'Добавить' файл"""
+    def on_add_version_button_pressed(self):
+        """Функция обрабатывает нажатие на кнопку 'Добавить' версию"""
         group = self.view.get_add_group_combobox_text() # Получаем текущюю группу из комбобокса
 
         verefy_data = self.model.verefy_versions(group=group) # Вызываем проверку версий
@@ -307,13 +328,13 @@ class Controller(QObject):
             Notification().show_notification_message(msg_type="error", text="Невозможно добавить выбранную версию\nТакая версия уже существует в выбранной группе!")
 
         elif verefy_data[0] == 2:
-            self.model.add_file_in_theard(group=group, signal=self.file_added) # Вызывам добавление файла
+            self.model.add_file_in_thread(group=group, signal=self.file_added) # Вызывам добавление файла
 
         elif verefy_data[0] == 1:
             notification_action = Notification().show_action_message(title="Предупреждение", text="Нету изменений в версии\nВы уверены что хотите добавить версию?")
 
             if notification_action:
-                self.model.add_file_in_theard(group=group, signal=self.file_added) # Вызывам добавление файла
+                self.model.add_file_in_thread(group=group, signal=self.file_added) # Вызывам добавление файла
         else:
             unchanged_files = ', '.join([os.path.basename(file) for file in verefy_data[1][0]])
             changed_files = '\n'.join([file for file in verefy_data[1][1]])  
@@ -332,8 +353,13 @@ class Controller(QObject):
                                                                      buttons=["Да", "Нет"])
 
             if notification_action:
-                self.model.add_file_in_theard(group=group, signal=self.file_added) # Вызывам добавление файла
+                self.model.add_file_in_thread(group=group, signal=self.file_added) # Вызывам добавление файла
 
+    def on_add_instruction_button_pressed(self):
+        """Функция обрабатывает нажатие на кнопку 'Добавить' инструкцию"""
+        group = self.view.get_add_group_combobox_text() # Получаем текущюю группу из комбобокса
+        self.model.add_instruction_in_thread(group=group, signal=self.file_added) # Вызываем добавление инструкции
+        
     def on_file_was_added(self):
         """Функция обрабатывает добавление файла в таблицу"""
         self.load_table_data()
@@ -342,13 +368,13 @@ class Controller(QObject):
     def on_delete_group_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку 'Удалить' группу"""
         group = self.view.get_delete_group_combobox_text() # Получаем текущую группу из комбобокса
-        self.model.delete_group_in_theard(group=group, signal=self.delete_group)
+        self.model.delete_group_in_thread(group=group, signal=self.delete_group)
 
     def on_delete_file_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку 'Удалить' файл"""
         group = self.view.get_delete_file_group_combobox_text() # Получаем текущую группу из комбобокса
         file = self.view.get_delete_file_combobox_text() # Получаем текущий файл из комбобокса
-        self.model.delete_file_in_theard(group=group, file=file, signal=self.delete_file)
+        self.model.delete_file_in_thread(group=group, file=file, signal=self.delete_file)
 
     def on_delete_group(self):
         """Функция обрабатывает удаление группы"""

@@ -14,37 +14,40 @@ class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-
-        icon = QIcon(":/icons/icon.ico")
-        self.setWindowIcon(icon)
-
-        # Инициализация MVC
         self.model = Model()
-        
-        authenticated = self.check_password()
+        self.authentication_status = self.check_password() # Can be True, False, or None
 
-        self.view = View(ui=self.ui, authenticated=authenticated)
-        self.controller = Controller(model=self.model, view=self.view)
+        if self.authentication_status is not None:
+            self.ui = Ui_MainWindow()
+            self.ui.setupUi(self)
+
+            icon = QIcon(":/icons/icon.ico")
+            self.setWindowIcon(icon)
+
+            self.view = View(ui=self.ui, authenticated=self.authentication_status)
+            self.controller = Controller(model=self.model, view=self.view)
 
     def check_password(self):
-        config_data = self.model.get_config_data()
+        config_data = self.model.get_password()
         if not config_data:
-            return False # Не удалось загрузить конфиг, разрешаем доступ
+            return False # Treat as unauthenticated
 
         password = config_data.get('password')
         if password:
-            dialog = PasswordDialog()
-            if dialog.exec_() == QDialog.Accepted:
-                entered_password = dialog.get_password()
-                if entered_password == password:
-                    return True
-            return False
-        return True
+            dialog = PasswordDialog(correct_password=password)
+            result = dialog.exec_()
+
+            if result == QDialog.Accepted: # 1
+                return True # Authenticated
+            elif result == 2:
+                return False # Unauthenticated
+            else: # 0 (Rejected) or any other case
+                return None # Exit application
+        return True # No password set, treat as authenticated
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     application = MyWindow()
-    application.show()
-    sys.exit(app.exec_())
+    if application.authentication_status is not None:
+        application.show()
+        sys.exit(app.exec_())
