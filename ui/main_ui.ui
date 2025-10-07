@@ -1208,7 +1208,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Version: 3.0.0</string>
+          <string>Version: 3.2.0</string>
          </property>
         </widget>
        </item>

@@ -528,4 +528,4 @@ class Ui_MainWindow(object):
         self.delete_tab_file_groupBox_delete_pushButton.setText(_translate("MainWindow", "Удалить"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.delete_tab), _translate("MainWindow", "Удалить"))
         self.program_info_name_label.setText(_translate("MainWindow", "File Archive"))
-        self.program_info_version_label.setText(_translate("MainWindow", "Version: 3.0.0"))
+        self.program_info_version_label.setText(_translate("MainWindow", "Version: 3.2.0"))
