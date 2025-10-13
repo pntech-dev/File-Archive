@@ -15,6 +15,221 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1000, 700)
+        MainWindow.setStyleSheet("QMainWindow {\n"
+"    background-color: #FFFFFF;    /* Белый фон окна */\n"
+"}\n"
+"\n"
+"QLabel {\n"
+"    color: #0F172A;   /* Акцентный цвет текста */\n"
+"}\n"
+"\n"
+"QFrame {\n"
+"    background-color: #FFFFFF;\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"Line {\n"
+"    background-color: #E2E8F0;\n"
+"}\n"
+"\n"
+"Line[frameShape=\"4\"] {\n"
+"    min-height: 1px;\n"
+"    max-height: 1px;\n"
+"}\n"
+"\n"
+"/* === Базовый стиль для всех QLineEdit === */\n"
+"QLineEdit {\n"
+"    background-color: #FFFFFF;       /* Белый фон */\n"
+"    border: 1px solid #E2E8F0;       /* Светлая рамка */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    color: #64748B;                  /* Цвет текста */\n"
+"    padding: 6px 8px;                /* Внутренние отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === При фокусе (активное поле ввода) === */\n"
+"QLineEdit:focus {\n"
+"    background-color: #FFFFFF;       /* Белый фон */\n"
+"    border: 1px solid #2563EB;       /* Синяя рамка */\n"
+"    border-radius: 6px;\n"
+"    color: #0F172A;                  /* Тёмный текст */\n"
+"    outline: none;                   /* Убираем системный контур */\n"
+"}\n"
+"\n"
+"/* === Отключенное состояние === */\n"
+"QLineEdit:disabled {\n"
+"    background-color: #FFFFFF;       /* Белый фон (не серый) */\n"
+"    border: 1px solid #F8FAFC;       /* Очень светлая рамка */\n"
+"    border-radius: 6px;\n"
+"    color: #E2E8F0;                  /* Бледный текст */\n"
+"}\n"
+"\n"
+"\n"
+"/* === Второстепенные кнопки === */\n"
+"QPushButton {\n"
+"    background-color: transparent;   /* Без заливки */\n"
+"    color: #334155;                  /* Основной цвет текста */\n"
+"    font-weight: normal;             /* Обычная жирность */\n"
+"    border: 1px solid #64748B;       /* Серо-синяя рамка */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Внутренние отступы */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    border: 1px solid #8B98AA;       /* Более светлая рамка */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    border: 1px solid #515E71;       /* Более тёмная рамка */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    color: #E2E8F0;                  /* Бледный текст */\n"
+"    border: 1px solid #F8FAFC;       /* Светлая рамка */\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+"/* === Общий стиль выпадающих списков (QComboBox) === */\n"
+"QComboBox {\n"
+"    background-color: #FFFFFF;           /* Белый фон */\n"
+"    border: 1px solid #E2E8F0;           /* Светлая рамка */\n"
+"    border-radius: 6px;                  /* Скругления */\n"
+"    padding: 4px 32px 4px 8px;           /* Отступы: справа место под иконку */\n"
+"    color: #64748B;                      /* Цвет текста */\n"
+"}\n"
+"\n"
+"/* === Иконка стрелки (ресурс combobox_arrow) === */\n"
+"QComboBox::down-arrow {\n"
+"    image: url(:/combobox_arrow);        /* Подключённая иконка */\n"
+"    width: 14px;\n"
+"    height: 14px;\n"
+"}\n"
+"\n"
+"/* === Позиция иконки справа === */\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 28px;\n"
+"    border: none;                        /* Без отдельной рамки */\n"
+"    margin-right: 4px;\n"
+"}\n"
+"\n"
+"/* === При наведении курсора — без лишних эффектов, только курсор-рука === */\n"
+"QComboBox:hover {\n"
+"    cursor: pointer;\n"
+"}\n"
+"\n"
+"/* === Фокус или раскрытое состояние === */\n"
+"QComboBox:focus,\n"
+"QComboBox:on {\n"
+"    border: 1px solid #2563EB;           /* Синяя рамка */\n"
+"    color: #0F172A;                      /* Тёмный текст */\n"
+"}\n"
+"\n"
+"/* === Меняем цвет стрелки при фокусе === */\n"
+"QComboBox:focus::down-arrow,\n"
+"QComboBox:on::down-arrow {\n"
+"    image: url(:/combobox_arrow);        /* Та же иконка, Qt не поддерживает перекраску напрямую */\n"
+"}\n"
+"\n"
+"/* Если у тебя есть возможность использовать SVG — можно будет менять цвет через fill в ресурсе */\n"
+"\n"
+"/* === Отключённое состояние === */\n"
+"QComboBox:disabled {\n"
+"    background-color: #FFFFFF;\n"
+"    border: 1px solid #F8FAFC;           /* Очень светлая рамка */\n"
+"    color: #E2E8F0;                      /* Светлый текст */\n"
+"}\n"
+"\n"
+"QComboBox:disabled::down-arrow {\n"
+"    image: url(:/combobox_arrow);        /* Та же иконка */\n"
+"    /* Qt не позволяет легко изменить цвет, поэтому сделай отдельный серый SVG для disabled */\n"
+"}\n"
+"\n"
+"/* === Стиль выпадающего списка === */\n"
+"QComboBox QAbstractItemView {\n"
+"    background-color: #FFFFFF;           /* Белый фон меню */\n"
+"    border: 1px solid #E2E8F0;           /* Та же рамка */\n"
+"    border-radius: 6px;\n"
+"    selection-background-color: #2563EB; /* Цвет выделения */\n"
+"    selection-color: #FFFFFF;            /* Цвет текста при выделении */\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+"/* === Общие стили для QRadioButton === */\n"
+"QCheckBox{\n"
+"    color: #0F172A;                /* Акцентный текст */\n"
+"    font-weight: normal;\n"
+"    spacing: 6px;                  /* Расстояние между индикатором и текстом */\n"
+"}\n"
+"\n"
+"/* Убираем квадратный фокус */\n"
+"QCheckBox:focus,\n"
+"QRadioButton:focus {\n"
+"    outline: none;\n"
+"}\n"
+"\n"
+"/* === ЧЕКБОКС === */\n"
+"\n"
+"QCheckBox::indicator {\n"
+"    width: 14px;\n"
+"    height: 14px;\n"
+"    border-radius: 3px;            /* Небольшое скругление углов */\n"
+"    border: 1px solid #64748B;     /* Второстепенная рамка */\n"
+"    background-color: #FFFFFF;     /* Белый фон */\n"
+"}\n"
+"\n"
+"/* Наведение */\n"
+"QCheckBox::indicator:hover {\n"
+"    border: 1px solid #2563EB;     /* Акцентная рамка */\n"
+"}\n"
+"\n"
+"/* Активен (галочка) */\n"
+"QCheckBox::indicator:checked {\n"
+"    border: 1px solid #2563EB;\n"
+"    background-color: #2563EB;\n"
+"    image: url(:/checkbox_check);  /* Собственная белая галочка */\n"
+"}\n"
+"\n"
+"/* Фокус */\n"
+"QCheckBox::indicator:focus {\n"
+"    border: 1px solid #2563EB;\n"
+"}\n"
+"\n"
+"/* Отключён */\n"
+"QCheckBox::indicator:disabled {\n"
+"    border: 1px solid #F8FAFC;\n"
+"    background-color: #FFFFFF;\n"
+"    image: none;\n"
+"}\n"
+"\n"
+"/* Текст отключённого чекбокса */\n"
+"QCheckBox:disabled {\n"
+"    color: #64748B;\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+"/* === Общий стиль прогресс-бара === */\n"
+"QProgressBar {\n"
+"    border: 1px solid #E2E8F0;     /* Светлая рамка */\n"
+"    border-radius: 6px;            /* Скругления */\n"
+"    background-color: #FFFFFF;     /* Белый фон (без заполнения) */\n"
+"    text-align: center;            /* На всякий случай, но текста нет */\n"
+"    color: transparent;            /* Полностью скрываем текст */\n"
+"}\n"
+"\n"
+"/* === Полоса заполнения === */\n"
+"QProgressBar::chunk {\n"
+"    border-radius: 6px;            /* Та же форма, чтобы совпадала с контуром */\n"
+"    background-color: #16A34A;     /* Зелёный акцент */\n"
+"    margin: 0px;                   /* Без промежутков между сегментами */\n"
+"}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setStyleSheet("")
         self.centralwidget.setObjectName("centralwidget")
@@ -30,6 +245,78 @@ class Ui_MainWindow(object):
         self.navigation_frame.setSizePolicy(sizePolicy)
         self.navigation_frame.setMinimumSize(QtCore.QSize(200, 0))
         self.navigation_frame.setMaximumSize(QtCore.QSize(200, 16777215))
+        self.navigation_frame.setStyleSheet("QFrame {\n"
+"    background-color: #F4F6F9;\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"Line {\n"
+"    background-color: #DDDDDD;\n"
+"}\n"
+"\n"
+"Line[frameShape=\"4\"] {\n"
+"    min-height: 1px;\n"
+"    max-height: 1px;\n"
+"}\n"
+"\n"
+"/* === Базовые свойства sidebar-кнопок === */\n"
+"QPushButton.sidebar {\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 8px 12px;\n"
+"    text-align: left;                /* Текст и иконка выровнены слева */\n"
+"    font-weight: normal;\n"
+"    background-color: #DEE8FC;       /* Неактивное состояние по умолчанию */\n"
+"    color: #0F172A;                  /* Тёмный текст */\n"
+"}\n"
+"\n"
+"/* === Наведение === */\n"
+"QPushButton.sidebar:hover {\n"
+"    background-color: #C8D9FF;       /* Светло-синий hover */\n"
+"}\n"
+"\n"
+"/* === Активная (нажатая / выбранная / залипшая) кнопка === */\n"
+"QPushButton.sidebar:checked,\n"
+"QPushButton.sidebar:pressed {\n"
+"    background-color: #2563EB;       /* Акцентный синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"}\n"
+"\n"
+"/* === Неактивная иконка === */\n"
+"QPushButton.sidebar::icon {\n"
+"    color: #2563EB;                  /* Синяя иконка для неактивного состояния */\n"
+"}\n"
+"\n"
+"/* === Активная иконка === */\n"
+"QPushButton.sidebar:checked::icon,\n"
+"QPushButton.sidebar:pressed::icon {\n"
+"    color: #FFFFFF;                  /* Белая иконка при активной кнопке */\n"
+"}\n"
+"\n"
+"/* === Наведение при активной кнопке (мягкое осветление) === */\n"
+"QPushButton.sidebar:checked:hover {\n"
+"    background-color: #3B76F6;       /* Чуть светлее активного синего */\n"
+"}\n"
+"\n"
+"/* Иконка и текст идут слева направо */\n"
+"QPushButton.sidebar {\n"
+"    qproperty-iconSize: 20px;\n"
+"    qproperty-iconAlignment: left;\n"
+"}\n"
+"\n"
+"/* Иконки для конкретных кнопок */\n"
+"QPushButton.download_tab {\n"
+"    qproperty-icon: url(:/icons/download_tab.svg);\n"
+"}\n"
+"\n"
+"QPushButton.add_tab {\n"
+"    qproperty-icon: url(:/icons/add_tab.svg);\n"
+"}\n"
+"\n"
+"QPushButton.delete_tab {\n"
+"    qproperty-icon: url(:/icons/delete_tab.svg);\n"
+"}")
         self.navigation_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.navigation_frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.navigation_frame.setObjectName("navigation_frame")
@@ -52,7 +339,7 @@ class Ui_MainWindow(object):
         self.logo_label.setObjectName("logo_label")
         self.verticalLayout_2.addWidget(self.logo_label)
         self.line = QtWidgets.QFrame(self.navigation_frame)
-        self.line.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.line.setMaximumSize(QtCore.QSize(16777215, 1))
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
@@ -112,6 +399,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setSpacing(0)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.tabs_stackedWidget = QtWidgets.QStackedWidget(self.main_frame)
+        self.tabs_stackedWidget.setStyleSheet("")
+        self.tabs_stackedWidget.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.tabs_stackedWidget.setLineWidth(1)
         self.tabs_stackedWidget.setObjectName("tabs_stackedWidget")
         self.download_page = QtWidgets.QWidget()
         self.download_page.setObjectName("download_page")
@@ -208,8 +498,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.back_pushButton)
         self.verticalLayout_7.addWidget(self.choose_file_frame)
         self.line_2 = QtWidgets.QFrame(self.download_page)
-        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_2.setLineWidth(1)
+        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_2.setObjectName("line_2")
         self.verticalLayout_7.addWidget(self.line_2)
         self.save_fil_path_frame = QtWidgets.QFrame(self.download_page)
@@ -264,9 +555,38 @@ class Ui_MainWindow(object):
         self.download_file_pushButton = QtWidgets.QPushButton(self.download_page)
         self.download_file_pushButton.setEnabled(False)
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
         self.download_file_pushButton.setFont(font)
+        self.download_file_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;       /* Основной синий */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"    border: none;                    /* Без рамки */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;       /* Более светлый синий */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}\n"
+"")
         self.download_file_pushButton.setObjectName("download_file_pushButton")
         self.verticalLayout_7.addWidget(self.download_file_pushButton)
         self.tabs_stackedWidget.addWidget(self.download_page)
@@ -501,12 +821,41 @@ class Ui_MainWindow(object):
         self.add_version_folder_pushButton = QtWidgets.QPushButton(self.version_page)
         self.add_version_folder_pushButton.setEnabled(False)
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
         self.add_version_folder_pushButton.setFont(font)
+        self.add_version_folder_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;       /* Основной синий */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"    border: none;                    /* Без рамки */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;       /* Более светлый синий */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}\n"
+"")
         self.add_version_folder_pushButton.setObjectName("add_version_folder_pushButton")
         self.verticalLayout_14.addWidget(self.add_version_folder_pushButton)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 301, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 290, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_14.addItem(spacerItem3)
         self.add_format_stackedWidget.addWidget(self.version_page)
         self.instruction_page = QtWidgets.QWidget()
@@ -544,7 +893,7 @@ class Ui_MainWindow(object):
         self.choose_instruction_file_lineEdit.setObjectName("choose_instruction_file_lineEdit")
         self.horizontalLayout_10.addWidget(self.choose_instruction_file_lineEdit)
         self.choose_instruction_file_pushButton = QtWidgets.QPushButton(self.choose_instruction_file_frame)
-        self.choose_instruction_file_pushButton.setEnabled(False)
+        self.choose_instruction_file_pushButton.setEnabled(True)
         self.choose_instruction_file_pushButton.setMinimumSize(QtCore.QSize(100, 0))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
@@ -556,12 +905,41 @@ class Ui_MainWindow(object):
         self.add_instruction_file_pushButton = QtWidgets.QPushButton(self.instruction_page)
         self.add_instruction_file_pushButton.setEnabled(False)
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
         self.add_instruction_file_pushButton.setFont(font)
+        self.add_instruction_file_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;       /* Основной синий */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"    border: none;                    /* Без рамки */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;       /* Более светлый синий */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}\n"
+"")
         self.add_instruction_file_pushButton.setObjectName("add_instruction_file_pushButton")
         self.verticalLayout_15.addWidget(self.add_instruction_file_pushButton)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 301, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 282, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_15.addItem(spacerItem4)
         self.add_format_stackedWidget.addWidget(self.instruction_page)
         self.verticalLayout_12.addWidget(self.add_format_stackedWidget)
@@ -703,12 +1081,41 @@ class Ui_MainWindow(object):
         self.delete_file_pushButton = QtWidgets.QPushButton(self.delete_file_page)
         self.delete_file_pushButton.setEnabled(False)
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
         self.delete_file_pushButton.setFont(font)
+        self.delete_file_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;       /* Основной синий */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"    border: none;                    /* Без рамки */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;       /* Более светлый синий */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}\n"
+"")
         self.delete_file_pushButton.setObjectName("delete_file_pushButton")
         self.verticalLayout_20.addWidget(self.delete_file_pushButton)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 278, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 267, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_20.addItem(spacerItem6)
         self.delete_stackedWidget.addWidget(self.delete_file_page)
         self.delete_group_page = QtWidgets.QWidget()
@@ -755,12 +1162,41 @@ class Ui_MainWindow(object):
         self.delet_group_pushButton = QtWidgets.QPushButton(self.delete_group_page)
         self.delet_group_pushButton.setEnabled(False)
         font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
         self.delet_group_pushButton.setFont(font)
+        self.delet_group_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;       /* Основной синий */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"    border: none;                    /* Без рамки */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;       /* Более светлый синий */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}\n"
+"")
         self.delet_group_pushButton.setObjectName("delet_group_pushButton")
         self.verticalLayout_22.addWidget(self.delet_group_pushButton)
-        spacerItem7 = QtWidgets.QSpacerItem(20, 352, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem7 = QtWidgets.QSpacerItem(20, 347, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_22.addItem(spacerItem7)
         self.delete_stackedWidget.addWidget(self.delete_group_page)
         self.verticalLayout_17.addWidget(self.delete_stackedWidget)

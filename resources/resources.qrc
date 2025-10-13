@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/icons">
     <file>icon.ico</file>
+    <file>combobox_arrow.svg</file>
+    <file>checkbox_check.svg</file>
   </qresource>
 </RCC>

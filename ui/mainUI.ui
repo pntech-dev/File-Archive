@@ -13,6 +13,223 @@
   <property name="windowTitle">
    <string>File Archive</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #FFFFFF;    /* Белый фон окна */
+}
+
+QLabel {
+    color: #0F172A;   /* Акцентный цвет текста */
+}
+
+QFrame {
+    background-color: #FFFFFF;
+    border: none;
+}
+
+Line {
+    background-color: #E2E8F0;
+}
+
+Line[frameShape=&quot;4&quot;] {
+    min-height: 1px;
+    max-height: 1px;
+}
+
+/* === Базовый стиль для всех QLineEdit === */
+QLineEdit {
+    background-color: #FFFFFF;       /* Белый фон */
+    border: 1px solid #E2E8F0;       /* Светлая рамка */
+    border-radius: 6px;              /* Скругления */
+    color: #64748B;                  /* Цвет текста */
+    padding: 6px 8px;                /* Внутренние отступы для аккуратности */
+}
+
+/* === При фокусе (активное поле ввода) === */
+QLineEdit:focus {
+    background-color: #FFFFFF;       /* Белый фон */
+    border: 1px solid #2563EB;       /* Синяя рамка */
+    border-radius: 6px;
+    color: #0F172A;                  /* Тёмный текст */
+    outline: none;                   /* Убираем системный контур */
+}
+
+/* === Отключенное состояние === */
+QLineEdit:disabled {
+    background-color: #FFFFFF;       /* Белый фон (не серый) */
+    border: 1px solid #F8FAFC;       /* Очень светлая рамка */
+    border-radius: 6px;
+    color: #E2E8F0;                  /* Бледный текст */
+}
+
+
+/* === Второстепенные кнопки === */
+QPushButton {
+    background-color: transparent;   /* Без заливки */
+    color: #334155;                  /* Основной цвет текста */
+    font-weight: normal;             /* Обычная жирность */
+    border: 1px solid #64748B;       /* Серо-синяя рамка */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Внутренние отступы */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    border: 1px solid #8B98AA;       /* Более светлая рамка */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    border: 1px solid #515E71;       /* Более тёмная рамка */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    color: #E2E8F0;                  /* Бледный текст */
+    border: 1px solid #F8FAFC;       /* Светлая рамка */
+}
+
+
+
+/* === Общий стиль выпадающих списков (QComboBox) === */
+QComboBox {
+    background-color: #FFFFFF;           /* Белый фон */
+    border: 1px solid #E2E8F0;           /* Светлая рамка */
+    border-radius: 6px;                  /* Скругления */
+    padding: 4px 32px 4px 8px;           /* Отступы: справа место под иконку */
+    color: #64748B;                      /* Цвет текста */
+}
+
+/* === Иконка стрелки (ресурс combobox_arrow) === */
+QComboBox::down-arrow {
+    image: url(:/combobox_arrow);        /* Подключённая иконка */
+    width: 14px;
+    height: 14px;
+}
+
+/* === Позиция иконки справа === */
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 28px;
+    border: none;                        /* Без отдельной рамки */
+    margin-right: 4px;
+}
+
+/* === При наведении курсора — без лишних эффектов, только курсор-рука === */
+QComboBox:hover {
+    cursor: pointer;
+}
+
+/* === Фокус или раскрытое состояние === */
+QComboBox:focus,
+QComboBox:on {
+    border: 1px solid #2563EB;           /* Синяя рамка */
+    color: #0F172A;                      /* Тёмный текст */
+}
+
+/* === Меняем цвет стрелки при фокусе === */
+QComboBox:focus::down-arrow,
+QComboBox:on::down-arrow {
+    image: url(:/combobox_arrow);        /* Та же иконка, Qt не поддерживает перекраску напрямую */
+}
+
+/* Если у тебя есть возможность использовать SVG — можно будет менять цвет через fill в ресурсе */
+
+/* === Отключённое состояние === */
+QComboBox:disabled {
+    background-color: #FFFFFF;
+    border: 1px solid #F8FAFC;           /* Очень светлая рамка */
+    color: #E2E8F0;                      /* Светлый текст */
+}
+
+QComboBox:disabled::down-arrow {
+    image: url(:/combobox_arrow);        /* Та же иконка */
+    /* Qt не позволяет легко изменить цвет, поэтому сделай отдельный серый SVG для disabled */
+}
+
+/* === Стиль выпадающего списка === */
+QComboBox QAbstractItemView {
+    background-color: #FFFFFF;           /* Белый фон меню */
+    border: 1px solid #E2E8F0;           /* Та же рамка */
+    border-radius: 6px;
+    selection-background-color: #2563EB; /* Цвет выделения */
+    selection-color: #FFFFFF;            /* Цвет текста при выделении */
+}
+
+
+
+/* === Общие стили для QRadioButton === */
+QCheckBox{
+    color: #0F172A;                /* Акцентный текст */
+    font-weight: normal;
+    spacing: 6px;                  /* Расстояние между индикатором и текстом */
+}
+
+/* Убираем квадратный фокус */
+QCheckBox:focus,
+QRadioButton:focus {
+    outline: none;
+}
+
+/* === ЧЕКБОКС === */
+
+QCheckBox::indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;            /* Небольшое скругление углов */
+    border: 1px solid #64748B;     /* Второстепенная рамка */
+    background-color: #FFFFFF;     /* Белый фон */
+}
+
+/* Наведение */
+QCheckBox::indicator:hover {
+    border: 1px solid #2563EB;     /* Акцентная рамка */
+}
+
+/* Активен (галочка) */
+QCheckBox::indicator:checked {
+    border: 1px solid #2563EB;
+    background-color: #2563EB;
+    image: url(:/checkbox_check);  /* Собственная белая галочка */
+}
+
+/* Фокус */
+QCheckBox::indicator:focus {
+    border: 1px solid #2563EB;
+}
+
+/* Отключён */
+QCheckBox::indicator:disabled {
+    border: 1px solid #F8FAFC;
+    background-color: #FFFFFF;
+    image: none;
+}
+
+/* Текст отключённого чекбокса */
+QCheckBox:disabled {
+    color: #64748B;
+}
+
+
+
+/* === Общий стиль прогресс-бара === */
+QProgressBar {
+    border: 1px solid #E2E8F0;     /* Светлая рамка */
+    border-radius: 6px;            /* Скругления */
+    background-color: #FFFFFF;     /* Белый фон (без заполнения) */
+    text-align: center;            /* На всякий случай, но текста нет */
+    color: transparent;            /* Полностью скрываем текст */
+}
+
+/* === Полоса заполнения === */
+QProgressBar::chunk {
+    border-radius: 6px;            /* Та же форма, чтобы совпадала с контуром */
+    background-color: #16A34A;     /* Зелёный акцент */
+    margin: 0px;                   /* Без промежутков между сегментами */
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
     <string notr="true"/>
@@ -52,6 +269,80 @@
         <width>200</width>
         <height>16777215</height>
        </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame {
+    background-color: #F4F6F9;
+    border: none;
+}
+
+Line {
+    background-color: #DDDDDD;
+}
+
+Line[frameShape=&quot;4&quot;] {
+    min-height: 1px;
+    max-height: 1px;
+}
+
+/* === Базовые свойства sidebar-кнопок === */
+QPushButton.sidebar {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: left;                /* Текст и иконка выровнены слева */
+    font-weight: normal;
+    background-color: #DEE8FC;       /* Неактивное состояние по умолчанию */
+    color: #0F172A;                  /* Тёмный текст */
+}
+
+/* === Наведение === */
+QPushButton.sidebar:hover {
+    background-color: #C8D9FF;       /* Светло-синий hover */
+}
+
+/* === Активная (нажатая / выбранная / залипшая) кнопка === */
+QPushButton.sidebar:checked,
+QPushButton.sidebar:pressed {
+    background-color: #2563EB;       /* Акцентный синий фон */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+}
+
+/* === Неактивная иконка === */
+QPushButton.sidebar::icon {
+    color: #2563EB;                  /* Синяя иконка для неактивного состояния */
+}
+
+/* === Активная иконка === */
+QPushButton.sidebar:checked::icon,
+QPushButton.sidebar:pressed::icon {
+    color: #FFFFFF;                  /* Белая иконка при активной кнопке */
+}
+
+/* === Наведение при активной кнопке (мягкое осветление) === */
+QPushButton.sidebar:checked:hover {
+    background-color: #3B76F6;       /* Чуть светлее активного синего */
+}
+
+/* Иконка и текст идут слева направо */
+QPushButton.sidebar {
+    qproperty-iconSize: 20px;
+    qproperty-iconAlignment: left;
+}
+
+/* Иконки для конкретных кнопок */
+QPushButton.download_tab {
+    qproperty-icon: url(:/icons/download_tab.svg);
+}
+
+QPushButton.add_tab {
+    qproperty-icon: url(:/icons/add_tab.svg);
+}
+
+QPushButton.delete_tab {
+    qproperty-icon: url(:/icons/delete_tab.svg);
+}</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -101,7 +392,7 @@
          <property name="maximumSize">
           <size>
            <width>16777215</width>
-           <height>16777215</height>
+           <height>1</height>
           </size>
          </property>
          <property name="orientation">
@@ -270,6 +561,15 @@
        </property>
        <item>
         <widget class="QStackedWidget" name="tabs_stackedWidget">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
          <property name="currentIndex">
           <number>0</number>
          </property>
@@ -493,6 +793,12 @@
            </item>
            <item>
             <widget class="Line" name="line_2">
+             <property name="frameShadow">
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth">
+              <number>1</number>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -618,9 +924,40 @@
              </property>
              <property name="font">
               <font>
-               <family>Segoe UI</family>
-               <pointsize>12</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
               </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
              </property>
              <property name="text">
               <string>Скачать</string>
@@ -1165,9 +1502,40 @@
                     </property>
                     <property name="font">
                      <font>
-                      <family>Segoe UI</family>
-                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
                     </property>
                     <property name="text">
                      <string>Добавить</string>
@@ -1182,7 +1550,7 @@
                     <property name="sizeHint" stdset="0">
                      <size>
                       <width>20</width>
-                      <height>301</height>
+                      <height>290</height>
                      </size>
                     </property>
                    </spacer>
@@ -1268,7 +1636,7 @@
                      <item>
                       <widget class="QPushButton" name="choose_instruction_file_pushButton">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
@@ -1297,9 +1665,40 @@
                     </property>
                     <property name="font">
                      <font>
-                      <family>Segoe UI</family>
-                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
                      </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
                     </property>
                     <property name="text">
                      <string>Добавить</string>
@@ -1314,7 +1713,7 @@
                     <property name="sizeHint" stdset="0">
                      <size>
                       <width>20</width>
-                      <height>301</height>
+                      <height>282</height>
                      </size>
                     </property>
                    </spacer>
@@ -1626,9 +2025,40 @@
                  </property>
                  <property name="font">
                   <font>
-                   <family>Segoe UI</family>
-                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
                   </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
                  </property>
                  <property name="text">
                   <string>Удалить</string>
@@ -1643,7 +2073,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>278</height>
+                   <height>267</height>
                   </size>
                  </property>
                 </spacer>
@@ -1743,9 +2173,40 @@
                  </property>
                  <property name="font">
                   <font>
-                   <family>Segoe UI</family>
-                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
                   </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
                  </property>
                  <property name="text">
                   <string>Удалить</string>
@@ -1760,7 +2221,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>352</height>
+                   <height>347</height>
                   </size>
                  </property>
                 </spacer>
