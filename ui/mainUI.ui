@@ -117,11 +117,6 @@ QComboBox::drop-down {
     margin-right: 4px;
 }
 
-/* === При наведении курсора — без лишних эффектов, только курсор-рука === */
-QComboBox:hover {
-    cursor: pointer;
-}
-
 /* === Фокус или раскрытое состояние === */
 QComboBox:focus,
 QComboBox:on {
