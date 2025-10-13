@@ -7,7 +7,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('config.yaml', '.'),
-        ('version 3.2.0.txt', '.'),
+        ('version 4.0.0.txt', '.'),
         ('updater.exe', '.')
         ],
     hiddenimports=[],
