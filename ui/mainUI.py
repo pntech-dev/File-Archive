@@ -118,11 +118,6 @@ class Ui_MainWindow(object):
 "    margin-right: 4px;\n"
 "}\n"
 "\n"
-"/* === При наведении курсора — без лишних эффектов, только курсор-рука === */\n"
-"QComboBox:hover {\n"
-"    cursor: pointer;\n"
-"}\n"
-"\n"
 "/* === Фокус или раскрытое состояние === */\n"
 "QComboBox:focus,\n"
 "QComboBox:on {\n"
@@ -297,25 +292,6 @@ class Ui_MainWindow(object):
 "/* === Наведение при активной кнопке (мягкое осветление) === */\n"
 "QPushButton.sidebar:checked:hover {\n"
 "    background-color: #3B76F6;       /* Чуть светлее активного синего */\n"
-"}\n"
-"\n"
-"/* Иконка и текст идут слева направо */\n"
-"QPushButton.sidebar {\n"
-"    qproperty-iconSize: 20px;\n"
-"    qproperty-iconAlignment: left;\n"
-"}\n"
-"\n"
-"/* Иконки для конкретных кнопок */\n"
-"QPushButton.download_tab {\n"
-"    qproperty-icon: url(:/icons/download_tab.svg);\n"
-"}\n"
-"\n"
-"QPushButton.add_tab {\n"
-"    qproperty-icon: url(:/icons/add_tab.svg);\n"
-"}\n"
-"\n"
-"QPushButton.delete_tab {\n"
-"    qproperty-icon: url(:/icons/delete_tab.svg);\n"
 "}")
         self.navigation_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.navigation_frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -442,32 +418,7 @@ class Ui_MainWindow(object):
         font.setFamily("Segoe UI")
         font.setPointSize(12)
         self.search_lineEdit.setFont(font)
-        self.search_lineEdit.setStyleSheet("/* === Обычное состояние === */\n"
-"QLineEdit {\n"
-"    background-color: #FFFFFF;\n"
-"    border: 1px solid #E2E8F0;\n"
-"    border-radius: 6px;\n"
-"    color: #64748B;\n"
-"    padding: 6px 8px 6px 30px;               /* Место под иконку */\n"
-"    background-image: url(:/icons/search_64748B.svg);\n"
-"    background-repeat: no-repeat;\n"
-"    background-position: 8px center;\n"
-"}\n"
-"\n"
-"/* === Фокус (активное состояние) === */\n"
-"QLineEdit:focus {\n"
-"    border: 1px solid #2563EB;\n"
-"    color: #0F172A;\n"
-"    background-image: url(:/icons/search_2563EB.svg);\n"
-"}\n"
-"\n"
-"/* === Отключено === */\n"
-"QLineEdit:disabled {\n"
-"    border: 1px solid #F8FAFC;\n"
-"    color: #E2E8F0;\n"
-"    background-image: url(:/icons/search_E2E8F0.svg);\n"
-"}\n"
-"")
+        self.search_lineEdit.setStyleSheet("")
         self.search_lineEdit.setText("")
         self.search_lineEdit.setClearButtonEnabled(True)
         self.search_lineEdit.setObjectName("search_lineEdit")
