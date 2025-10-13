@@ -1292,7 +1292,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.tabs_stackedWidget.setCurrentIndex(0)
         self.add_format_stackedWidget.setCurrentIndex(0)
-        self.delete_stackedWidget.setCurrentIndex(1)
+        self.delete_stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

@@ -1926,7 +1926,7 @@ QPushButton:disabled {
            <item>
             <widget class="QStackedWidget" name="delete_stackedWidget">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="delete_file_page">
               <layout class="QVBoxLayout" name="verticalLayout_20">

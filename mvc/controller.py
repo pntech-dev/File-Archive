@@ -13,10 +13,12 @@ class Controller(QObject):
         self.view.ui.search_lineEdit.installEventFilter(self)
 
         """=== Обработчики ==="""
-        # Разделы, радио-кнопки
+        # Разделы, радио-кнопки, чекбоксы
         self.view.tab_button_clicked(self.on_tab_button_clicked) # Нажатие на кнопку раздела
         self.view.add_options_button_clicked(self.on_add_options_button_clicked) # Нажатие на кнопку выбора варианта добавления
         self.view.delete_options_button_clicked(self.on_delete_options_button_clicked) # Нажатие на кнопку выбора варианта удаления
+        self.view.accept_version_delete_checkbox_clicked(self.on_accept_version_delete_checkbox_clicked) # Нажатие на чек-бокс подтверждения удаления версии
+        self.view.accept_group_delete_checkbox_clicked(self.on_accept_group_delete_checkbox_clicked) # Нажатие на чек-бокс подтверждения удаления группы
         
         # Лайнэдиты
         self.view.create_group_lineedit_text_changed(self.on_create_group_lineedit_text_changed) # Изменение текста в строке ввода имени группы
@@ -84,3 +86,11 @@ class Controller(QObject):
     def on_add_tab_file_path_lineedit_text_changed(self):
         """Функция обрабатывает изменение текста в строке ввода пути файла в разделе 'Добавить инструкцию'"""
         self.view.update_add_instruction_button_state()
+
+    def on_accept_version_delete_checkbox_clicked(self, button):
+        """Функция обрабатывает нажатие на чек-бокс подтверждения удаления версии"""
+        self.view.update_delete_button_state(button=button)
+
+    def on_accept_group_delete_checkbox_clicked(self, button):
+        """Функция обрабатывает нажатие на чек-бокс подтверждения удаления группы"""
+        self.view.update_delete_button_state(button=button)

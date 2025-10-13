@@ -42,6 +42,16 @@ class View:
             self.ui.choose_version_folder_pushButton: self.ui.choose_version_folder_lineEdit,
         }
 
+        # Словарь кнопок удалить, где ключ - кнопка, значение список объектов от которых завист состояние кнопки
+        # Ключ: [Чек-Бокс (подтверждение удаления), [Выподающие списки]]
+        self.delete_buttons_objects_dict = {
+            self.ui.what_delete_file_radioButton: [self.ui.accept_file_delete_checkBox,
+                                                   [self.ui.choose_group_to_delete_comboBox,
+                                                    self.ui.choose_file_to_delete_comboBox]],
+            self.ui.what_delete_group_radioButton: [self.ui.accept_group_delete_checkBox,
+                                                    [self.ui.choose_group_to_delete_comboBox_2]]
+        }
+
     def get_tab_page(self, button):
         """Функция возвращает страницу для переданной кнопки раздела"""
         return self.tabs_dict[button]
@@ -111,6 +121,11 @@ class View:
         else:
             self.ui.add_instruction_pushButton.setEnabled(False) # Выключаем кнопку
 
+    def update_delete_button_state(self, button):
+        """Функция обновляет состояние кнопки удаления"""
+        buttons_lst = self.delete_buttons_objects_dict.get(button) # Получаем список объектов от которых зависит состояние кнопки
+        
+
     def tab_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку раздела"""
         for button in self.tabs_dict.keys():
@@ -150,3 +165,13 @@ class View:
     def add_tab_file_path_lineedit_text_changed(self, handler):
         """Функция устанавливает обработчик изменения текста в строке ввода пути файла в разделе 'Добавить инструкцию'"""
         self.ui.choose_instruction_file_lineEdit.textChanged.connect(handler)
+
+    def accept_version_delete_checkbox_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на чек-бокс подтверждения удаления версии"""
+        button = self.ui.delete_file_pushButton
+        self.ui.accept_file_delete_checkBox.clicked.connect(lambda: handler(button=button))
+
+    def accept_group_delete_checkbox_clicked(self, handler):
+        """Функция устанвливает обработчик нажатия на чек-бокс подтверждения удаления группы"""
+        button = self.ui.delet_group_pushButton
+        self.ui.accept_file_delete_checkBox.clicked.connect(lambda: handler(button=button))
