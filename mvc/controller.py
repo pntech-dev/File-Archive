@@ -12,13 +12,18 @@ class Controller(QObject):
         # Устанавливаем фильтр событий для строки поиска
         self.view.ui.search_lineEdit.installEventFilter(self)
 
-        # Обработчики
+        """=== Обработчики ==="""
+        # Разделы, радио-кнопки
         self.view.tab_button_clicked(self.on_tab_button_clicked) # Нажатие на кнопку раздела
         self.view.add_options_button_clicked(self.on_add_options_button_clicked) # Нажатие на кнопку выбора варианта добавления
         self.view.delete_options_button_clicked(self.on_delete_options_button_clicked) # Нажатие на кнопку выбора варианта удаления
         
+        # Лайнэдиты
         self.view.create_group_lineedit_text_changed(self.on_create_group_lineedit_text_changed) # Изменение текста в строке ввода имени группы
+        self.view.add_tab_folder_path_lineedit_text_changed(self.on_add_tab_folder_path_lineedit_text_changed) # Изменение текста в строке ввода пути папки
+        self.view.add_tab_file_path_lineedit_text_changed(self.on_add_tab_file_path_lineedit_text_changed) # Изменение текста в строке ввода пути файла
 
+        # Кнопки
         self.view.create_group_button_clicked(self.on_create_group_button_clicked) # Нажатие на кнопку создания группы
         self.view.select_folder_button_clicked(self.on_select_folder_button_clicked) # Нажатие на кнопку выбора папки
         self.view.select_file_button_clicked(self.on_select_file_button_clicked) # Нажатие на кнопку выбора файла
@@ -71,3 +76,11 @@ class Controller(QObject):
         )
 
         self.view.set_selected_file_path(file_path=file_path)
+
+    def on_add_tab_folder_path_lineedit_text_changed(self):
+        """Функция обрабатывает изменение текста в строке ввода пути папки в разделе 'Добавить версию'"""
+        self.view.update_add_version_button_state()
+
+    def on_add_tab_file_path_lineedit_text_changed(self):
+        """Функция обрабатывает изменение текста в строке ввода пути файла в разделе 'Добавить инструкцию'"""
+        self.view.update_add_instruction_button_state()

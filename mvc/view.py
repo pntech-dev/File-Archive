@@ -91,6 +91,26 @@ class View:
         else:
             self.ui.create_group_pushButton.setEnabled(False) # Выключаем кнопку
 
+    def update_add_version_button_state(self):
+        """Функция обновляет состояние кнопки добавления версии"""
+        combobox_item = self.ui.groups_comboBox.currentText() # Получаем текст из QComboBox
+        text = self.ui.choose_version_folder_lineEdit.text() # Получаем текст из QLineEdit
+        
+        if combobox_item and text: # Если текст в QComboBox и QLineEdit не пустой
+            self.ui.add_version_pushButton.setEnabled(True) # Включаем кнопку
+        else:
+            self.ui.add_version_pushButton.setEnabled(False) # Выключаем кнопку
+
+    def update_add_instruction_button_state(self):
+        """Функция обновляет состояние кнопки добавления инструкции"""
+        combobox_item = self.ui.groups_comboBox.currentText() # Получаем текст из QComboBox
+        text = self.ui.choose_instruction_file_lineEdit.text() # Получаем текст из QLineEdit
+
+        if combobox_item and text: # Если текст в QComboBox и QLineEdit не пустой
+            self.ui.add_instruction_pushButton.setEnabled(True) # Включаем кнопку
+        else:
+            self.ui.add_instruction_pushButton.setEnabled(False) # Выключаем кнопку
+
     def tab_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку раздела"""
         for button in self.tabs_dict.keys():
@@ -122,3 +142,11 @@ class View:
     def select_file_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку выбора файла"""
         self.ui.choose_instruction_file_pushButton.clicked.connect(handler)
+
+    def add_tab_folder_path_lineedit_text_changed(self, handler):
+        """Функция устанавливает обработчик изменения текста в строке ввода пути папки в разделе 'Добавить версию'"""
+        self.ui.choose_version_folder_lineEdit.textChanged.connect(handler)
+
+    def add_tab_file_path_lineedit_text_changed(self, handler):
+        """Функция устанавливает обработчик изменения текста в строке ввода пути файла в разделе 'Добавить инструкцию'"""
+        self.ui.choose_instruction_file_lineEdit.textChanged.connect(handler)

@@ -375,7 +375,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setSpacing(24)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.logo_label = QtWidgets.QLabel(self.navigation_frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.logo_label.sizePolicy().hasHeightForWidth())
@@ -386,6 +386,7 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.logo_label.setFont(font)
+        self.logo_label.setAlignment(QtCore.Qt.AlignCenter)
         self.logo_label.setObjectName("logo_label")
         self.verticalLayout_2.addWidget(self.logo_label)
         self.line = QtWidgets.QFrame(self.navigation_frame)
@@ -630,6 +631,7 @@ class Ui_MainWindow(object):
         self.download_file_pushButton.setEnabled(False)
         self.download_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
         font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
@@ -852,14 +854,15 @@ class Ui_MainWindow(object):
         self.choose_version_folder_pushButton.setObjectName("choose_version_folder_pushButton")
         self.horizontalLayout_9.addWidget(self.choose_version_folder_pushButton)
         self.verticalLayout_14.addWidget(self.choose_version_folder_frame)
-        self.add_version_folder_pushButton = QtWidgets.QPushButton(self.version_page)
-        self.add_version_folder_pushButton.setEnabled(False)
-        self.add_version_folder_pushButton.setMinimumSize(QtCore.QSize(0, 35))
+        self.add_version_pushButton = QtWidgets.QPushButton(self.version_page)
+        self.add_version_pushButton.setEnabled(False)
+        self.add_version_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
+        font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
-        self.add_version_folder_pushButton.setFont(font)
-        self.add_version_folder_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+        self.add_version_pushButton.setFont(font)
+        self.add_version_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
 "QPushButton {\n"
 "    background-color: #2563EB;       /* Основной синий */\n"
 "    color: #FFFFFF;                  /* Белый текст */\n"
@@ -888,8 +891,8 @@ class Ui_MainWindow(object):
 "    border-radius: 6px;\n"
 "}\n"
 "")
-        self.add_version_folder_pushButton.setObjectName("add_version_folder_pushButton")
-        self.verticalLayout_14.addWidget(self.add_version_folder_pushButton)
+        self.add_version_pushButton.setObjectName("add_version_pushButton")
+        self.verticalLayout_14.addWidget(self.add_version_pushButton)
         spacerItem3 = QtWidgets.QSpacerItem(20, 300, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_14.addItem(spacerItem3)
         self.add_format_stackedWidget.addWidget(self.version_page)
@@ -937,14 +940,15 @@ class Ui_MainWindow(object):
         self.choose_instruction_file_pushButton.setObjectName("choose_instruction_file_pushButton")
         self.horizontalLayout_10.addWidget(self.choose_instruction_file_pushButton)
         self.verticalLayout_15.addWidget(self.choose_instruction_file_frame)
-        self.add_instruction_file_pushButton = QtWidgets.QPushButton(self.instruction_page)
-        self.add_instruction_file_pushButton.setEnabled(False)
-        self.add_instruction_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
+        self.add_instruction_pushButton = QtWidgets.QPushButton(self.instruction_page)
+        self.add_instruction_pushButton.setEnabled(False)
+        self.add_instruction_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
+        font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
-        self.add_instruction_file_pushButton.setFont(font)
-        self.add_instruction_file_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+        self.add_instruction_pushButton.setFont(font)
+        self.add_instruction_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
 "QPushButton {\n"
 "    background-color: #2563EB;       /* Основной синий */\n"
 "    color: #FFFFFF;                  /* Белый текст */\n"
@@ -973,8 +977,8 @@ class Ui_MainWindow(object):
 "    border-radius: 6px;\n"
 "}\n"
 "")
-        self.add_instruction_file_pushButton.setObjectName("add_instruction_file_pushButton")
-        self.verticalLayout_15.addWidget(self.add_instruction_file_pushButton)
+        self.add_instruction_pushButton.setObjectName("add_instruction_pushButton")
+        self.verticalLayout_15.addWidget(self.add_instruction_pushButton)
         spacerItem4 = QtWidgets.QSpacerItem(20, 300, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_15.addItem(spacerItem4)
         self.add_format_stackedWidget.addWidget(self.instruction_page)
@@ -1118,6 +1122,7 @@ class Ui_MainWindow(object):
         self.delete_file_pushButton.setEnabled(False)
         self.delete_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
+        font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
         self.delete_file_pushButton.setFont(font)
@@ -1200,6 +1205,8 @@ class Ui_MainWindow(object):
         self.delet_group_pushButton.setEnabled(False)
         self.delet_group_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
         self.delet_group_pushButton.setFont(font)
@@ -1285,7 +1292,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.tabs_stackedWidget.setCurrentIndex(0)
         self.add_format_stackedWidget.setCurrentIndex(0)
-        self.delete_stackedWidget.setCurrentIndex(0)
+        self.delete_stackedWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1314,11 +1321,11 @@ class Ui_MainWindow(object):
         self.choose_version_folder_label.setText(_translate("MainWindow", "Выберите папку или вставьте путь к ней:"))
         self.choose_version_folder_lineEdit.setPlaceholderText(_translate("MainWindow", "C:\\"))
         self.choose_version_folder_pushButton.setText(_translate("MainWindow", "Выбрать"))
-        self.add_version_folder_pushButton.setText(_translate("MainWindow", "Добавить"))
+        self.add_version_pushButton.setText(_translate("MainWindow", "Добавить"))
         self.choose_instruction_file_label.setText(_translate("MainWindow", "Выберите файл или вставьте путь к нему:"))
         self.choose_instruction_file_lineEdit.setPlaceholderText(_translate("MainWindow", "C:\\"))
         self.choose_instruction_file_pushButton.setText(_translate("MainWindow", "Выбрать"))
-        self.add_instruction_file_pushButton.setText(_translate("MainWindow", "Добавить"))
+        self.add_instruction_pushButton.setText(_translate("MainWindow", "Добавить"))
         self.what_delete_label.setText(_translate("MainWindow", "Выберите что хотите удалить:"))
         self.what_delete_file_radioButton.setText(_translate("MainWindow", "Файл"))
         self.what_delete_group_radioButton.setText(_translate("MainWindow", "Группу"))
