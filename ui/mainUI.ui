@@ -35,6 +35,16 @@ QFrame[frameShape=&quot;4&quot;] { /* QFrame::HLine */
     border: none;
 }
 
+/* === Вертикальные линии === */
+QFrame[frameShape=&quot;5&quot;] { /* QFrame::VLine */
+    background-color: #E2E8F0;
+    min-width: 1px;
+    max-width: 1px;
+    border: none;
+}
+
+
+
 /* === Базовый стиль для всех QLineEdit === */
 QLineEdit {
     background-color: #FFFFFF;       /* Белый фон */
@@ -155,19 +165,73 @@ QComboBox QAbstractItemView {
 
 
 /* === Общие стили для QRadioButton === */
+QRadioButton {
+    color: #0F172A;            /* Акцентный текст */
+    font-weight: normal;
+    spacing: 8px;              /* Расстояние между индикатором и текстом */
+}
+
+/* === Индикатор === */
+QRadioButton::indicator {
+    width: 14px;
+    height: 14px;
+}
+
+/* === Активное === */
+QRadioButton::indicator:checked {
+    image: url(:/icons/radio_buttons/radio_button_checked.svg);
+}
+
+/* === Активное + наведение === */
+QRadioButton::indicator:checked:hover {
+    image: url(:/icons/radio_buttons/radio_button_checked_hover.svg);
+}
+
+/* === Активное + нажатие === */
+QRadioButton::indicator:checked:pressed {
+    image: url(:/icons/radio_buttons/radio_button_checked_pressed.svg);
+}
+
+/* === Активное Отключённое === */
+QRadioButton::indicator:checked:disabled {
+    image: url(:/icons/radio_buttons/radio_button_checked_disabled.svg);
+}
+
+/* === Неактивное === */
+QRadioButton::indicator:unchecked {
+    image: url(:/icons/radio_buttons/radio_button_unchecked.svg);
+}
+
+/* === Неактивное + наведение === */
+QRadioButton::indicator:unchecked:hover {
+    image: url(:/icons/radio_buttons/radio_button_unchecked_hover.svg);
+}
+
+/* === Неактивное + нажатие === */
+QRadioButton::indicator:unchecked:pressed {
+    image: url(:/icons/radio_buttons/radio_button_unchecked_pressed.svg);
+}
+
+/* === Неактивное Отключённое=== */
+QRadioButton::indicator:unchecked:disabled {
+    image: url(:/icons/radio_buttons/radio_button_unchecked_disabled.svg);
+}
+
+/* === Текст отключённой радиокнопки === */
+QRadioButton:disabled {
+    color: #64748B;
+}
+
+
+
+/* === Общие стили для QCheckBox === */
 QCheckBox{
     color: #0F172A;                /* Акцентный текст */
     font-weight: normal;
-    spacing: 6px;                  /* Расстояние между индикатором и текстом */
+    spacing: 8px;                  /* Расстояние между индикатором и текстом */
 }
 
-/* Убираем квадратный фокус */
-QCheckBox:focus,
-QRadioButton:focus {
-    outline: none;
-}
-
-/* === ЧЕКБОКС === */
+/* Индикатор */
 
 QCheckBox::indicator {
     width: 14px;
@@ -535,6 +599,11 @@ QPushButton#delete_tab_pushButton:checked:hover{
            <pointsize>10</pointsize>
           </font>
          </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel{
+	color: #DDDDDD;
+}</string>
+         </property>
          <property name="text">
           <string>Version 4.0.0</string>
          </property>
@@ -709,6 +778,9 @@ QPushButton#delete_tab_pushButton:checked:hover{
               </item>
               <item>
                <widget class="QCheckBox" name="checkBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
                 <property name="font">
                  <font>
                   <family>Segoe UI</family>
@@ -1037,16 +1109,16 @@ QPushButton:disabled {
             <number>16</number>
            </property>
            <item>
-            <widget class="QFrame" name="group_frame">
+            <widget class="QFrame" name="choose_or_create_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <layout class="QVBoxLayout" name="verticalLayout_8">
               <property name="spacing">
-               <number>16</number>
+               <number>8</number>
               </property>
               <property name="leftMargin">
                <number>0</number>
@@ -1061,130 +1133,29 @@ QPushButton:disabled {
                <number>0</number>
               </property>
               <item>
-               <widget class="QFrame" name="select_group_frame">
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_8">
-                 <property name="spacing">
-                  <number>8</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="select_group_label">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Segoe UI</family>
-                     <pointsize>12</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Выберите группу:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QFrame" name="combobox_frame">
-                   <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_10">
-                    <property name="spacing">
-                     <number>0</number>
-                    </property>
-                    <property name="leftMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="bottomMargin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QComboBox" name="groups_comboBox">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>130</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>Segoe UI</family>
-                        <pointsize>12</pointsize>
-                       </font>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="group_or_label">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+               <widget class="QLabel" name="choose_or_create_label">
                 <property name="font">
                  <font>
                   <family>Segoe UI</family>
-                  <pointsize>12</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="text">
-                 <string>Или</string>
+                 <string>Выберите группу или создайте новую:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QFrame" name="create_group_frame">
+               <widget class="QFrame" name="choose_or_create_actions_frame">
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_9">
+                <layout class="QHBoxLayout" name="horizontalLayout_12">
                  <property name="spacing">
-                  <number>8</number>
+                  <number>16</number>
                  </property>
                  <property name="leftMargin">
                   <number>0</number>
@@ -1199,12 +1170,18 @@ QPushButton:disabled {
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="create_group_label">
+                  <widget class="QComboBox" name="groups_comboBox">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>130</width>
+                     <height>0</height>
+                    </size>
                    </property>
                    <property name="font">
                     <font>
@@ -1212,8 +1189,12 @@ QPushButton:disabled {
                      <pointsize>12</pointsize>
                     </font>
                    </property>
-                   <property name="text">
-                    <string>Создйте новую:</string>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
                    </property>
                   </widget>
                  </item>
@@ -1448,7 +1429,7 @@ QPushButton:disabled {
               <item>
                <widget class="QStackedWidget" name="add_format_stackedWidget">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="version_page">
                  <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -1778,7 +1759,7 @@ QPushButton:disabled {
                     <property name="sizeHint" stdset="0">
                      <size>
                       <width>20</width>
-                      <height>300</height>
+                      <height>296</height>
                      </size>
                     </property>
                    </spacer>
@@ -2144,7 +2125,7 @@ QPushButton:disabled {
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>279</height>
+                   <height>283</height>
                   </size>
                  </property>
                 </spacer>
@@ -2298,7 +2279,7 @@ QPushButton:disabled {
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>357</height>
+                   <height>361</height>
                   </size>
                  </property>
                 </spacer>

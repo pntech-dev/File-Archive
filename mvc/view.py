@@ -9,16 +9,13 @@ class View:
         self.ui = ui
 
         # Иконка строки поиска
-        search_icon = QIcon(":/icons/search_64748B.svg")
-        self.ui.search_lineEdit.addAction(search_icon, QLineEdit.LeadingPosition)
+        self.search_action = self.ui.search_lineEdit.addAction(QIcon(":/icons/search/search_icon.svg"), 
+                                                               QLineEdit.LeadingPosition)
 
         # Иконки для кнопок разделов (ПО УМОЛЧАНИЮ)
-        download_icon = QIcon(":/icons/download_tab_white.svg")
-        add_icon = QIcon(":/icons/add_tab_white.svg")
-        delete_icon = QIcon(":/icons/delete_tab_white.svg")
-        self.ui.download_tab_pushButton.setIcon(download_icon)
-        self.ui.add_tab_pushButton.setIcon(add_icon)
-        self.ui.delete_tab_pushButton.setIcon(delete_icon)
+        self.ui.download_tab_pushButton.setIcon(QIcon(":/icons/tabs/download_tab.svg"))
+        self.ui.add_tab_pushButton.setIcon(QIcon(":/icons/tabs/add_tab.svg"))
+        self.ui.delete_tab_pushButton.setIcon(QIcon(":/icons/tabs/delete_tab.svg"))
 
         # Словарь кнопок разделов, где ключ - кнопка, значение - раздел
         self.tabs_dict = {
@@ -62,6 +59,13 @@ class View:
     def set_delete_option_page(self, page):
         """Функция устанавливает страницу отображения варианта удаления"""
         self.ui.delete_stackedWidget.setCurrentWidget(page)
+
+    def set_search_icon_state(self, state):
+        """Функция устанавливает иконку строки поиска в зависимости от состояния строки поиска"""
+        if state:
+            self.search_action.setIcon(QIcon(":/icons/search/search_icon_focus.svg"))
+        else:
+            self.search_action.setIcon(QIcon(":/icons/search/search_icon.svg"))
 
     def tab_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку раздела"""
