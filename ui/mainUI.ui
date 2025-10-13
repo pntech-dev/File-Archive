@@ -1245,7 +1245,7 @@ QPushButton:disabled {
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="create_pushButton">
+                     <widget class="QPushButton" name="create_group_pushButton">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -1759,7 +1759,7 @@ QPushButton:disabled {
                     <property name="sizeHint" stdset="0">
                      <size>
                       <width>20</width>
-                      <height>296</height>
+                      <height>300</height>
                      </size>
                     </property>
                    </spacer>

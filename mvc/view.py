@@ -67,6 +67,15 @@ class View:
         else:
             self.search_action.setIcon(QIcon(":/icons/search/search_icon.svg"))
 
+    def update_create_group_button_state(self):
+        """Функция обновляет состояние кнопки создания группы"""
+        text = self.ui.group_name_lineEdit.text() # Получаем текст из QLineEdit
+        
+        if text: # Если текст не пустой
+            self.ui.create_group_pushButton.setEnabled(True) # Включаем кнопку
+        else:
+            self.ui.create_group_pushButton.setEnabled(False) # Выключаем кнопку
+
     def tab_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку раздела"""
         for button in self.tabs_dict.keys():
@@ -81,3 +90,11 @@ class View:
         """Функция устанавливает обработчик нажатия на кнопку выбора варианта удаления"""
         for button in self.delete_options_dict.keys():
             button.clicked.connect(lambda _, btn=button: handler(btn))
+
+    def create_group_lineedit_text_changed(self, handler):
+        """Функция устанавливает обработчик изменения текста в строке ввода имени группы"""
+        self.ui.group_name_lineEdit.textChanged.connect(handler)
+
+    def create_group_button_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку создания группы"""
+        self.ui.create_group_pushButton.clicked.connect(handler)
