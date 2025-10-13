@@ -27,15 +27,39 @@ class View:
             self.ui.delete_tab_pushButton: self.ui.delete_page
         }
 
+        # Словарь вариантов добавления, где ключ - радио кнопка, значение - вариант
+        self.add_options_dict = {
+            self.ui.version_radioButton: self.ui.version_page,
+            self.ui.instruction_radioButton: self.ui.instruction_page
+        }
+
+        # Словарь вариантов удаления, где ключ - радио кнопка, значение - вариант
+        self.delete_options_dict = {
+            
+        }
+
     def get_tab_page(self, button):
-        """Функция возвращает страницу для переданной кнопки"""
+        """Функция возвращает страницу для переданной кнопки раздела"""
         return self.tabs_dict[button]
+    
+    def get_add_option_page(self, button):
+        """Функция возвращает страницу для переданной кнопки варианта добавления"""
+        return self.add_options_dict[button]
     
     def set_tab_page(self, page):
         """Функция устанавливает страницу для отображения"""
         self.ui.tabs_stackedWidget.setCurrentWidget(page)
 
+    def set_add_option_page(self, page):
+        """Функция устанавливает страницу отображения варианта добавления"""
+        self.ui.add_format_stackedWidget.setCurrentWidget(page)
+
     def tab_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку раздела"""
         for button in self.tabs_dict.keys():
+            button.clicked.connect(lambda _, btn=button: handler(btn))
+
+    def add_options_button_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку выбора варианта добавления"""
+        for button in self.add_options_dict.keys():
             button.clicked.connect(lambda _, btn=button: handler(btn))
