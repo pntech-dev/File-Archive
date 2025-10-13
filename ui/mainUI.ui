@@ -665,6 +665,34 @@ QPushButton.delete_tab {
                      <pointsize>12</pointsize>
                     </font>
                    </property>
+                   <property name="styleSheet">
+                    <string notr="true">/* === Обычное состояние === */
+QLineEdit {
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    color: #64748B;
+    padding: 6px 8px 6px 30px;               /* Место под иконку */
+    background-image: url(:/icons/search_64748B.svg);
+    background-repeat: no-repeat;
+    background-position: 8px center;
+}
+
+/* === Фокус (активное состояние) === */
+QLineEdit:focus {
+    border: 1px solid #2563EB;
+    color: #0F172A;
+    background-image: url(:/icons/search_2563EB.svg);
+}
+
+/* === Отключено === */
+QLineEdit:disabled {
+    border: 1px solid #F8FAFC;
+    color: #E2E8F0;
+    background-image: url(:/icons/search_E2E8F0.svg);
+}
+</string>
+                   </property>
                    <property name="text">
                     <string/>
                    </property>

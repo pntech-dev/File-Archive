@@ -442,6 +442,32 @@ class Ui_MainWindow(object):
         font.setFamily("Segoe UI")
         font.setPointSize(12)
         self.search_lineEdit.setFont(font)
+        self.search_lineEdit.setStyleSheet("/* === Обычное состояние === */\n"
+"QLineEdit {\n"
+"    background-color: #FFFFFF;\n"
+"    border: 1px solid #E2E8F0;\n"
+"    border-radius: 6px;\n"
+"    color: #64748B;\n"
+"    padding: 6px 8px 6px 30px;               /* Место под иконку */\n"
+"    background-image: url(:/icons/search_64748B.svg);\n"
+"    background-repeat: no-repeat;\n"
+"    background-position: 8px center;\n"
+"}\n"
+"\n"
+"/* === Фокус (активное состояние) === */\n"
+"QLineEdit:focus {\n"
+"    border: 1px solid #2563EB;\n"
+"    color: #0F172A;\n"
+"    background-image: url(:/icons/search_2563EB.svg);\n"
+"}\n"
+"\n"
+"/* === Отключено === */\n"
+"QLineEdit:disabled {\n"
+"    border: 1px solid #F8FAFC;\n"
+"    color: #E2E8F0;\n"
+"    background-image: url(:/icons/search_E2E8F0.svg);\n"
+"}\n"
+"")
         self.search_lineEdit.setText("")
         self.search_lineEdit.setClearButtonEnabled(True)
         self.search_lineEdit.setObjectName("search_lineEdit")

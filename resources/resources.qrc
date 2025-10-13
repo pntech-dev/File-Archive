@@ -3,5 +3,18 @@
     <file>icon.ico</file>
     <file>combobox_arrow.svg</file>
     <file>checkbox_check.svg</file>
+
+    <file>download_tab_white.svg</file>
+    <file>download_tab_blue.svg</file>
+
+    <file>add_tab_white.svg</file>
+    <file>add_tab_blue.svg</file>
+
+    <file>delete_tab_white.svg</file>
+    <file>delete_tab_blue.svg</file>
+
+    <file>search_64748B.svg</file>
+    <file>search_2563EB.svg</file>
+    <file>search_E2E8F0.svg</file>
   </qresource>
 </RCC>
