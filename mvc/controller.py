@@ -6,6 +6,7 @@ class Controller:
         # Обработчики
         self.view.tab_button_clicked(self.on_tab_button_clicked) # Нажатие на кнопку раздела
         self.view.add_options_button_clicked(self.on_add_options_button_clicked) # Нажатие на кнопку выбора варианта добавления
+        self.view.delete_options_button_clicked(self.on_delete_options_button_clicked) # Нажатие на кнопку выбора варианта удаления
 
     def on_tab_button_clicked(self, button):
         """Функция обрабатывает нажатие на кнопку раздела"""
@@ -16,3 +17,8 @@ class Controller:
         """Функция обрабатывает нажатие на кнопку выбора варианта добавления"""
         page = self.view.get_add_option_page(button)
         self.view.set_add_option_page(page)
+
+    def on_delete_options_button_clicked(self, button):
+        """Функция обрабатывает нажатие на кнопку выбора варианта удаления"""
+        page = self.view.get_delete_option_page(button)
+        self.view.set_delete_option_page(page)
