@@ -28,13 +28,12 @@ class Ui_MainWindow(object):
 "    border: none;\n"
 "}\n"
 "\n"
-"Line {\n"
+"/* === Горизонтальные линии === */\n"
+"QFrame[frameShape=\"4\"] { /* QFrame::HLine */\n"
 "    background-color: #E2E8F0;\n"
-"}\n"
-"\n"
-"Line[frameShape=\"4\"] {\n"
 "    min-height: 1px;\n"
 "    max-height: 1px;\n"
+"    border: none;\n"
 "}\n"
 "\n"
 "/* === Базовый стиль для всех QLineEdit === */\n"
@@ -104,7 +103,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* === Иконка стрелки (ресурс combobox_arrow) === */\n"
 "QComboBox::down-arrow {\n"
-"    image: url(:/combobox_arrow);        /* Подключённая иконка */\n"
+"    image: url(:/icons/combobox_arrow);        /* Подключённая иконка */\n"
 "    width: 14px;\n"
 "    height: 14px;\n"
 "}\n"
@@ -188,7 +187,7 @@ class Ui_MainWindow(object):
 "QCheckBox::indicator:checked {\n"
 "    border: 1px solid #2563EB;\n"
 "    background-color: #2563EB;\n"
-"    image: url(:/checkbox_check);  /* Собственная белая галочка */\n"
+"    image: url(:/icons/checkbox_check);  /* Собственная белая галочка */\n"
 "}\n"
 "\n"
 "/* Фокус */\n"
@@ -240,18 +239,18 @@ class Ui_MainWindow(object):
         self.navigation_frame.setSizePolicy(sizePolicy)
         self.navigation_frame.setMinimumSize(QtCore.QSize(200, 0))
         self.navigation_frame.setMaximumSize(QtCore.QSize(200, 16777215))
-        self.navigation_frame.setStyleSheet("QFrame {\n"
-"    background-color: #F4F6F9;\n"
+        self.navigation_frame.setStyleSheet("/* === Обычные фреймы (панели, контейнеры) === */\n"
+"QFrame {\n"
 "    border: none;\n"
+"    background-color: #F4F6F9; /* Цвет панелей */\n"
 "}\n"
 "\n"
-"Line {\n"
+"/* === Горизонтальные линии === */\n"
+"QFrame[frameShape=\"4\"] { /* QFrame::HLine */\n"
 "    background-color: #DDDDDD;\n"
-"}\n"
-"\n"
-"Line[frameShape=\"4\"] {\n"
 "    min-height: 1px;\n"
 "    max-height: 1px;\n"
+"    border: none;\n"
 "}\n"
 "\n"
 "/* === Базовые свойства sidebar-кнопок === */\n"
@@ -265,6 +264,7 @@ class Ui_MainWindow(object):
 "    font-weight: normal;\n"
 "    background-color: #DEE8FC;       /* Неактивное состояние по умолчанию */\n"
 "    color: #0F172A;                  /* Тёмный текст */\n"
+"    qproperty-iconSize: 24px 24px;\n"
 "}\n"
 "\n"
 "/* === Наведение === */\n"
@@ -284,18 +284,23 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* === Неактивная иконка === */\n"
-"QPushButton.sidebar::icon {\n"
+"QPushButton#download_tab_pushButton:checked::icon,\n"
+"QPushButton#add_tab_pushButton:checked::icon,\n"
+"QPushButton#delete_tab_pushButton:checked::icon{\n"
 "    color: #2563EB;                  /* Синяя иконка для неактивного состояния */\n"
 "}\n"
 "\n"
 "/* === Активная иконка === */\n"
-"QPushButton.sidebar:checked::icon,\n"
-"QPushButton.sidebar:pressed::icon {\n"
+"QPushButton#download_tab_pushButton:checked::icon,\n"
+"QPushButton#add_tab_pushButton:checked::icon,\n"
+"QPushButton#delete_tab_pushButton:checked::icon{\n"
 "    color: #FFFFFF;                  /* Белая иконка при активной кнопке */\n"
 "}\n"
 "\n"
 "/* === Наведение при активной кнопке (мягкое осветление) === */\n"
-"QPushButton.sidebar:checked:hover {\n"
+"QPushButton#download_tab_pushButton:checked:hover,\n"
+"QPushButton#add_tab_pushButton:checke:hoverd,\n"
+"QPushButton#delete_tab_pushButton:checked:hover{\n"
 "    background-color: #3B76F6;       /* Чуть светлее активного синего */\n"
 "}")
         self.navigation_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -342,6 +347,9 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.download_tab_pushButton.setFont(font)
         self.download_tab_pushButton.setCheckable(True)
+        self.download_tab_pushButton.setChecked(True)
+        self.download_tab_pushButton.setAutoRepeat(False)
+        self.download_tab_pushButton.setAutoExclusive(True)
         self.download_tab_pushButton.setObjectName("download_tab_pushButton")
         self.verticalLayout.addWidget(self.download_tab_pushButton)
         self.add_tab_pushButton = QtWidgets.QPushButton(self.buttons_frame)
@@ -353,6 +361,7 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.add_tab_pushButton.setFont(font)
         self.add_tab_pushButton.setCheckable(True)
+        self.add_tab_pushButton.setAutoExclusive(True)
         self.add_tab_pushButton.setObjectName("add_tab_pushButton")
         self.verticalLayout.addWidget(self.add_tab_pushButton)
         self.delete_tab_pushButton = QtWidgets.QPushButton(self.buttons_frame)
@@ -364,6 +373,7 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.delete_tab_pushButton.setFont(font)
         self.delete_tab_pushButton.setCheckable(True)
+        self.delete_tab_pushButton.setAutoExclusive(True)
         self.delete_tab_pushButton.setObjectName("delete_tab_pushButton")
         self.verticalLayout.addWidget(self.delete_tab_pushButton)
         self.verticalLayout_2.addWidget(self.buttons_frame)
@@ -428,12 +438,14 @@ class Ui_MainWindow(object):
         self.search_label.setObjectName("search_label")
         self.horizontalLayout_3.addWidget(self.search_label)
         self.search_lineEdit = QtWidgets.QLineEdit(self.search_frame)
+        self.search_lineEdit.setMaximumSize(QtCore.QSize(16777215, 35))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
         self.search_lineEdit.setFont(font)
         self.search_lineEdit.setStyleSheet("")
         self.search_lineEdit.setText("")
+        self.search_lineEdit.setFrame(True)
         self.search_lineEdit.setClearButtonEnabled(True)
         self.search_lineEdit.setObjectName("search_lineEdit")
         self.horizontalLayout_3.addWidget(self.search_lineEdit)
@@ -481,6 +493,7 @@ class Ui_MainWindow(object):
         self.back_pushButton = QtWidgets.QPushButton(self.choose_file_frame)
         self.back_pushButton.setEnabled(False)
         self.back_pushButton.setMinimumSize(QtCore.QSize(100, 0))
+        self.back_pushButton.setMaximumSize(QtCore.QSize(16777215, 35))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
@@ -526,6 +539,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.setSpacing(8)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.save_file_path_lineEdit = QtWidgets.QLineEdit(self.save_file_path_actions_frame)
+        self.save_file_path_lineEdit.setMaximumSize(QtCore.QSize(16777215, 35))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
@@ -535,6 +549,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.save_file_path_lineEdit)
         self.save_file_path_choose_pushButton = QtWidgets.QPushButton(self.save_file_path_actions_frame)
         self.save_file_path_choose_pushButton.setMinimumSize(QtCore.QSize(100, 0))
+        self.save_file_path_choose_pushButton.setMaximumSize(QtCore.QSize(16777215, 35))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
@@ -545,7 +560,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_7.addWidget(self.save_fil_path_frame)
         self.download_file_pushButton = QtWidgets.QPushButton(self.download_page)
         self.download_file_pushButton.setEnabled(False)
+        self.download_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
+        font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
         self.download_file_pushButton.setFont(font)
@@ -811,6 +828,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_14.addWidget(self.choose_version_folder_frame)
         self.add_version_folder_pushButton = QtWidgets.QPushButton(self.version_page)
         self.add_version_folder_pushButton.setEnabled(False)
+        self.add_version_folder_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
@@ -846,7 +864,7 @@ class Ui_MainWindow(object):
 "")
         self.add_version_folder_pushButton.setObjectName("add_version_folder_pushButton")
         self.verticalLayout_14.addWidget(self.add_version_folder_pushButton)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 290, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 300, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_14.addItem(spacerItem3)
         self.add_format_stackedWidget.addWidget(self.version_page)
         self.instruction_page = QtWidgets.QWidget()
@@ -895,6 +913,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_15.addWidget(self.choose_instruction_file_frame)
         self.add_instruction_file_pushButton = QtWidgets.QPushButton(self.instruction_page)
         self.add_instruction_file_pushButton.setEnabled(False)
+        self.add_instruction_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
@@ -930,7 +949,7 @@ class Ui_MainWindow(object):
 "")
         self.add_instruction_file_pushButton.setObjectName("add_instruction_file_pushButton")
         self.verticalLayout_15.addWidget(self.add_instruction_file_pushButton)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 282, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 300, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_15.addItem(spacerItem4)
         self.add_format_stackedWidget.addWidget(self.instruction_page)
         self.verticalLayout_12.addWidget(self.add_format_stackedWidget)
@@ -1071,6 +1090,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_20.addWidget(self.accept_file_delete_checkBox)
         self.delete_file_pushButton = QtWidgets.QPushButton(self.delete_file_page)
         self.delete_file_pushButton.setEnabled(False)
+        self.delete_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
@@ -1106,7 +1126,7 @@ class Ui_MainWindow(object):
 "")
         self.delete_file_pushButton.setObjectName("delete_file_pushButton")
         self.verticalLayout_20.addWidget(self.delete_file_pushButton)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 267, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 279, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_20.addItem(spacerItem6)
         self.delete_stackedWidget.addWidget(self.delete_file_page)
         self.delete_group_page = QtWidgets.QWidget()
@@ -1152,6 +1172,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_22.addWidget(self.accept_group_delete_checkBox)
         self.delet_group_pushButton = QtWidgets.QPushButton(self.delete_group_page)
         self.delet_group_pushButton.setEnabled(False)
+        self.delet_group_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
@@ -1187,7 +1208,7 @@ class Ui_MainWindow(object):
 "")
         self.delet_group_pushButton.setObjectName("delet_group_pushButton")
         self.verticalLayout_22.addWidget(self.delet_group_pushButton)
-        spacerItem7 = QtWidgets.QSpacerItem(20, 347, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem7 = QtWidgets.QSpacerItem(20, 357, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_22.addItem(spacerItem7)
         self.delete_stackedWidget.addWidget(self.delete_group_page)
         self.verticalLayout_17.addWidget(self.delete_stackedWidget)
@@ -1237,7 +1258,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tabs_stackedWidget.setCurrentIndex(0)
-        self.add_format_stackedWidget.setCurrentIndex(0)
+        self.add_format_stackedWidget.setCurrentIndex(1)
         self.delete_stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -1245,9 +1266,9 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "File Archive"))
         self.logo_label.setText(_translate("MainWindow", "File Archive"))
-        self.download_tab_pushButton.setText(_translate("MainWindow", "Скачать"))
-        self.add_tab_pushButton.setText(_translate("MainWindow", "Добавить"))
-        self.delete_tab_pushButton.setText(_translate("MainWindow", "Удалить"))
+        self.download_tab_pushButton.setText(_translate("MainWindow", " Скачать"))
+        self.add_tab_pushButton.setText(_translate("MainWindow", " Добавить"))
+        self.delete_tab_pushButton.setText(_translate("MainWindow", " Удалить"))
         self.version_label.setText(_translate("MainWindow", "Version 4.0.0"))
         self.search_label.setText(_translate("MainWindow", "Поиск:"))
         self.search_lineEdit.setPlaceholderText(_translate("MainWindow", "Версия 1.0.2"))
