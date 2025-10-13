@@ -1,3 +1,4 @@
+from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtCore import QObject, QEvent
 
 
@@ -19,6 +20,8 @@ class Controller(QObject):
         self.view.create_group_lineedit_text_changed(self.on_create_group_lineedit_text_changed) # Изменение текста в строке ввода имени группы
 
         self.view.create_group_button_clicked(self.on_create_group_button_clicked) # Нажатие на кнопку создания группы
+        self.view.select_folder_button_clicked(self.on_select_folder_button_clicked) # Нажатие на кнопку выбора папки
+        self.view.select_file_button_clicked(self.on_select_file_button_clicked) # Нажатие на кнопку выбора файла
 
     def eventFilter(self, obj, event):
         """Функция устанавливает иконку строки поиска в зависимости от состояния строки поиска"""
@@ -52,3 +55,19 @@ class Controller(QObject):
     def on_create_group_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку создания группы"""
         print("=== СОЗДАТЬ ГРУППУ ===")
+
+    def on_select_folder_button_clicked(self, button):
+        """Функция обрабатывает нажатие на кнопку выбора папки"""
+        folder_path = QFileDialog.getExistingDirectory()
+        self.view.set_selected_folder_path(folder_path=folder_path, button=button)
+
+    def on_select_file_button_clicked(self):
+        """Функция обрабатывает нажатие на кнопку выбора файла"""
+        file_path, _ = QFileDialog.getOpenFileName(
+            None,
+            "Выбрать файл",
+            "",
+            "Докумен Word (*.doc *.docx);;All Files (*)"
+        )
+
+        self.view.set_selected_file_path(file_path=file_path)

@@ -36,6 +36,12 @@ class View:
             self.ui.what_delete_group_radioButton: self.ui.delete_group_page
         }
 
+        # Словарь элементов выбора папки, где ключ - кнопка 'Выбрать', занчение - поле ввода
+        self.select_folder_dict = {
+            self.ui.save_file_path_choose_pushButton: self.ui.save_file_path_lineEdit,
+            self.ui.choose_version_folder_pushButton: self.ui.choose_version_folder_lineEdit,
+        }
+
     def get_tab_page(self, button):
         """Функция возвращает страницу для переданной кнопки раздела"""
         return self.tabs_dict[button]
@@ -66,6 +72,15 @@ class View:
             self.search_action.setIcon(QIcon(":/icons/search/search_icon_focus.svg"))
         else:
             self.search_action.setIcon(QIcon(":/icons/search/search_icon.svg"))
+
+    def set_selected_folder_path(self, folder_path, button):
+        """Функция устанавливает выбранную папку в поле ввода"""
+        lineedit = self.select_folder_dict.get(button) # Получаем поле ввода
+        lineedit.setText(folder_path)
+
+    def set_selected_file_path(self, file_path):
+        """Функция устанавливает выбранный файл в поле ввода"""
+        self.ui.choose_instruction_file_lineEdit.setText(file_path)
 
     def update_create_group_button_state(self):
         """Функция обновляет состояние кнопки создания группы"""
@@ -98,3 +113,12 @@ class View:
     def create_group_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку создания группы"""
         self.ui.create_group_pushButton.clicked.connect(handler)
+    
+    def select_folder_button_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку выбора папки"""
+        for button in self.select_folder_dict.keys():
+            button.clicked.connect(lambda _, btn=button: handler(btn))
+
+    def select_file_button_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку выбора файла"""
+        self.ui.choose_instruction_file_pushButton.clicked.connect(handler)
