@@ -255,7 +255,9 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* === Базовые свойства sidebar-кнопок === */\n"
-"QPushButton.sidebar {\n"
+"QPushButton#download_tab_pushButton,\n"
+"QPushButton#add_tab_pushButton,\n"
+"QPushButton#delete_tab_pushButton{\n"
 "    border: none;\n"
 "    border-radius: 6px;\n"
 "    padding: 8px 12px;\n"
@@ -266,13 +268,16 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* === Наведение === */\n"
-"QPushButton.sidebar:hover {\n"
+"QPushButton#download_tab_pushButton:hover,\n"
+"QPushButton#add_tab_pushButton:hover,\n"
+"QPushButton#delete_tab_pushButton:hover{\n"
 "    background-color: #C8D9FF;       /* Светло-синий hover */\n"
 "}\n"
 "\n"
 "/* === Активная (нажатая / выбранная / залипшая) кнопка === */\n"
-"QPushButton.sidebar:checked,\n"
-"QPushButton.sidebar:pressed {\n"
+"QPushButton#download_tab_pushButton:checked,\n"
+"QPushButton#add_tab_pushButton:checked,\n"
+"QPushButton#delete_tab_pushButton:checked{\n"
 "    background-color: #2563EB;       /* Акцентный синий фон */\n"
 "    color: #FFFFFF;                  /* Белый текст */\n"
 "    font-weight: bold;               /* Жирный шрифт */\n"
@@ -333,7 +338,10 @@ class Ui_MainWindow(object):
         self.download_tab_pushButton.setMaximumSize(QtCore.QSize(16777215, 48))
         font = QtGui.QFont()
         font.setPointSize(14)
+        font.setBold(False)
+        font.setWeight(50)
         self.download_tab_pushButton.setFont(font)
+        self.download_tab_pushButton.setCheckable(True)
         self.download_tab_pushButton.setObjectName("download_tab_pushButton")
         self.verticalLayout.addWidget(self.download_tab_pushButton)
         self.add_tab_pushButton = QtWidgets.QPushButton(self.buttons_frame)
@@ -341,7 +349,10 @@ class Ui_MainWindow(object):
         self.add_tab_pushButton.setMaximumSize(QtCore.QSize(16777215, 48))
         font = QtGui.QFont()
         font.setPointSize(14)
+        font.setBold(False)
+        font.setWeight(50)
         self.add_tab_pushButton.setFont(font)
+        self.add_tab_pushButton.setCheckable(True)
         self.add_tab_pushButton.setObjectName("add_tab_pushButton")
         self.verticalLayout.addWidget(self.add_tab_pushButton)
         self.delete_tab_pushButton = QtWidgets.QPushButton(self.buttons_frame)
@@ -349,7 +360,10 @@ class Ui_MainWindow(object):
         self.delete_tab_pushButton.setMaximumSize(QtCore.QSize(16777215, 48))
         font = QtGui.QFont()
         font.setPointSize(14)
+        font.setBold(False)
+        font.setWeight(50)
         self.delete_tab_pushButton.setFont(font)
+        self.delete_tab_pushButton.setCheckable(True)
         self.delete_tab_pushButton.setObjectName("delete_tab_pushButton")
         self.verticalLayout.addWidget(self.delete_tab_pushButton)
         self.verticalLayout_2.addWidget(self.buttons_frame)

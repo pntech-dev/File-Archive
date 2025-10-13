@@ -9,13 +9,15 @@ from mvc import Model, View, Controller
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
+
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
+        
+        # Иконка приложения
         icon = QIcon(":/icons/icon.ico")
         self.setWindowIcon(icon)
 

@@ -281,7 +281,9 @@ Line[frameShape=&quot;4&quot;] {
 }
 
 /* === Базовые свойства sidebar-кнопок === */
-QPushButton.sidebar {
+QPushButton#download_tab_pushButton,
+QPushButton#add_tab_pushButton,
+QPushButton#delete_tab_pushButton{
     border: none;
     border-radius: 6px;
     padding: 8px 12px;
@@ -292,13 +294,16 @@ QPushButton.sidebar {
 }
 
 /* === Наведение === */
-QPushButton.sidebar:hover {
+QPushButton#download_tab_pushButton:hover,
+QPushButton#add_tab_pushButton:hover,
+QPushButton#delete_tab_pushButton:hover{
     background-color: #C8D9FF;       /* Светло-синий hover */
 }
 
 /* === Активная (нажатая / выбранная / залипшая) кнопка === */
-QPushButton.sidebar:checked,
-QPushButton.sidebar:pressed {
+QPushButton#download_tab_pushButton:checked,
+QPushButton#add_tab_pushButton:checked,
+QPushButton#delete_tab_pushButton:checked{
     background-color: #2563EB;       /* Акцентный синий фон */
     color: #FFFFFF;                  /* Белый текст */
     font-weight: bold;               /* Жирный шрифт */
@@ -417,10 +422,15 @@ QPushButton.sidebar:checked:hover {
             <property name="font">
              <font>
               <pointsize>14</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
              <string>Скачать</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -441,10 +451,15 @@ QPushButton.sidebar:checked:hover {
             <property name="font">
              <font>
               <pointsize>14</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
              <string>Добавить</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -465,10 +480,15 @@ QPushButton.sidebar:checked:hover {
             <property name="font">
              <font>
               <pointsize>14</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
              <string>Удалить</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
