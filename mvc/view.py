@@ -8,73 +8,45 @@ class View:
     def __init__(self, ui):
         self.ui = ui
 
-        # Иконка строки поиска
+        """=== Иконки ==="""
+        # Устанавливаем иконку строки поиска
         self.search_action = self.ui.search_lineEdit.addAction(QIcon(":/icons/search/search_icon.svg"), 
                                                                QLineEdit.LeadingPosition)
 
-        # Иконки для кнопок разделов (ПО УМОЛЧАНИЮ)
+        # Устанавливаем иконки для кнопок разделов
         self.ui.download_tab_pushButton.setIcon(QIcon(":/icons/tabs/download_tab.svg"))
         self.ui.add_tab_pushButton.setIcon(QIcon(":/icons/tabs/add_tab.svg"))
         self.ui.delete_tab_pushButton.setIcon(QIcon(":/icons/tabs/delete_tab.svg"))
 
+        """=== Словари ==="""
         # Словарь кнопок разделов, где ключ - кнопка, значение - раздел
-        self.tabs_dict = {
-            self.ui.download_tab_pushButton: self.ui.download_page,
-            self.ui.add_tab_pushButton: self.ui.add_page,
-            self.ui.delete_tab_pushButton: self.ui.delete_page
-        }
+        self.tabs_dict = {self.ui.download_tab_pushButton: self.ui.download_page,
+                          self.ui.add_tab_pushButton: self.ui.add_page,
+                          self.ui.delete_tab_pushButton: self.ui.delete_page}
 
         # Словарь вариантов добавления, где ключ - радио кнопка, значение - вариант
-        self.add_options_dict = {
-            self.ui.version_radioButton: self.ui.version_page,
-            self.ui.instruction_radioButton: self.ui.instruction_page
-        }
+        self.add_options_dict = {self.ui.version_radioButton: self.ui.version_page,
+                                 self.ui.instruction_radioButton: self.ui.instruction_page}
 
         # Словарь вариантов удаления, где ключ - радио кнопка, значение - вариант
-        self.delete_options_dict = {
-            self.ui.what_delete_file_radioButton: self.ui.delete_file_page,
-            self.ui.what_delete_group_radioButton: self.ui.delete_group_page
-        }
+        self.delete_options_dict = {self.ui.what_delete_file_radioButton: self.ui.delete_file_page,
+                                    self.ui.what_delete_group_radioButton: self.ui.delete_group_page}
 
-        # Словарь элементов выбора папки, где ключ - кнопка 'Выбрать', занчение - поле ввода
-        self.select_folder_dict = {
-            self.ui.save_file_path_choose_pushButton: self.ui.save_file_path_lineEdit,
-            self.ui.choose_version_folder_pushButton: self.ui.choose_version_folder_lineEdit,
-        }
-
-        # Словарь кнопок удалить, где ключ - кнопка, значение список объектов от которых завист состояние кнопки
-        # Ключ: [Чек-Бокс (подтверждение удаления), [Выподающие списки]]
-        self.delete_buttons_objects_dict = {
-            self.ui.what_delete_file_radioButton: [self.ui.accept_file_delete_checkBox,
-                                                   [self.ui.choose_group_to_delete_comboBox,
-                                                    self.ui.choose_file_to_delete_comboBox]],
-            self.ui.what_delete_group_radioButton: [self.ui.accept_group_delete_checkBox,
-                                                    [self.ui.choose_group_to_delete_comboBox_2]]
-        }
-
-    def get_tab_page(self, button):
-        """Функция возвращает страницу для переданной кнопки раздела"""
-        return self.tabs_dict[button]
+    # === Панель НАВИГАЦИИ ===
+    # Кнопки "Скачать", "Добавить", "Удалить"
     
-    def get_add_option_page(self, button):
-        """Функция возвращает страницу для переданной кнопки варианта добавления"""
-        return self.add_options_dict[button]
-    
-    def get_delete_option_page(self, button):
-        """Функция возвращает страницу для переданной кнопки варианта удаления"""
-        return self.delete_options_dict[button]
-    
-    def set_tab_page(self, page):
+    def set_tab_page(self, button):
         """Функция устанавливает страницу для отображения"""
+        page = self.tabs_dict.get(button)
         self.ui.tabs_stackedWidget.setCurrentWidget(page)
 
-    def set_add_option_page(self, page):
-        """Функция устанавливает страницу отображения варианта добавления"""
-        self.ui.add_format_stackedWidget.setCurrentWidget(page)
-
-    def set_delete_option_page(self, page):
-        """Функция устанавливает страницу отображения варианта удаления"""
-        self.ui.delete_stackedWidget.setCurrentWidget(page)
+    def tab_button_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку раздела"""
+        for button in self.tabs_dict.keys():
+            button.clicked.connect(lambda _, btn=button: handler(btn))
+    
+    # === Вкладка СКАЧАТЬ ===
+    # Строка поиска, чек-боксы, таблица, кнопка "Назад", лайнэдиты, кнопка "Скачать"
 
     def set_search_icon_state(self, state):
         """Функция устанавливает иконку строки поиска в зависимости от состояния строки поиска"""
@@ -83,95 +55,91 @@ class View:
         else:
             self.search_action.setIcon(QIcon(":/icons/search/search_icon.svg"))
 
-    def set_selected_folder_path(self, folder_path, button):
-        """Функция устанавливает выбранную папку в поле ввода"""
-        lineedit = self.select_folder_dict.get(button) # Получаем поле ввода
-        lineedit.setText(folder_path)
+    def download_page_search_lineedit_text_changed(self, handler):
+        """Функция устанавливает обработчик изменения текста в строке поиска в разделе 'Скачать'"""
+        self.ui.search_lineEdit.textChanged.connect(handler)
 
-    def set_selected_file_path(self, file_path):
-        """Функция устанавливает выбранный файл в поле ввода"""
-        self.ui.choose_instruction_file_lineEdit.setText(file_path)
+    def download_page_checkboxes_state_changed(self, handler):
+        """Функция устанавливает обработчик изменения состояния чекбоксов в разделе 'Скачать'"""
+        for checkbox in self.download_page_checkboxes:
+            checkbox.stateChanged.connect(handler)
 
-    def update_create_group_button_state(self):
-        """Функция обновляет состояние кнопки создания группы"""
-        text = self.ui.group_name_lineEdit.text() # Получаем текст из QLineEdit
-        
-        if text: # Если текст не пустой
-            self.ui.create_group_pushButton.setEnabled(True) # Включаем кнопку
-        else:
-            self.ui.create_group_pushButton.setEnabled(False) # Выключаем кнопку
+    # === === === === === === === === ===
+    # 
+    # Функции обработки изменения таблицы
+    # 
+    # === === === === === === === === ===
 
-    def update_add_version_button_state(self):
-        """Функция обновляет состояние кнопки добавления версии"""
-        combobox_item = self.ui.groups_comboBox.currentText() # Получаем текст из QComboBox
-        text = self.ui.choose_version_folder_lineEdit.text() # Получаем текст из QLineEdit
-        
-        if combobox_item and text: # Если текст в QComboBox и QLineEdit не пустой
-            self.ui.add_version_pushButton.setEnabled(True) # Включаем кнопку
-        else:
-            self.ui.add_version_pushButton.setEnabled(False) # Выключаем кнопку
+    def download_page_back_push_button_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку 'Назад' в разделе 'Скачать'"""
+        self.ui.back_pushButton.clicked.connect(handler)
 
-    def update_add_instruction_button_state(self):
-        """Функция обновляет состояние кнопки добавления инструкции"""
-        combobox_item = self.ui.groups_comboBox.currentText() # Получаем текст из QComboBox
-        text = self.ui.choose_instruction_file_lineEdit.text() # Получаем текст из QLineEdit
+    def download_page_lineedits_text_changed(self, handler):
+        """Функция устанавливает обработчик изменения текста в строках ввода в разделе 'Скачать'"""
+        for lineedit in self.download_page_lineedits:
+            lineedit.textChanged.connect(handler)
 
-        if combobox_item and text: # Если текст в QComboBox и QLineEdit не пустой
-            self.ui.add_instruction_pushButton.setEnabled(True) # Включаем кнопку
-        else:
-            self.ui.add_instruction_pushButton.setEnabled(False) # Выключаем кнопку
+    def download_page_download_push_buttons_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку 'Скачать' в разделе 'Скачать'"""
+        self.ui.download_file_pushButton.clicked.connect(handler)
 
-    def update_delete_button_state(self, button):
-        """Функция обновляет состояние кнопки удаления"""
-        buttons_lst = self.delete_buttons_objects_dict.get(button) # Получаем список объектов от которых зависит состояние кнопки
-        
+    # === Вкладка ДОБАВИТЬ ===
+    # Комбобокс, кнопка "Создать", радио-кнопки, лайнэдиты, кнопки "Добавить"
 
-    def tab_button_clicked(self, handler):
-        """Функция устанавливает обработчик нажатия на кнопку раздела"""
-        for button in self.tabs_dict.keys():
-            button.clicked.connect(lambda _, btn=button: handler(btn))
+    def set_add_option_page(self, page):
+        """Функция устанавливает страницу отображения варианта добавления"""
+        self.ui.add_format_stackedWidget.setCurrentWidget(page)
 
-    def add_options_button_clicked(self, handler):
-        """Функция устанавливает обработчик нажатия на кнопку выбора варианта добавления"""
-        for button in self.add_options_dict.keys():
-            button.clicked.connect(lambda _, btn=button: handler(btn))
+    def add_page_comboboxes_state_changed(self, handler):
+        """Функция устанавливает обработчик изменения состояния комбобоксов в разделе 'Добавить'"""
+        for combobox in self.add_page_comboboxes:
+            combobox.currentIndexChanged.connect(handler)
 
-    def delete_options_button_clicked(self, handler):
-        """Функция устанавливает обработчик нажатия на кнопку выбора варианта удаления"""
-        for button in self.delete_options_dict.keys():
-            button.clicked.connect(lambda _, btn=button: handler(btn))
-
-    def create_group_lineedit_text_changed(self, handler):
-        """Функция устанавливает обработчик изменения текста в строке ввода имени группы"""
-        self.ui.group_name_lineEdit.textChanged.connect(handler)
-
-    def create_group_button_clicked(self, handler):
-        """Функция устанавливает обработчик нажатия на кнопку создания группы"""
+    def add_page_create_push_buttons_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку 'Создать' в разделе 'Добавить'"""
         self.ui.create_group_pushButton.clicked.connect(handler)
+
+    def add_page_radio_buttons_state_changed(self, handler):
+        """Функция устанавливает обработчик изменения состояния радио-кнопок в разделе 'Добавить'"""
+        for button in self.add_page_radio_buttons:
+            button.stateChanged.connect(handler)
+
+    def add_page_lineedits_text_changed(self, handler):
+        """Функция устанавливает обработчик изменения текста в строках ввода в разделе 'Добавить'"""
+        for lineedit in self.add_page_lineedits:
+            lineedit.textChanged.connect(handler)
+
+    def add_page_add_push_buttons_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопки 'Добавить' в разделе 'Добавить'"""
+        for button in self.add_page_add_push_buttons:
+            button.clicked.connect(handler)
     
-    def select_folder_button_clicked(self, handler):
-        """Функция устанавливает обработчик нажатия на кнопку выбора папки"""
-        for button in self.select_folder_dict.keys():
+    # === Вкладка УДАЛИТЬ ===
+    # Радио-кнопки, комбобоксы, чек-боксы, кнопки "Удалить"
+
+    def set_delete_option_page(self, page):
+        """Функция устанавливает страницу отображения варианта удаления"""
+        self.ui.delete_stackedWidget.setCurrentWidget(page)
+
+    def delete_page_radio_buttons_state_changed(self, handler):
+        """Функция устанавливает обработчик изменения состояния радио-кнопок в разделе 'Удалить'"""
+        for button in self.delete_page_radio_buttons:
+            button.stateChanged.connect(handler)
+
+    def delete_page_comboboxes_state_changed(self, handler):
+        """Функция устанавливает обработчик изменения состояния комбобоксов в разделе 'Удалить'"""
+        for combobox in self.delete_page_comboboxes:
+            combobox.currentIndexChanged.connect(handler)
+
+    def delete_page_checkboxes_state_changed(self, handler):
+        """Функция устанавливает обработчик изменения состояния чекбоксов в разделе 'Удалить'"""
+        for checkbox in self.delete_page_checkboxes:
+            checkbox.stateChanged.connect(handler)
+
+    def delete_page_delete_push_buttons_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку 'Удалить' в разделе 'Удалить'"""
+        for button in self.delete_page_delete_push_buttons:
             button.clicked.connect(lambda _, btn=button: handler(btn))
 
-    def select_file_button_clicked(self, handler):
-        """Функция устанавливает обработчик нажатия на кнопку выбора файла"""
-        self.ui.choose_instruction_file_pushButton.clicked.connect(handler)
-
-    def add_tab_folder_path_lineedit_text_changed(self, handler):
-        """Функция устанавливает обработчик изменения текста в строке ввода пути папки в разделе 'Добавить версию'"""
-        self.ui.choose_version_folder_lineEdit.textChanged.connect(handler)
-
-    def add_tab_file_path_lineedit_text_changed(self, handler):
-        """Функция устанавливает обработчик изменения текста в строке ввода пути файла в разделе 'Добавить инструкцию'"""
-        self.ui.choose_instruction_file_lineEdit.textChanged.connect(handler)
-
-    def accept_version_delete_checkbox_clicked(self, handler):
-        """Функция устанавливает обработчик нажатия на чек-бокс подтверждения удаления версии"""
-        button = self.ui.delete_file_pushButton
-        self.ui.accept_file_delete_checkBox.clicked.connect(lambda: handler(button=button))
-
-    def accept_group_delete_checkbox_clicked(self, handler):
-        """Функция устанвливает обработчик нажатия на чек-бокс подтверждения удаления группы"""
-        button = self.ui.delet_group_pushButton
-        self.ui.accept_file_delete_checkBox.clicked.connect(lambda: handler(button=button))
+    # === Прогресс бар ===
+    # Текста прогресс бара, прогресс бар
