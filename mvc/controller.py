@@ -13,22 +13,31 @@ class Controller(QObject):
         self.view.ui.search_lineEdit.installEventFilter(self)
 
         """=== Обработчики ==="""
-        # Разделы, радио-кнопки, чекбоксы
-        self.view.tab_button_clicked(self.on_tab_button_clicked) # Нажатие на кнопку раздела
-        self.view.add_options_button_clicked(self.on_add_options_button_clicked) # Нажатие на кнопку выбора варианта добавления
-        self.view.delete_options_button_clicked(self.on_delete_options_button_clicked) # Нажатие на кнопку выбора варианта удаления
-        self.view.accept_version_delete_checkbox_clicked(self.on_accept_version_delete_checkbox_clicked) # Нажатие на чек-бокс подтверждения удаления версии
-        self.view.accept_group_delete_checkbox_clicked(self.on_accept_group_delete_checkbox_clicked) # Нажатие на чек-бокс подтверждения удаления группы
-        
-        # Лайнэдиты
-        self.view.create_group_lineedit_text_changed(self.on_create_group_lineedit_text_changed) # Изменение текста в строке ввода имени группы
-        self.view.add_tab_folder_path_lineedit_text_changed(self.on_add_tab_folder_path_lineedit_text_changed) # Изменение текста в строке ввода пути папки
-        self.view.add_tab_file_path_lineedit_text_changed(self.on_add_tab_file_path_lineedit_text_changed) # Изменение текста в строке ввода пути файла
-
         # Кнопки
-        self.view.create_group_button_clicked(self.on_create_group_button_clicked) # Нажатие на кнопку создания группы
-        self.view.select_folder_button_clicked(self.on_select_folder_button_clicked) # Нажатие на кнопку выбора папки
-        self.view.select_file_button_clicked(self.on_select_file_button_clicked) # Нажатие на кнопку выбора файла
+        self.view.tab_button_clicked(self.on_tab_button_clicked) # Нажатия на кнопки раздела
+        self.view.download_page_choose_push_button_clicked(self.on_download_page_choose_folder_path_button_clicked) # Нажатие на кнопку выбора папки
+        self.view.add_page_choose_folder_path_push_buttons_clicked(self.on_add_page_choose_folder_path_button_clicked) # Нажатие на кнопку выбора папки
+        self.view.add_page_choose_file_path_push_buttons_clicked(self.on_add_page_choose_file_path_button_clicked) # Нажатие на кнопку выбора файла
+        self.view.add_page_create_push_buttons_clicked(self.on_add_page_create_push_button_clicked) # Нажатие на кнопку создания группы
+        self.view.add_page_add_push_buttons_clicked(self.on_add_page_add_push_button_clicked) # Нажатие на кнопку добавления
+        self.view.delete_page_delete_push_buttons_clicked(self.on_delete_page_delete_push_button_clicked) # Нажатие на кнопки удаления
+
+        # Радио-кнопки
+        self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked) # Нажатия на радио-кнопки выбора варианта добавления
+        self.view.delete_page_radio_buttons_state_changed(self.on_delete_options_button_clicked) # Нажатия на радио-кнопки выбора варианта удаления
+
+        # Лайнэдиты
+        self.view.add_page_new_group_name_lineedit_text_changed(self.on_add_page_new_group_name_lineedit_text_changed) # Изменение текста в строке ввода имени новой группы
+        self.view.add_page_paths_lineedits_text_changed(self.on_add_page_paths_lineedits_text_changed) # Изменение текста в строках ввода
+
+        # Комбобоксы
+        self.view.add_page_group_name_combobox_item_changed(self.on_add_page_group_name_combobox_item_changed) # Изменение объекта в комбобоксе раздела Добавить
+        self.view.delete_page_group_comboboxes_state_changed(self.on_delete_page_group_comboboxes_state_changed) # Изменение объектоы в комбобоксах раздела Удалить
+
+        # Чек-боксы
+        self.view.delete_page_checkboxes_state_changed(self.on_delete_page_checkboxes_state_changed) # Изменение состояния чек-боксов раздела Удалить
+
+    # === Иконки ===
 
     def eventFilter(self, obj, event):
         """Функция устанавливает иконку строки поиска в зависимости от состояния строки поиска"""
@@ -39,58 +48,106 @@ class Controller(QObject):
                 self.view.set_search_icon_state(state=False)
                 
         return super().eventFilter(obj, event)
+    
+    # === Панель НАВИГАЦИИ ===
 
     def on_tab_button_clicked(self, button):
         """Функция обрабатывает нажатие на кнопку раздела"""
-        page = self.view.get_tab_page(button)
-        self.view.set_tab_page(page)
+        self.view.set_tab_page(button)
+
+    # === Вкладка СКАЧАТЬ ===
+
+    def on_download_page_choose_folder_path_button_clicked(self):
+        """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Скачать'"""
+        self.view.set_download_save_path(QFileDialog.getExistingDirectory())
+
+    # === Вкладка ДОБАВИТЬ ===
+
+    def update_add_push_buttons_state(self):
+        """Функция обновляет состояние кнопок 'Добавить' в разделе 'Добавить'"""
+        group_name = self.view.get_add_page_combobox_current_group_name()
+        lineedits_texts = self.view.get_add_page_paths_lineedits_datas()
+
+        for value in lineedits_texts.values():
+            text = value.get("text")
+            button = value.get("button")
+            
+            self.view.set_add_button_state(state=True if group_name and text else False, button=button)
 
     def on_add_options_button_clicked(self, button):
         """Функция обрабатывает нажатие на кнопку выбора варианта добавления"""
         page = self.view.get_add_option_page(button)
         self.view.set_add_option_page(page)
 
-    def on_delete_options_button_clicked(self, button):
-        """Функция обрабатывает нажатие на кнопку выбора варианта удаления"""
-        page = self.view.get_delete_option_page(button)
-        self.view.set_delete_option_page(page)
+    def on_add_page_choose_folder_path_button_clicked(self, button):
+        """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Добавить'"""
+        lineedit = self.view.get_path_lineedit(button=button)
+        self.view.set_lineedit_path(lineedit=lineedit, path=QFileDialog.getExistingDirectory())
 
-    def on_create_group_lineedit_text_changed(self):
-        """Функция обрабатывает изменение текста в строке ввода имени группы"""
-        self.view.update_create_group_button_state()
-
-    def on_create_group_button_clicked(self):
-        """Функция обрабатывает нажатие на кнопку создания группы"""
-        print("=== СОЗДАТЬ ГРУППУ ===")
-
-    def on_select_folder_button_clicked(self, button):
-        """Функция обрабатывает нажатие на кнопку выбора папки"""
-        folder_path = QFileDialog.getExistingDirectory()
-        self.view.set_selected_folder_path(folder_path=folder_path, button=button)
-
-    def on_select_file_button_clicked(self):
-        """Функция обрабатывает нажатие на кнопку выбора файла"""
-        file_path, _ = QFileDialog.getOpenFileName(
+    def on_add_page_choose_file_path_button_clicked(self, button):
+        """Функция обрабатывает нажатие на кнопку выбора файла в разделе 'Добавить'"""
+        lineedit = self.view.get_path_lineedit(button=button)
+        path, _ = QFileDialog.getOpenFileName(
             None,
             "Выбрать файл",
             "",
             "Докумен Word (*.doc *.docx);;All Files (*)"
         )
 
-        self.view.set_selected_file_path(file_path=file_path)
+        self.view.set_lineedit_path(lineedit=lineedit, path=path)
 
-    def on_add_tab_folder_path_lineedit_text_changed(self):
-        """Функция обрабатывает изменение текста в строке ввода пути папки в разделе 'Добавить версию'"""
-        self.view.update_add_version_button_state()
+    def on_add_page_create_push_button_clicked(self):
+        """Функция обрабатывает нажатие на кнопку создания группы в разделе 'Добавить'"""
+        print("=== Создать группу ===")
 
-    def on_add_tab_file_path_lineedit_text_changed(self):
-        """Функция обрабатывает изменение текста в строке ввода пути файла в разделе 'Добавить инструкцию'"""
-        self.view.update_add_instruction_button_state()
+    def on_add_page_new_group_name_lineedit_text_changed(self, text):
+        """Функция обрабатывает изменение текста в строке ввода имени новой группы в разделе 'Добавить'"""
+        group_name = self.view.get_new_group_name_lineedit_text()
+        self.view.update_add_page_create_push_button_state(state=True if group_name else False)
 
-    def on_accept_version_delete_checkbox_clicked(self, button):
-        """Функция обрабатывает нажатие на чек-бокс подтверждения удаления версии"""
-        self.view.update_delete_button_state(button=button)
+    def on_add_page_paths_lineedits_text_changed(self):
+        """Функция обрабатывает изменение текста в строках ввода в разделе 'Добавить'"""
+        self.update_add_push_buttons_state()
 
-    def on_accept_group_delete_checkbox_clicked(self, button):
-        """Функция обрабатывает нажатие на чек-бокс подтверждения удаления группы"""
-        self.view.update_delete_button_state(button=button)
+    def on_add_page_group_name_combobox_item_changed(self):
+        """Функция обрабатывает изменение объекта в комбобоксе в разделе 'Добавить'"""
+        self.update_add_push_buttons_state()
+
+    def on_add_page_add_push_button_clicked(self, button_type):
+        """Функция обрабатывает нажатие на кнопку добавления в разделе 'Добавить'"""
+        print(f"=== Добавить {button_type}===")
+
+    # === Вкладка УДАЛИТЬ ===
+
+    def update_delete_push_buttons_state(self):
+        """Обновляет состояние кнопок 'Удалить'."""
+        comboboxes_data = self.view.get_delete_page_comboboxes_datas()
+        checkboxes_data = self.view.get_delete_page_checkboxes_datas()
+
+        for checkbox_data in checkboxes_data.values():
+            checkbox_state = checkbox_data.get("state")
+            what_delete = checkbox_data.get("what_delete")
+
+            button_state = False
+            if checkbox_state:
+                relevant_comboboxes = [cb for cb in comboboxes_data.values() if cb.get("what_delete") == what_delete]
+                button_state = all(cb.get("text") for cb in relevant_comboboxes)
+            
+            self.view.set_delete_button_state(state=button_state, button_type=what_delete)
+            
+    def on_delete_options_button_clicked(self, button):
+        """Функция обрабатывает нажатие на кнопку выбора варианта удаления"""
+        page = self.view.get_delete_option_page(button)
+        self.view.set_delete_option_page(page)
+
+    def on_delete_page_group_comboboxes_state_changed(self):
+        """Функция обрабатывает изменение объектов в комбобоксах в разделе 'Удалить'"""
+        self.update_delete_push_buttons_state()
+
+    def on_delete_page_checkboxes_state_changed(self):
+        """Функция обрабатывает изменение состояния чек-боксов в разделе 'Удалить'"""
+        self.update_delete_push_buttons_state()
+
+    def on_delete_page_delete_push_button_clicked(self, button_type):
+        """Функция обрабатывает нажатие на кнопку удаления в разделе 'Удалить'"""
+        print(f"=== Удалить {button_type} ===")

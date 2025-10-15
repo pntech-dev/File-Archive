@@ -2226,7 +2226,7 @@ QPushButton:disabled {
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="delet_group_pushButton">
+                <widget class="QPushButton" name="delete_group_pushButton">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
