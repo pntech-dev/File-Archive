@@ -14,7 +14,10 @@ class Controller(QObject):
 
         """=== Обработчики ==="""
         # Кнопки
-        self.view.tab_button_clicked(self.on_tab_button_clicked) # Нажатия на кнопки разделаэ
+        self.view.tab_button_clicked(self.on_tab_button_clicked) # Нажатия на кнопки раздела
+        self.view.download_page_choose_push_button_clicked(self.on_download_page_choose_folder_path_button_clicked) # Нажатие на кнопку выбора папки
+        self.view.add_page_choose_folder_path_push_buttons_clicked(self.on_add_page_choose_folder_path_button_clicked) # Нажатие на кнопку выбора папки
+        self.view.add_page_choose_file_path_push_buttons_clicked(self.on_add_page_choose_file_path_button_clicked) # Нажатие на кнопку выбора файла
 
         # Радио-кнопки
         self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked) # Нажатия на радио-кнопки выбора варианта добавления
@@ -40,12 +43,33 @@ class Controller(QObject):
 
     # === Вкладка СКАЧАТЬ ===
 
+    def on_download_page_choose_folder_path_button_clicked(self):
+        """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Скачать'"""
+        self.view.set_download_save_path(QFileDialog.getExistingDirectory())
+
     # === Вкладка ДОБАВИТЬ ===
 
     def on_add_options_button_clicked(self, button):
         """Функция обрабатывает нажатие на кнопку выбора варианта добавления"""
         page = self.view.get_add_option_page(button)
         self.view.set_add_option_page(page)
+
+    def on_add_page_choose_folder_path_button_clicked(self, button):
+        """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Добавить'"""
+        lineedit = self.view.get_path_lineedit(button=button)
+        self.view.set_lineedit_path(lineedit=lineedit, path=QFileDialog.getExistingDirectory())
+
+    def on_add_page_choose_file_path_button_clicked(self, button):
+        """Функция обрабатывает нажатие на кнопку выбора файла в разделе 'Добавить'"""
+        lineedit = self.view.get_path_lineedit(button=button)
+        path, _ = QFileDialog.getOpenFileName(
+            None,
+            "Выбрать файл",
+            "",
+            "Докумен Word (*.doc *.docx);;All Files (*)"
+        )
+
+        self.view.set_lineedit_path(lineedit=lineedit, path=path)
 
     # === Вкладка УДАЛИТЬ ===
 

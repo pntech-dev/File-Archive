@@ -18,7 +18,7 @@ class View:
         self.ui.add_tab_pushButton.setIcon(QIcon(":/icons/tabs/add_tab.svg"))
         self.ui.delete_tab_pushButton.setIcon(QIcon(":/icons/tabs/delete_tab.svg"))
 
-        """=== Словари ==="""
+        """=== Словари страниц ==="""
         # Словарь кнопок разделов, где ключ - кнопка, значение - раздел
         self.tabs_dict = {self.ui.download_tab_pushButton: self.ui.download_page,
                           self.ui.add_tab_pushButton: self.ui.add_page,
@@ -31,6 +31,10 @@ class View:
         # Словарь вариантов удаления, где ключ - радио кнопка, значение - вариант
         self.delete_options_dict = {self.ui.what_delete_file_radioButton: self.ui.delete_file_page,
                                     self.ui.what_delete_group_radioButton: self.ui.delete_group_page}
+        
+        """=== Словари кнопок ==="""
+        self.add_page_choose_push_buttons_dict = {self.ui.choose_version_folder_pushButton: self.ui.choose_version_folder_lineEdit,
+                                                   self.ui.choose_instruction_file_pushButton: self.ui.choose_instruction_file_lineEdit}
 
     # === Панель НАВИГАЦИИ ===
     # Кнопки "Скачать", "Добавить", "Удалить"
@@ -54,6 +58,10 @@ class View:
             self.search_action.setIcon(QIcon(":/icons/search/search_icon_focus.svg"))
         else:
             self.search_action.setIcon(QIcon(":/icons/search/search_icon.svg"))
+
+    def set_download_save_path(self, save_path):
+        """Функция устанавливает путь сохранения файла в строке ввода пуьт в разделе 'Скачать'"""
+        self.ui.save_file_path_lineEdit.setText(save_path)
 
     def download_page_search_lineedit_text_changed(self, handler):
         """Функция устанавливает обработчик изменения текста в строке поиска в разделе 'Скачать'"""
@@ -79,6 +87,10 @@ class View:
         for lineedit in self.download_page_lineedits:
             lineedit.textChanged.connect(handler)
 
+    def download_page_choose_push_button_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопку 'Выбрать' в разделе 'Скачать'"""
+        self.ui.save_file_path_choose_pushButton.clicked.connect(handler)
+
     def download_page_download_push_buttons_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку 'Скачать' в разделе 'Скачать'"""
         self.ui.download_file_pushButton.clicked.connect(handler)
@@ -87,12 +99,20 @@ class View:
     # Комбобокс, кнопка "Создать", радио-кнопки, лайнэдиты, кнопки "Добавить"
 
     def get_add_option_page(self, button):
-        """Функция возвращает страницу для отображения варианта добавления"""
+        """Функция возвращает страницу для отображения варианта добавления в разделе 'Добавить'"""
         return self.add_options_dict.get(button)
+    
+    def get_path_lineedit(self, button):
+        """Функция возвращает строку ввода пути в разделе 'Добавить'"""
+        return self.add_page_choose_push_buttons_dict.get(button)
 
     def set_add_option_page(self, page):
-        """Функция устанавливает страницу отображения варианта добавления"""
+        """Функция устанавливает страницу отображения варианта добавления в разделе 'Добавить'"""
         self.ui.add_format_stackedWidget.setCurrentWidget(page)
+
+    def set_lineedit_path(self, lineedit, path):
+        """Функция устанавливает путь в строке ввода в разделе 'Добавить'"""
+        lineedit.setText(path)
 
     def add_page_comboboxes_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния комбобоксов в разделе 'Добавить'"""
@@ -112,6 +132,16 @@ class View:
         """Функция устанавливает обработчик изменения текста в строках ввода в разделе 'Добавить'"""
         for lineedit in self.add_page_lineedits:
             lineedit.textChanged.connect(handler)
+
+    def add_page_choose_folder_path_push_buttons_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопки 'Выбрать' папку в разделе 'Добавить'"""
+        button = self.ui.choose_version_folder_pushButton
+        self.ui.choose_version_folder_pushButton.clicked.connect(lambda: handler(button=button))
+
+    def add_page_choose_file_path_push_buttons_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на кнопки 'Выбрать' файл в разделе 'Добавить'"""
+        button = self.ui.choose_instruction_file_pushButton
+        self.ui.choose_instruction_file_pushButton.clicked.connect(lambda: handler(button=button))
 
     def add_page_add_push_buttons_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопки 'Добавить' в разделе 'Добавить'"""
