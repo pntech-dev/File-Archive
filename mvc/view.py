@@ -86,6 +86,10 @@ class View:
     # === Вкладка ДОБАВИТЬ ===
     # Комбобокс, кнопка "Создать", радио-кнопки, лайнэдиты, кнопки "Добавить"
 
+    def get_add_option_page(self, button):
+        """Функция возвращает страницу для отображения варианта добавления"""
+        return self.add_options_dict.get(button)
+
     def set_add_option_page(self, page):
         """Функция устанавливает страницу отображения варианта добавления"""
         self.ui.add_format_stackedWidget.setCurrentWidget(page)
@@ -101,8 +105,8 @@ class View:
 
     def add_page_radio_buttons_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния радио-кнопок в разделе 'Добавить'"""
-        for button in self.add_page_radio_buttons:
-            button.stateChanged.connect(handler)
+        for button in self.add_options_dict.keys():
+            button.toggled.connect(lambda _, btn=button: handler(button=btn))
 
     def add_page_lineedits_text_changed(self, handler):
         """Функция устанавливает обработчик изменения текста в строках ввода в разделе 'Добавить'"""
@@ -117,14 +121,18 @@ class View:
     # === Вкладка УДАЛИТЬ ===
     # Радио-кнопки, комбобоксы, чек-боксы, кнопки "Удалить"
 
+    def get_delete_option_page(self, button):
+        """Функция возвращает страницу для отображения варианта удаления"""
+        return self.delete_options_dict.get(button)
+
     def set_delete_option_page(self, page):
         """Функция устанавливает страницу отображения варианта удаления"""
         self.ui.delete_stackedWidget.setCurrentWidget(page)
 
     def delete_page_radio_buttons_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния радио-кнопок в разделе 'Удалить'"""
-        for button in self.delete_page_radio_buttons:
-            button.stateChanged.connect(handler)
+        for button in self.delete_options_dict.keys():
+            button.toggled.connect(lambda _, btn=button: handler(button=btn))
 
     def delete_page_comboboxes_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния комбобоксов в разделе 'Удалить'"""
