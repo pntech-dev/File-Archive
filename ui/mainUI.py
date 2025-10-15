@@ -1201,16 +1201,16 @@ class Ui_MainWindow(object):
         self.accept_group_delete_checkBox.setFont(font)
         self.accept_group_delete_checkBox.setObjectName("accept_group_delete_checkBox")
         self.verticalLayout_22.addWidget(self.accept_group_delete_checkBox)
-        self.delet_group_pushButton = QtWidgets.QPushButton(self.delete_group_page)
-        self.delet_group_pushButton.setEnabled(False)
-        self.delet_group_pushButton.setMinimumSize(QtCore.QSize(0, 35))
+        self.delete_group_pushButton = QtWidgets.QPushButton(self.delete_group_page)
+        self.delete_group_pushButton.setEnabled(False)
+        self.delete_group_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
         font.setFamily("MS Shell Dlg 2")
         font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
-        self.delet_group_pushButton.setFont(font)
-        self.delet_group_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+        self.delete_group_pushButton.setFont(font)
+        self.delete_group_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
 "QPushButton {\n"
 "    background-color: #2563EB;       /* Основной синий */\n"
 "    color: #FFFFFF;                  /* Белый текст */\n"
@@ -1239,8 +1239,8 @@ class Ui_MainWindow(object):
 "    border-radius: 6px;\n"
 "}\n"
 "")
-        self.delet_group_pushButton.setObjectName("delet_group_pushButton")
-        self.verticalLayout_22.addWidget(self.delet_group_pushButton)
+        self.delete_group_pushButton.setObjectName("delete_group_pushButton")
+        self.verticalLayout_22.addWidget(self.delete_group_pushButton)
         spacerItem7 = QtWidgets.QSpacerItem(20, 361, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_22.addItem(spacerItem7)
         self.delete_stackedWidget.addWidget(self.delete_group_page)
@@ -1335,6 +1335,6 @@ class Ui_MainWindow(object):
         self.delete_file_pushButton.setText(_translate("MainWindow", "Удалить"))
         self.choose_group_to_delete_label_2.setText(_translate("MainWindow", "Выберите группу:"))
         self.accept_group_delete_checkBox.setText(_translate("MainWindow", "Подтвердить удаление"))
-        self.delet_group_pushButton.setText(_translate("MainWindow", "Удалить"))
+        self.delete_group_pushButton.setText(_translate("MainWindow", "Удалить"))
         self.process_label.setText(_translate("MainWindow", "Процесс..."))
         self.percent_label.setText(_translate("MainWindow", "0%"))

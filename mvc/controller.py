@@ -20,6 +20,7 @@ class Controller(QObject):
         self.view.add_page_choose_file_path_push_buttons_clicked(self.on_add_page_choose_file_path_button_clicked) # Нажатие на кнопку выбора файла
         self.view.add_page_create_push_buttons_clicked(self.on_add_page_create_push_button_clicked) # Нажатие на кнопку создания группы
         self.view.add_page_add_push_buttons_clicked(self.on_add_page_add_push_button_clicked) # Нажатие на кнопку добавления
+        self.view.delete_page_delete_push_buttons_clicked(self.on_delete_page_delete_push_button_clicked) # Нажатие на кнопки удаления
 
         # Радио-кнопки
         self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked) # Нажатия на радио-кнопки выбора варианта добавления
@@ -30,7 +31,11 @@ class Controller(QObject):
         self.view.add_page_paths_lineedits_text_changed(self.on_add_page_paths_lineedits_text_changed) # Изменение текста в строках ввода
 
         # Комбобоксы
-        self.view.add_page_group_name_combobox_item_changed(self.on_add_page_group_name_combobox_item_changed) # Изменение объекта в комбобоксе
+        self.view.add_page_group_name_combobox_item_changed(self.on_add_page_group_name_combobox_item_changed) # Изменение объекта в комбобоксе раздела Добавить
+        self.view.delete_page_group_comboboxes_state_changed(self.on_delete_page_group_comboboxes_state_changed) # Изменение объектоы в комбобоксах раздела Удалить
+
+        # Чек-боксы
+        self.view.delete_page_checkboxes_state_changed(self.on_delete_page_checkboxes_state_changed) # Изменение состояния чек-боксов раздела Удалить
 
     # === Иконки ===
 
@@ -114,7 +119,35 @@ class Controller(QObject):
 
     # === Вкладка УДАЛИТЬ ===
 
+    def update_delete_push_buttons_state(self):
+        """Обновляет состояние кнопок 'Удалить'."""
+        comboboxes_data = self.view.get_delete_page_comboboxes_datas()
+        checkboxes_data = self.view.get_delete_page_checkboxes_datas()
+
+        for checkbox_data in checkboxes_data.values():
+            checkbox_state = checkbox_data.get("state")
+            what_delete = checkbox_data.get("what_delete")
+
+            button_state = False
+            if checkbox_state:
+                relevant_comboboxes = [cb for cb in comboboxes_data.values() if cb.get("what_delete") == what_delete]
+                button_state = all(cb.get("text") for cb in relevant_comboboxes)
+            
+            self.view.set_delete_button_state(state=button_state, button_type=what_delete)
+            
     def on_delete_options_button_clicked(self, button):
         """Функция обрабатывает нажатие на кнопку выбора варианта удаления"""
         page = self.view.get_delete_option_page(button)
         self.view.set_delete_option_page(page)
+
+    def on_delete_page_group_comboboxes_state_changed(self):
+        """Функция обрабатывает изменение объектов в комбобоксах в разделе 'Удалить'"""
+        self.update_delete_push_buttons_state()
+
+    def on_delete_page_checkboxes_state_changed(self):
+        """Функция обрабатывает изменение состояния чек-боксов в разделе 'Удалить'"""
+        self.update_delete_push_buttons_state()
+
+    def on_delete_page_delete_push_button_clicked(self, button_type):
+        """Функция обрабатывает нажатие на кнопку удаления в разделе 'Удалить'"""
+        print(f"=== Удалить {button_type} ===")

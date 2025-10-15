@@ -39,9 +39,21 @@ class View:
         self.add_page_add_push_buttons_dict = {self.ui.add_version_pushButton: "version",
                                                 self.ui.add_instruction_pushButton: "instruction"}
         
+        self.delete_page_delete_push_buttons_dict = {self.ui.delete_file_pushButton: "file",
+                                                      self.ui.delete_group_pushButton: "group"}
+        
         """=== Словари строк ввода ==="""
         self.add_page_paths_lineedits_dict = {self.ui.choose_version_folder_lineEdit: self.ui.add_version_pushButton,
                                          self.ui.choose_instruction_file_lineEdit: self.ui.add_instruction_pushButton}
+
+        """=== Словари комбобоксов ==="""
+        self.delete_page_comboboxes_dict = {self.ui.choose_group_to_delete_comboBox: "file",
+                                            self.ui.choose_file_to_delete_comboBox: "file",
+                                                   self.ui.choose_group_to_delete_comboBox_2: "group"}
+
+        """=== Словари чекбоксов ==="""
+        self.delete_page_checkboxes_dict = {self.ui.accept_file_delete_checkBox: "file",
+                                             self.ui.accept_group_delete_checkBox: "group"}
 
     # === Панель НАВИГАЦИИ ===
     # Кнопки "Скачать", "Добавить", "Удалить"
@@ -194,30 +206,57 @@ class View:
     def get_delete_option_page(self, button):
         """Функция возвращает страницу для отображения варианта удаления"""
         return self.delete_options_dict.get(button)
+    
+    def get_delete_page_comboboxes_datas(self):
+        """Функция возвращает состояния комбобоксов в разделе 'Удалить'"""
+        comboboxes_datas = {}
+        for combobox in self.delete_page_comboboxes_dict.keys():
+            text = combobox.currentText()
+            what_delete = self.delete_page_comboboxes_dict.get(combobox)
+            comboboxes_datas[combobox] = {"text": text, "what_delete": what_delete}
+
+        return comboboxes_datas
+
+    def get_delete_page_checkboxes_datas(self):
+        """Функция возвращает состояния чекбоксов в разделе 'Удалить'"""
+        checkboxes_datas = {}
+        for checkbox in self.delete_page_checkboxes_dict.keys():
+            checkbox_state = checkbox.isChecked()
+            what_delete = self.delete_page_checkboxes_dict.get(checkbox)
+            checkboxes_datas[checkbox] = {"state": checkbox_state, "what_delete": what_delete}
+
+        return checkboxes_datas
 
     def set_delete_option_page(self, page):
         """Функция устанавливает страницу отображения варианта удаления"""
         self.ui.delete_stackedWidget.setCurrentWidget(page)
+
+    def set_delete_button_state(self, state, button_type):
+        """Функция устанавливает состояние кнопки 'Удалить' в разделе 'Удалить'"""
+        for button in self.delete_page_delete_push_buttons_dict.keys():
+            if self.delete_page_delete_push_buttons_dict.get(button) == button_type:
+                button.setEnabled(state)
 
     def delete_page_radio_buttons_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния радио-кнопок в разделе 'Удалить'"""
         for button in self.delete_options_dict.keys():
             button.toggled.connect(lambda _, btn=button: handler(button=btn))
 
-    def delete_page_comboboxes_state_changed(self, handler):
+    def delete_page_group_comboboxes_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния комбобоксов в разделе 'Удалить'"""
-        for combobox in self.delete_page_comboboxes:
+        for combobox in self.delete_page_comboboxes_dict.keys():
             combobox.currentIndexChanged.connect(handler)
 
     def delete_page_checkboxes_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния чекбоксов в разделе 'Удалить'"""
-        for checkbox in self.delete_page_checkboxes:
+        for checkbox in self.delete_page_checkboxes_dict.keys():
             checkbox.stateChanged.connect(handler)
 
     def delete_page_delete_push_buttons_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку 'Удалить' в разделе 'Удалить'"""
-        for button in self.delete_page_delete_push_buttons:
-            button.clicked.connect(lambda _, btn=button: handler(btn))
+        for button in self.delete_page_delete_push_buttons_dict.keys():
+            button_type = self.delete_page_delete_push_buttons_dict.get(button)
+            button.clicked.connect(lambda _, btn_type=button_type: handler(button_type=btn_type))
 
     # === Прогресс бар ===
     # Текста прогресс бара, прогресс бар

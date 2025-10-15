@@ -659,7 +659,7 @@ QPushButton#delete_tab_pushButton:checked:hover{
           <number>1</number>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="download_page">
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -2226,7 +2226,7 @@ QPushButton:disabled {
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="delet_group_pushButton">
+                <widget class="QPushButton" name="delete_group_pushButton">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
