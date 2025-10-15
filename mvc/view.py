@@ -105,6 +105,10 @@ class View:
     def get_path_lineedit(self, button):
         """Функция возвращает строку ввода пути в разделе 'Добавить'"""
         return self.add_page_choose_push_buttons_dict.get(button)
+    
+    def get_new_group_name_lineedit_text(self):
+        """Функция возвращает текст в строке ввода имени новой группы в разделе 'Добавить'"""
+        return self.ui.group_name_lineEdit.text()
 
     def set_add_option_page(self, page):
         """Функция устанавливает страницу отображения варианта добавления в разделе 'Добавить'"""
@@ -114,10 +118,18 @@ class View:
         """Функция устанавливает путь в строке ввода в разделе 'Добавить'"""
         lineedit.setText(path)
 
+    def update_add_page_create_push_button_state(self, state):
+        """Функция обновляет состояние кнопки 'Создать' в разделе 'Добавить'"""
+        self.ui.create_group_pushButton.setEnabled(state)
+
     def add_page_comboboxes_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния комбобоксов в разделе 'Добавить'"""
         for combobox in self.add_page_comboboxes:
             combobox.currentIndexChanged.connect(handler)
+
+    def add_page_new_group_name_lineedit_text_changed(self, handler):
+        """Функция устанавливает обработчик изменения текста в строке ввода имени новой группы в разделе 'Добавить'"""
+        self.ui.group_name_lineEdit.textChanged.connect(handler)
 
     def add_page_create_push_buttons_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку 'Создать' в разделе 'Добавить'"""

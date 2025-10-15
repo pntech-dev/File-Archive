@@ -659,7 +659,7 @@ QPushButton#delete_tab_pushButton:checked:hover{
           <number>1</number>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="download_page">
           <layout class="QVBoxLayout" name="verticalLayout_7">
