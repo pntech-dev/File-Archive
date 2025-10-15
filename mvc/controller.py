@@ -19,6 +19,7 @@ class Controller(QObject):
         self.view.add_page_choose_folder_path_push_buttons_clicked(self.on_add_page_choose_folder_path_button_clicked) # Нажатие на кнопку выбора папки
         self.view.add_page_choose_file_path_push_buttons_clicked(self.on_add_page_choose_file_path_button_clicked) # Нажатие на кнопку выбора файла
         self.view.add_page_create_push_buttons_clicked(self.on_add_page_create_push_button_clicked) # Нажатие на кнопку создания группы
+        self.view.add_page_add_push_buttons_clicked(self.on_add_page_add_push_button_clicked) # Нажатие на кнопку добавления
 
         # Радио-кнопки
         self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked) # Нажатия на радио-кнопки выбора варианта добавления
@@ -26,6 +27,10 @@ class Controller(QObject):
 
         # Лайнэдиты
         self.view.add_page_new_group_name_lineedit_text_changed(self.on_add_page_new_group_name_lineedit_text_changed) # Изменение текста в строке ввода имени новой группы
+        self.view.add_page_paths_lineedits_text_changed(self.on_add_page_paths_lineedits_text_changed) # Изменение текста в строках ввода
+
+        # Комбобоксы
+        self.view.add_page_group_name_combobox_item_changed(self.on_add_page_group_name_combobox_item_changed) # Изменение объекта в комбобоксе
 
     # === Иконки ===
 
@@ -52,6 +57,17 @@ class Controller(QObject):
         self.view.set_download_save_path(QFileDialog.getExistingDirectory())
 
     # === Вкладка ДОБАВИТЬ ===
+
+    def update_add_push_buttons_state(self):
+        """Функция обновляет состояние кнопок 'Добавить' в разделе 'Добавить'"""
+        group_name = self.view.get_add_page_combobox_current_group_name()
+        lineedits_texts = self.view.get_add_page_paths_lineedits_datas()
+
+        for value in lineedits_texts.values():
+            text = value.get("text")
+            button = value.get("button")
+            
+            self.view.set_add_button_state(state=True if group_name and text else False, button=button)
 
     def on_add_options_button_clicked(self, button):
         """Функция обрабатывает нажатие на кнопку выбора варианта добавления"""
@@ -83,6 +99,18 @@ class Controller(QObject):
         """Функция обрабатывает изменение текста в строке ввода имени новой группы в разделе 'Добавить'"""
         group_name = self.view.get_new_group_name_lineedit_text()
         self.view.update_add_page_create_push_button_state(state=True if group_name else False)
+
+    def on_add_page_paths_lineedits_text_changed(self):
+        """Функция обрабатывает изменение текста в строках ввода в разделе 'Добавить'"""
+        self.update_add_push_buttons_state()
+
+    def on_add_page_group_name_combobox_item_changed(self):
+        """Функция обрабатывает изменение объекта в комбобоксе в разделе 'Добавить'"""
+        self.update_add_push_buttons_state()
+
+    def on_add_page_add_push_button_clicked(self, button_type):
+        """Функция обрабатывает нажатие на кнопку добавления в разделе 'Добавить'"""
+        print(f"=== Добавить {button_type}===")
 
     # === Вкладка УДАЛИТЬ ===
 

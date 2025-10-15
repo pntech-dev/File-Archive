@@ -35,6 +35,13 @@ class View:
         """=== Словари кнопок ==="""
         self.add_page_choose_push_buttons_dict = {self.ui.choose_version_folder_pushButton: self.ui.choose_version_folder_lineEdit,
                                                    self.ui.choose_instruction_file_pushButton: self.ui.choose_instruction_file_lineEdit}
+        
+        self.add_page_add_push_buttons_dict = {self.ui.add_version_pushButton: "version",
+                                                self.ui.add_instruction_pushButton: "instruction"}
+        
+        """=== Словари строк ввода ==="""
+        self.add_page_paths_lineedits_dict = {self.ui.choose_version_folder_lineEdit: self.ui.add_version_pushButton,
+                                         self.ui.choose_instruction_file_lineEdit: self.ui.add_instruction_pushButton}
 
     # === Панель НАВИГАЦИИ ===
     # Кнопки "Скачать", "Добавить", "Удалить"
@@ -109,6 +116,18 @@ class View:
     def get_new_group_name_lineedit_text(self):
         """Функция возвращает текст в строке ввода имени новой группы в разделе 'Добавить'"""
         return self.ui.group_name_lineEdit.text()
+    
+    def get_add_page_paths_lineedits_datas(self):
+        """Функция возвращает элементы, которые зависят от текста в строках ввода в разделе 'Добавить'"""
+        lineedits_datas = {}
+        for lineedit, button in self.add_page_paths_lineedits_dict.items():
+            lineedits_datas[lineedit] = {"text": lineedit.text(), "button": button}
+
+        return lineedits_datas
+    
+    def get_add_page_combobox_current_group_name(self):
+        """Функция возвращает текущий текст комбобокса имени группы в разделе 'Добавить'"""
+        return self.ui.groups_comboBox.currentText()
 
     def set_add_option_page(self, page):
         """Функция устанавливает страницу отображения варианта добавления в разделе 'Добавить'"""
@@ -117,6 +136,10 @@ class View:
     def set_lineedit_path(self, lineedit, path):
         """Функция устанавливает путь в строке ввода в разделе 'Добавить'"""
         lineedit.setText(path)
+
+    def set_add_button_state(self, state, button):
+        """Функция устанавливает состояние кнопки 'Добавить' в разделе 'Добавить'"""
+        button.setEnabled(state)
 
     def update_add_page_create_push_button_state(self, state):
         """Функция обновляет состояние кнопки 'Создать' в разделе 'Добавить'"""
@@ -140,9 +163,9 @@ class View:
         for button in self.add_options_dict.keys():
             button.toggled.connect(lambda _, btn=button: handler(button=btn))
 
-    def add_page_lineedits_text_changed(self, handler):
+    def add_page_paths_lineedits_text_changed(self, handler):
         """Функция устанавливает обработчик изменения текста в строках ввода в разделе 'Добавить'"""
-        for lineedit in self.add_page_lineedits:
+        for lineedit in self.add_page_paths_lineedits_dict.keys():
             lineedit.textChanged.connect(handler)
 
     def add_page_choose_folder_path_push_buttons_clicked(self, handler):
@@ -157,9 +180,14 @@ class View:
 
     def add_page_add_push_buttons_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопки 'Добавить' в разделе 'Добавить'"""
-        for button in self.add_page_add_push_buttons:
-            button.clicked.connect(handler)
-    
+        for button in self.add_page_add_push_buttons_dict.keys():
+            button_type = self.add_page_add_push_buttons_dict.get(button)
+            button.clicked.connect(lambda _, btn_type=button_type: handler(button_type=btn_type))
+
+    def add_page_group_name_combobox_item_changed(self, handler):
+        """Функция устанавливает обработчик изменения комбобокса имени группы в разделе 'Добавить'"""
+        self.ui.groups_comboBox.currentTextChanged.connect(handler)
+
     # === Вкладка УДАЛИТЬ ===
     # Радио-кнопки, комбобоксы, чек-боксы, кнопки "Удалить"
 
