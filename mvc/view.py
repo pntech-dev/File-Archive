@@ -108,6 +108,10 @@ class View:
             data.append(self.ui.tableWidget.item(row, column).text())
 
         return data
+    
+    def get_choosen_label_text(self):
+        """Функция возвращает текст в строке выбранного файла в разделе 'Скачать'"""
+        return self.ui.choose_file_label.text()
 
     def set_search_icon_state(self, state):
         """Функция устанавливает иконку строки поиска в зависимости от состояния строки поиска"""
@@ -155,6 +159,10 @@ class View:
 
     def set_choosen_label_text(self, data, in_group_flag):
         """Функция изменяет текст в строке выбранного файла в разделе 'Скачать'"""
+        if data is None:
+            self.ui.choose_file_label.setText("Выбрано изделие:")
+            return
+
         if not in_group_flag:
             self.ui.choose_file_label.setText(f"Выбрано изделие: {data[0]}, Версия: {data[1]}")
         else:
@@ -164,6 +172,10 @@ class View:
     def set_back_button_state(self, state):
         """Функция устанавливает состояние кнопки 'Назад' в разделе 'Скачать'"""
         self.ui.back_pushButton.setEnabled(state)
+
+    def set_download_button_state(self, state):
+        """Функция устанавливает состояние кнопки 'Скачать' в разделе 'Скачать'"""
+        self.ui.download_file_pushButton.setEnabled(state)
 
     def clear_table(self):
         """Функция очищает таблицу"""

@@ -29,6 +29,7 @@ class Controller(QObject):
         self.view.add_page_add_push_buttons_clicked(self.on_add_page_add_push_button_clicked) # Нажатие на кнопку добавления
         self.view.delete_page_delete_push_buttons_clicked(self.on_delete_page_delete_push_button_clicked) # Нажатие на кнопки удаления
         self.view.download_page_back_push_button_clicked(self.on_download_page_back_push_button_clicked) # Нажатие на кнопку 'Назад'
+        self.view.download_page_download_push_buttons_clicked(self.on_download_page_download_push_button_clicked) # Нажатие на кнопку 'Скачать'
 
         # Радио-кнопки
         self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked) # Нажатия на радио-кнопки выбора варианта добавления
@@ -106,6 +107,11 @@ class Controller(QObject):
         else:
             self.view.set_back_button_state(state=state)
 
+    def update_download_button_state(self):
+        """Функция обновляет состояние кнопки 'Скачать' в разделе 'Скачать'"""
+        label_text = self.view.get_choosen_label_text()
+        self.view.set_download_button_state(state=True if label_text != "Выбрано изделие:"else False)
+
     def on_download_page_choose_folder_path_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Скачать'"""
         self.view.set_download_save_path(QFileDialog.getExistingDirectory())
@@ -114,6 +120,7 @@ class Controller(QObject):
         """Функция обрабатывает нажатие на строку таблицы в разделе 'Скачать'"""
         row_data = self.view.get_table_row_data(row=row)
         self.view.set_choosen_label_text(data=row_data, in_group_flag=self.model.in_group)
+        self.update_download_button_state()
 
     def on_download_page_table_row_double_clicked(self, row):
         """Функция обрабатывает двойное нажатие на строку таблицы в разделе 'Скачать'"""
@@ -133,6 +140,12 @@ class Controller(QObject):
         self.model.in_group = False # Устанавливаем флаг нахождения вне группы
         self.update_layer_one_table_data() # Обновляем данные в таблице ГРУППЫ
         self.update_back_push_button_state(state=False) # Обновляем состояние кнопки 'Назад'
+        self.view.set_choosen_label_text(data=None, in_group_flag=None)
+        self.update_download_button_state() # Обновляем состояние кнопки 'Скачать'
+
+    def on_download_page_download_push_button_clicked(self):
+        """Функция обрабатывает нажатие на кнопку 'Скачать' в разделе 'Скачать'"""
+        print("=== Скачать ===")
 
     # === Вкладка ДОБАВИТЬ ===
 
