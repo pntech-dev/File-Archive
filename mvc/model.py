@@ -7,10 +7,10 @@ import datetime
 
 class Model:
     def __init__(self):
-        self.config_data = self.load_config() # Получаем данные из файла конфигурации
+        self.config_data = self.__load_config() # Получаем данные из файла конфигурации
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
 
-    def load_config(self):
+    def __load_config(self):
         """Функция загружает данные из файла конфигурации"""
         try:
             # Получаем путь к исполняемому файлу и проверяем существование
@@ -37,6 +37,16 @@ class Model:
             
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+
+    def __parse_date(self, date_str):
+        """Функция парсит дату в формате ДД.ММ.ГГГГ"""
+        try:
+            if date_str:
+                return datetime.datetime.strptime(date_str, "%d.%m.%Y")
+            else:
+                return datetime.datetime.min
+        except ValueError:
+            return datetime.datetime.min
 
     def get_groups_names(self):
         """Функция возвращает список имен групп"""
@@ -79,8 +89,20 @@ class Model:
 
             try:
                 versions = os.listdir(path_to_group)
+                
+                dates = []
+                for ver in versions:
+                    if not ver:
+                        continue
 
-                return sorted(versions)
+                    match = re.search(r"\d{2}\.\d{2}\.\d{4}", ver)
+                    dates.append([ver, match.group() if match else None])
+
+                dates.sort(key=lambda x: self.__parse_date(x[1]), reverse=True)
+
+                sorted_versions = [date[0] for date in dates]
+
+                return sorted_versions
             
             except Exception as e:
                 print(f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
@@ -90,16 +112,7 @@ class Model:
             return []
         
     def get_actual_version(self, versions):
-        """Функция возвращает актуальную версию"""
-        def parse_date(date_str):
-            try:
-                if date_str:
-                    return datetime.datetime.strptime(date_str, "%d.%m.%Y")
-                else:
-                    return datetime.datetime.min
-            except ValueError:
-                return datetime.datetime.min
-            
+        """Функция возвращает актуальную версию"""    
         try:
             # Получаем даты для каждой верси
             dates = []
@@ -111,11 +124,11 @@ class Model:
                 dates.append([ver, match.group() if match else None])
 
             if not dates:
-                print("Версий нет")
+                print("Нет версий в группе.")
                 return None
 
             # Определяем актуальную
-            dates.sort(key=lambda x: parse_date(x[1]), reverse=True)
+            dates.sort(key=lambda x: self.__parse_date(x[1]), reverse=True)
 
             return dates[0][0]
 
