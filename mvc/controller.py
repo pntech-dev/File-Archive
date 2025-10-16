@@ -12,6 +12,7 @@ class Controller(QObject):
         self._is_updating_versions = False
 
         # Настройки до запуска
+        self.update_layer_one_table_data() # Загружаем данные в таблицу ГРУППЫ
         self.update_groups_comboboxes_data() # Загружаем данные в комбобоксы названий групп
         self.update_version_combobox_data() # Загружаем данные в комбобоксы версий групп
 
@@ -27,6 +28,7 @@ class Controller(QObject):
         self.view.add_page_create_push_buttons_clicked(self.on_add_page_create_push_button_clicked) # Нажатие на кнопку создания группы
         self.view.add_page_add_push_buttons_clicked(self.on_add_page_add_push_button_clicked) # Нажатие на кнопку добавления
         self.view.delete_page_delete_push_buttons_clicked(self.on_delete_page_delete_push_button_clicked) # Нажатие на кнопки удаления
+        self.view.download_page_back_push_button_clicked(self.on_download_page_back_push_button_clicked) # Нажатие на кнопку 'Назад'
 
         # Радио-кнопки
         self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked) # Нажатия на радио-кнопки выбора варианта добавления
@@ -43,7 +45,23 @@ class Controller(QObject):
         # Чек-боксы
         self.view.delete_page_checkboxes_state_changed(self.on_delete_page_checkboxes_state_changed) # Изменение состояния чек-боксов раздела Удалить
 
+        # Таблица
+        self.view.download_page_table_row_clicked(self.on_download_page_table_row_clicked) # Нажатие на строку таблицы
+        self.view.download_page_table_row_double_clicked(self.on_download_page_table_row_double_clicked) # Двойное нажатие на строку таблицы
+
     # === Основные функции ===
+
+    def update_layer_one_table_data(self):
+        """Функция обновляет данные в таблице ГРУППЫ"""
+        groups_names = self.model.get_groups_names() # Получаем список всех групп
+
+        layer_one_data = []
+        for group_name in groups_names:
+            versions = self.model.get_group_versions(group_name) # Получаем список всех версий группы
+            actual_version = self.model.get_actual_version(versions) # Получаем актуальную версию для группы
+            layer_one_data.append([group_name, actual_version]) # Фирмируем список строк для талицы
+
+        self.view.set_layer_one_table_data(layer_one_data) # Вызываем заполнение таблицы
 
     def update_groups_comboboxes_data(self):
         group_names = self.model.get_groups_names()
@@ -81,9 +99,40 @@ class Controller(QObject):
 
     # === Вкладка СКАЧАТЬ ===
 
+    def update_back_push_button_state(self, state=None):
+        """Функция обновляет состояние кнопки 'Назад' в разделе 'Скачать'"""
+        if state is None:
+            self.view.set_back_button_state(state=self.model.in_group)
+        else:
+            self.view.set_back_button_state(state=state)
+
     def on_download_page_choose_folder_path_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Скачать'"""
         self.view.set_download_save_path(QFileDialog.getExistingDirectory())
+
+    def on_download_page_table_row_clicked(self, row):
+        """Функция обрабатывает нажатие на строку таблицы в разделе 'Скачать'"""
+        row_data = self.view.get_table_row_data(row=row)
+        self.view.set_choosen_label_text(data=row_data, in_group_flag=self.model.in_group)
+
+    def on_download_page_table_row_double_clicked(self, row):
+        """Функция обрабатывает двойное нажатие на строку таблицы в разделе 'Скачать'"""
+        if not self.model.in_group:
+            row_data = self.view.get_table_row_data(row=row)
+
+            # Получаем версии группы и устанавливаем данные в таблицу
+            layer_two_data = self.model.get_group_versions(group_name=row_data[0])
+            self.view.set_layer_two_table_data(layer_two_data)
+
+            self.model.in_group = True # Устанавливаем флаг нахождения в группе
+
+            self.update_back_push_button_state() # Обновляем состояние кнопки 'Назад'
+
+    def on_download_page_back_push_button_clicked(self):
+        """Функция обрабатывает нажатие на кнопку 'Назад' в разделе 'Скачать'"""
+        self.model.in_group = False # Устанавливаем флаг нахождения вне группы
+        self.update_layer_one_table_data() # Обновляем данные в таблице ГРУППЫ
+        self.update_back_push_button_state(state=False) # Обновляем состояние кнопки 'Назад'
 
     # === Вкладка ДОБАВИТЬ ===
 

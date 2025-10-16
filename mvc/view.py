@@ -1,12 +1,24 @@
+import re
+
 from resources import resources_rc
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QLineEdit, QHeaderView, QTableWidgetItem, QAbstractItemView, QScroller
 
 
 class View:
     def __init__(self, ui):
         self.ui = ui
+
+        """=== Таблица ==="""
+        self.table_groups_layer_headers = ["Изделие", "Последняя версия"]
+        self.table_versions_layer_headers = ["Версия"]
+        self.create_table_columns(headers=self.table_groups_layer_headers)
+
+        # Планый скролл таблицы перетаскиванием
+        QScroller.grabGesture(self.ui.tableWidget.viewport(), QScroller.LeftMouseButtonGesture)
+        self.ui.tableWidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.ui.tableWidget.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
 
         """=== Иконки ==="""
         # Устанавливаем иконку строки поиска
@@ -89,6 +101,14 @@ class View:
     # === Вкладка СКАЧАТЬ ===
     # Строка поиска, чек-боксы, таблица, кнопка "Назад", лайнэдиты, кнопка "Скачать"
 
+    def get_table_row_data(self, row):
+        """Функция возвращает данные из строки таблицы в разделе 'Скачать'"""
+        data = []
+        for column in range(self.ui.tableWidget.columnCount()):
+            data.append(self.ui.tableWidget.item(row, column).text())
+
+        return data
+
     def set_search_icon_state(self, state):
         """Функция устанавливает иконку строки поиска в зависимости от состояния строки поиска"""
         if state:
@@ -100,6 +120,70 @@ class View:
         """Функция устанавливает путь сохранения файла в строке ввода пуьт в разделе 'Скачать'"""
         self.ui.save_file_path_lineEdit.setText(save_path)
 
+    def set_layer_one_table_data(self, layer_one_data):
+        """Функция устанавливает данные в таблице ГРУППЫ"""
+        self.clear_table() # Очищаем таблицу
+
+        self.ui.tableWidget.setColumnCount(len(self.table_groups_layer_headers))
+
+        self.ui.tableWidget.setHorizontalHeaderLabels(self.table_groups_layer_headers) # Устанавливаем заголовки
+        header = self.ui.tableWidget.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents) # Растяжение всех колонок по содержимому
+
+        for data_row in layer_one_data:
+            row = self.ui.tableWidget.rowCount()
+            self.ui.tableWidget.insertRow(row)
+            
+            self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(data_row[0]))
+            self.ui.tableWidget.setItem(row, 1, QTableWidgetItem(data_row[1]))
+
+    def set_layer_two_table_data(self, layer_two_data):
+        """Функция устанавливает данные в таблице ВЕРСИИ"""
+        self.clear_table() # Очищаем таблицу
+
+        self.ui.tableWidget.setColumnCount(len(self.table_versions_layer_headers))
+
+        self.ui.tableWidget.setHorizontalHeaderLabels(self.table_versions_layer_headers) # Устанавливаем заголовки
+        header = self.ui.tableWidget.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents) # Растяжение всех колонок по содержимому
+
+        for data_row in layer_two_data:
+            row = self.ui.tableWidget.rowCount()
+            self.ui.tableWidget.insertRow(row)
+
+            self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(data_row))
+
+    def set_choosen_label_text(self, data, in_group_flag):
+        """Функция изменяет текст в строке выбранного файла в разделе 'Скачать'"""
+        if not in_group_flag:
+            self.ui.choose_file_label.setText(f"Выбрано изделие: {data[0]}, Версия: {data[1]}")
+        else:
+            match = re.search(r"Выбрано изделие:\s*(.*?)\s*,\s*Версия:", self.ui.choose_file_label.text())
+            self.ui.choose_file_label.setText(f"Выбрано изделие: {match.group(1)}, Версия: {data[0]}")
+    
+    def set_back_button_state(self, state):
+        """Функция устанавливает состояние кнопки 'Назад' в разделе 'Скачать'"""
+        self.ui.back_pushButton.setEnabled(state)
+
+    def clear_table(self):
+        """Функция очищает таблицу"""
+        self.ui.tableWidget.clear()
+        self.ui.tableWidget.setRowCount(0)
+        self.ui.tableWidget.setColumnCount(0)
+
+    def create_table_columns(self, headers):
+        """Функция создает столбцы таблицы"""
+        self.ui.tableWidget.setColumnCount(len(headers))
+        self.ui.tableWidget.setHorizontalHeaderLabels(headers)
+
+    def download_page_table_row_clicked(self, handler):
+        """Функция устанавливает обработчик нажатия на строку таблицы в разделе 'Скачать'"""
+        self.ui.tableWidget.cellClicked.connect(lambda row: handler(row=row))
+
+    def download_page_table_row_double_clicked(self, handler):
+        """Функция устанавливает обработчик двойного нажатия на строку таблицы в разделе 'Скачать'"""
+        self.ui.tableWidget.cellDoubleClicked.connect(lambda row: handler(row=row))
+
     def download_page_search_lineedit_text_changed(self, handler):
         """Функция устанавливает обработчик изменения текста в строке поиска в разделе 'Скачать'"""
         self.ui.search_lineEdit.textChanged.connect(handler)
@@ -108,12 +192,6 @@ class View:
         """Функция устанавливает обработчик изменения состояния чекбоксов в разделе 'Скачать'"""
         for checkbox in self.download_page_checkboxes:
             checkbox.stateChanged.connect(handler)
-
-    # === === === === === === === === ===
-    # 
-    # Функции обработки изменения таблицы
-    # 
-    # === === === === === === === === ===
 
     def download_page_back_push_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку 'Назад' в разделе 'Скачать'"""
