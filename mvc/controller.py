@@ -9,6 +9,12 @@ class Controller(QObject):
         self.model = model
         self.view = view
 
+        self._is_updating_versions = False
+
+        # Настройки до запуска
+        self.update_groups_comboboxes_data() # Загружаем данные в комбобоксы названий групп
+        self.update_version_combobox_data() # Загружаем данные в комбобоксы версий групп
+
         # Устанавливаем фильтр событий для строки поиска
         self.view.ui.search_lineEdit.installEventFilter(self)
 
@@ -36,6 +42,24 @@ class Controller(QObject):
 
         # Чек-боксы
         self.view.delete_page_checkboxes_state_changed(self.on_delete_page_checkboxes_state_changed) # Изменение состояния чек-боксов раздела Удалить
+
+    # === Основные функции ===
+
+    def update_groups_comboboxes_data(self):
+        group_names = self.model.get_groups_names()
+        self.view.set_groups_comboboxes_data(group_names)
+
+    def update_version_combobox_data(self):
+        if self._is_updating_versions:
+            return
+
+        self._is_updating_versions = True
+        try:
+            group_name = self.view.get_delete_page_version_combobox_current_text()
+            versions = self.model.get_group_versions(group_name)
+            self.view.set_version_combobox_data(versions)
+        finally:
+            self._is_updating_versions = False
 
     # === Иконки ===
 
@@ -142,6 +166,7 @@ class Controller(QObject):
 
     def on_delete_page_group_comboboxes_state_changed(self):
         """Функция обрабатывает изменение объектов в комбобоксах в разделе 'Удалить'"""
+        self.update_version_combobox_data()
         self.update_delete_push_buttons_state()
 
     def on_delete_page_checkboxes_state_changed(self):

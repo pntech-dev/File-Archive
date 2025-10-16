@@ -54,6 +54,24 @@ class View:
         """=== Словари чекбоксов ==="""
         self.delete_page_checkboxes_dict = {self.ui.accept_file_delete_checkBox: "file",
                                              self.ui.accept_group_delete_checkBox: "group"}
+        
+        """=== Списки ==="""
+        self.groups_comboboxes_lst = [self.ui.groups_comboBox,
+                                 self.ui.choose_group_to_delete_comboBox,
+                                 self.ui.choose_group_to_delete_comboBox_2]
+    
+    # === Общие функции ===
+
+    def set_groups_comboboxes_data(self, group_names):
+        """Функция утанавливает данные в комбобоксах групп"""
+        for combobox in self.groups_comboboxes_lst:
+            combobox.clear()
+            combobox.addItems(group_names)
+
+    def set_version_combobox_data(self, versions):
+        """Функция утанавливает данные в комбобоксе версий"""
+        self.ui.choose_file_to_delete_comboBox.clear()
+        self.ui.choose_file_to_delete_comboBox.addItems(versions)
 
     # === Панель НАВИГАЦИИ ===
     # Кнопки "Скачать", "Добавить", "Удалить"
@@ -226,6 +244,10 @@ class View:
             checkboxes_datas[checkbox] = {"state": checkbox_state, "what_delete": what_delete}
 
         return checkboxes_datas
+    
+    def get_delete_page_version_combobox_current_text(self):
+        """Функция возвращает текущий текст комбобокса версии в разделе 'Удалить'"""
+        return self.ui.choose_group_to_delete_comboBox.currentText()
 
     def set_delete_option_page(self, page):
         """Функция устанавливает страницу отображения варианта удаления"""
