@@ -46,6 +46,7 @@ class Controller(QObject):
 
         # Чек-боксы
         self.view.delete_page_checkboxes_state_changed(self.on_delete_page_checkboxes_state_changed) # Изменение состояния чек-боксов раздела Удалить
+        self.view.download_page_search_all_versions_checkbox_state_changed(self.on_download_page_search_all_versions_checkbox_state_changed) # Изменение состояния чек-бокса поиска всех версий
 
         # Таблица
         self.view.download_page_table_row_clicked(self.on_download_page_table_row_clicked) # Нажатие на строку таблицы
@@ -120,10 +121,19 @@ class Controller(QObject):
         """Функция обрабатывает изменение текста в строке поиска в разделе 'Скачать'"""
         search_text = self.view.get_search_lineedit_text() # Получаем текст из строки поиска
         if search_text:
-            search_results = self.model.search(text=search_text) # Вызываем поиск
-            self.update_layer_one_table_data(data=search_results) # Обновляем данные в таблице ГРУППЫ
+            if not self.model.search_all_versions:
+                search_results = self.model.search(text=search_text) # Вызываем обычный поиск
+                self.update_layer_one_table_data(data=search_results) # Обновляем данные в таблице ГРУППЫ
+            else:
+                search_results = self.model.search_all(text=search_text) # Вызываем поиск по всем файлам
+                self.update_layer_one_table_data(data=search_results) # Обновляем данные в таблице ГРУППЫ
         else:
-            self.update_layer_one_table_data()
+            self.update_layer_one_table_data() # Обновляем данные в таблице ГРУППЫ
+
+    def on_download_page_search_all_versions_checkbox_state_changed(self, state):
+        """Функция обрабатывает изменение состояния чек-бокса поиска всех версий в разделе 'Скачать'"""
+        self.model.search_all_versions = state
+        self.on_download_page_search_lineedit_text_changed() # Иммитируем изменение текста в строке поиска
 
     def on_download_page_choose_folder_path_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Скачать'"""

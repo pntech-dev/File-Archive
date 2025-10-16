@@ -9,6 +9,7 @@ class Model:
     def __init__(self):
         self.config_data = self.__load_config() # Получаем данные из файла конфигурации
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
+        self.search_all_versions = False # Флаг поиска всех версий
 
     def __load_config(self):
         """Функция загружает данные из файла конфигурации"""
@@ -142,6 +143,7 @@ class Model:
             if not text:
                 return []
             
+            # Получаем список групп
             try:
                 groups = self.get_groups_names()
                 if not groups:
@@ -150,6 +152,7 @@ class Model:
                 print(f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
                 return []
             
+            # Получаем список списков, в виде [[группа, актуальная версия]]
             groups_versions = []
             try:
                 for group in groups:
@@ -179,6 +182,7 @@ class Model:
                 print(f"Произошла ошибка в процессе формирования списков групп и версий.\nОшибка: {e}")
                 return []
             
+            # Выполняем поиск
             try:
                 result = []
                 for group_version in groups_versions:
@@ -195,6 +199,56 @@ class Model:
                 print(f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
                 return []
             
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return []
+        
+    def search_all(self, text):
+        """Функция выполняет поиск в таблице ПО ВСЕМ ВЕРСИЯМ И ГРУППАМ"""
+        try:
+            if not text:
+                return []
+            
+            # Получаем спсиок групп
+            try:
+                groups = self.get_groups_names()
+
+            except Exception as e:
+                print(f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
+                return []
+
+            if not groups:
+                return []
+            
+            # Получаем словарь, где ключ - группа, значение - список версий
+            try:
+                groups_versions = {}
+                for group in groups:
+                    groups_versions[group] = self.get_group_versions(group)
+
+            except Exception as e:
+                print(f"Произошла ошибка при получении списка версий групп.\nОшибка: {e}")
+                return []
+            
+            # Выполняем поиск
+
+            try:
+                result = []
+                for group in groups_versions.keys():
+                    for version in groups_versions.get(group):
+                        group_text = group.lower().strip()
+                        version_text = version.lower().strip()
+                        text = text.lower().strip()
+
+                        if text in group_text or text in version_text and [group, version] not in result:
+                            result.append([group, version])
+
+                return result
+
+            except Exception as e:
+                print(f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
+                return []
+                                
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return []

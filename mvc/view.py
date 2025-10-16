@@ -207,10 +207,9 @@ class View:
         """Функция устанавливает обработчик изменения текста в строке поиска в разделе 'Скачать'"""
         self.ui.search_lineEdit.textChanged.connect(handler)
 
-    def download_page_checkboxes_state_changed(self, handler):
+    def download_page_search_all_versions_checkbox_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния чекбоксов в разделе 'Скачать'"""
-        for checkbox in self.download_page_checkboxes:
-            checkbox.stateChanged.connect(handler)
+        self.ui.search_all_versions_checkBox.stateChanged.connect(lambda state: handler(state=state))
 
     def download_page_back_push_button_clicked(self, handler):
         """Функция устанавливает обработчик нажатия на кнопку 'Назад' в разделе 'Скачать'"""

@@ -873,7 +873,7 @@ QPushButton#delete_tab_pushButton:checked:hover{
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox">
+               <widget class="QCheckBox" name="search_all_versions_checkBox">
                 <property name="enabled">
                  <bool>true</bool>
                 </property>
