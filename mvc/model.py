@@ -10,6 +10,7 @@ class Model:
         self.config_data = self.__load_config() # Получаем данные из файла конфигурации
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
         self.search_all_versions = False # Флаг поиска всех версий
+        self.new_group_name = None # Имя новой группы
 
     def __load_config(self):
         """Функция загружает данные из файла конфигурации"""
@@ -125,7 +126,6 @@ class Model:
                 dates.append([ver, match.group() if match else None])
 
             if not dates:
-                print("Нет версий в группе.")
                 return None
 
             # Определяем актуальную
@@ -162,18 +162,12 @@ class Model:
                     except Exception as e:
                         print(f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
                         continue
-                    
-                    if not versions:
-                        continue
 
                     try:
                         actual_version = self.get_actual_version(versions)
                         
                     except Exception as e:
                         print(f"Произошла ошибка при получении актуальной версии группы.\nОшибка: {e}")
-                        continue
-                    
-                    if not actual_version:
                         continue
 
                     groups_versions.append([group, actual_version])
@@ -186,10 +180,16 @@ class Model:
             try:
                 result = []
                 for group_version in groups_versions:
-                    group_name = group_version[0].lower().strip()
-                    version = group_version[1].lower().strip()
                     text = text.lower().strip()
+                    group_name = group_version[0].lower().strip()
 
+                    if group_version[1] is None:
+                        if text in group_name and group_version not in result:
+                            result.append(group_version)
+                        continue
+                        
+                    version = group_version[1].lower().strip()
+                    
                     if text in group_name or text in version and group_version not in result:
                         result.append(group_version)
 
@@ -234,14 +234,19 @@ class Model:
 
             try:
                 result = []
-                for group in groups_versions.keys():
-                    for version in groups_versions.get(group):
-                        group_text = group.lower().strip()
-                        version_text = version.lower().strip()
-                        text = text.lower().strip()
+                for group, versions in groups_versions.items():
+                    text = text.lower().strip()
+                    group_text = group.lower().strip()
 
-                        if text in group_text or text in version_text and [group, version] not in result:
-                            result.append([group, version])
+                    if not versions:
+                        if text in group_text and [group, None] not in result:
+                            result.append([group, None])
+                    else:
+                        for version in versions:
+                            version_text = version.lower().strip() if version else ""
+                            
+                            if (text in group_text or text in version_text) and [group, version] not in result:
+                                result.append([group, version])
 
                 return result
 
@@ -252,3 +257,35 @@ class Model:
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return []
+        
+    def create_new_group(self, group_name):
+        """Функция создает новую группу"""
+        try:
+            if not group_name:
+                return
+            
+            # Создаём путь к новой группе
+            try:
+                group_path = os.path.join(self.config_data.get("versions_path"), group_name)
+
+            except Exception as e:
+                print(f"Произошла ошибка при формировании пути к новой группе.\nОшибка: {e}")
+                return
+            
+            # Проверяем существут ли такая группа
+            if os.path.exists(group_path):
+                print(f"Группа с именем {group_name} уже существует.")
+                return
+            
+            # Создаём группу
+            try:
+                os.makedirs(group_path)
+                print(f"Группа {group_name} успешно создана.")
+            
+            except Exception as e:
+                print(f"Произошла ошибка при создании новой группы.\nОшибка: {e}")
+                return
+        
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return

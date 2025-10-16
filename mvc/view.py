@@ -267,6 +267,10 @@ class View:
         """Функция устанавливает состояние кнопки 'Добавить' в разделе 'Добавить'"""
         button.setEnabled(state)
 
+    def set_new_group_to_combobox(self, new_group_name):
+        """Функция устанавливает новую группу в комбобокесе как выбранную"""
+        self.ui.groups_comboBox.setCurrentText(new_group_name)
+
     def update_add_page_create_push_button_state(self, state):
         """Функция обновляет состояние кнопки 'Создать' в разделе 'Добавить'"""
         self.ui.create_group_pushButton.setEnabled(state)
