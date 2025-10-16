@@ -20,6 +20,9 @@ class View:
         self.ui.tableWidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.ui.tableWidget.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
 
+        # UI
+        self.ui.tableWidget.setAlternatingRowColors(True)
+
         """=== Иконки ==="""
         # Устанавливаем иконку строки поиска
         self.search_action = self.ui.search_lineEdit.addAction(QIcon(":/icons/search/search_icon.svg"), 

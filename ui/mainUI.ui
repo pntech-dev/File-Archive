@@ -286,6 +286,99 @@ QProgressBar::chunk {
     border-radius: 6px;            /* Та же форма, чтобы совпадала с контуром */
     background-color: #16A34A;     /* Зелёный акцент */
     margin: 0px;                   /* Без промежутков между сегментами */
+}
+
+
+
+/* === Таблица === */
+QTableWidget {
+    background-color: #FFFFFF;       /* Белый фон */
+    border: 1px solid #E2E8F0;       /* Светло-серая рамка */
+    border-radius: 6px;              /* Скругления */
+    gridline-color: #E2E8F0;         /* Цвет линий между ячейками */
+    outline: none;                   /* Без фокуса-рамки */
+    alternate-background-color: #F8FAFC;  /* Цвет зебры */
+}
+
+/* === Заголовки === */
+QHeaderView::section {
+    background-color: #F8FAFC;       /* Светлый фон заголовков */
+    color: #334155;                  /* Цвет текста */
+    border: none;
+    border-right: 1px solid #E2E8F0;
+    padding: 6px 8px;
+    font-weight: 600;
+}
+
+/* Последний заголовок без правой линии */
+QHeaderView::section:last {
+    border-right: none;
+}
+
+/* === Ячейки === */
+QTableWidget::item {
+    padding: 4px 8px;
+}
+
+/* === Стиль выделенной строки === */
+QTableWidget::item:selected {
+    background-color: #C8D9FF;   /* Цвет выделения строки */
+}
+
+/* === Скроллбар (вертикальный) === */
+QScrollBar:vertical {
+    border: none;
+    background: transparent;
+    width: 10px;
+    margin: 2px;
+	border-radius: 2px;
+}
+
+QScrollBar::handle:vertical {
+    background: #CBD5E1;
+    border-radius: 5px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #94A3B8;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0;
+}
+
+/* === Скроллбар (горизонтальный) === */
+QScrollBar:horizontal {
+    border: none;
+    background: transparent;
+    height: 10px;
+    margin: 2px;
+	border-radius: 2px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #CBD5E1;
+    border-radius: 5px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #94A3B8;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+
+/* === Угловая кнопка в левом верхнем углу === */
+QTableCornerButton::section {
+    background-color: #F8FAFC;
+    border: none;
+    border-right: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
