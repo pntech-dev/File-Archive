@@ -135,3 +135,66 @@ class Model:
         except Exception as e:
             print(f"Произошла непредвиденная ошибка в процессе получения актуальной версии.\nОшибка: {e}")
             return
+        
+    def search(self, text):
+        """Функция выполняет поиск в таблице ПОСЛДЕНИЕ ВЕРСИИ ГРУПП"""
+        try:
+            if not text:
+                return []
+            
+            try:
+                groups = self.get_groups_names()
+                if not groups:
+                    return []
+            except Exception as e:
+                print(f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
+                return []
+            
+            groups_versions = []
+            try:
+                for group in groups:
+                    try:
+                        versions = self.get_group_versions(group)
+
+                    except Exception as e:
+                        print(f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
+                        continue
+                    
+                    if not versions:
+                        continue
+
+                    try:
+                        actual_version = self.get_actual_version(versions)
+                        
+                    except Exception as e:
+                        print(f"Произошла ошибка при получении актуальной версии группы.\nОшибка: {e}")
+                        continue
+                    
+                    if not actual_version:
+                        continue
+
+                    groups_versions.append([group, actual_version])
+
+            except Exception as e:
+                print(f"Произошла ошибка в процессе формирования списков групп и версий.\nОшибка: {e}")
+                return []
+            
+            try:
+                result = []
+                for group_version in groups_versions:
+                    group_name = group_version[0].lower().strip()
+                    version = group_version[1].lower().strip()
+                    text = text.lower().strip()
+
+                    if text in group_name or text in version and group_version not in result:
+                        result.append(group_version)
+
+                return result
+            
+            except Exception as e:
+                print(f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
+                return []
+            
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return []

@@ -38,6 +38,7 @@ class Controller(QObject):
         # Лайнэдиты
         self.view.add_page_new_group_name_lineedit_text_changed(self.on_add_page_new_group_name_lineedit_text_changed) # Изменение текста в строке ввода имени новой группы
         self.view.add_page_paths_lineedits_text_changed(self.on_add_page_paths_lineedits_text_changed) # Изменение текста в строках ввода
+        self.view.download_page_search_lineedit_text_changed(self.on_download_page_search_lineedit_text_changed) # Изменение текста в строке поиска
 
         # Комбобоксы
         self.view.add_page_group_name_combobox_item_changed(self.on_add_page_group_name_combobox_item_changed) # Изменение объекта в комбобоксе раздела Добавить
@@ -52,17 +53,20 @@ class Controller(QObject):
 
     # === Основные функции ===
 
-    def update_layer_one_table_data(self):
+    def update_layer_one_table_data(self, data=None):
         """Функция обновляет данные в таблице ГРУППЫ"""
-        groups_names = self.model.get_groups_names() # Получаем список всех групп
+        if data is None:
+            groups_names = self.model.get_groups_names() # Получаем список всех групп
 
-        layer_one_data = []
-        for group_name in groups_names:
-            versions = self.model.get_group_versions(group_name) # Получаем список всех версий группы
-            actual_version = self.model.get_actual_version(versions) # Получаем актуальную версию для группы
-            layer_one_data.append([group_name, actual_version]) # Фирмируем список строк для талицы
+            layer_one_data = []
+            for group_name in groups_names:
+                versions = self.model.get_group_versions(group_name) # Получаем список всех версий группы
+                actual_version = self.model.get_actual_version(versions) # Получаем актуальную версию для группы
+                layer_one_data.append([group_name, actual_version]) # Фирмируем список строк для талицы
 
-        self.view.set_layer_one_table_data(layer_one_data) # Вызываем заполнение таблицы
+            self.view.set_layer_one_table_data(layer_one_data) # Вызываем заполнение таблицы
+        else:
+            self.view.set_layer_one_table_data(data)
 
     def update_groups_comboboxes_data(self):
         group_names = self.model.get_groups_names()
@@ -111,6 +115,15 @@ class Controller(QObject):
         """Функция обновляет состояние кнопки 'Скачать' в разделе 'Скачать'"""
         label_text = self.view.get_choosen_label_text()
         self.view.set_download_button_state(state=True if label_text != "Выбрано изделие:"else False)
+
+    def on_download_page_search_lineedit_text_changed(self):
+        """Функция обрабатывает изменение текста в строке поиска в разделе 'Скачать'"""
+        search_text = self.view.get_search_lineedit_text() # Получаем текст из строки поиска
+        if search_text:
+            search_results = self.model.search(text=search_text) # Вызываем поиск
+            self.update_layer_one_table_data(data=search_results) # Обновляем данные в таблице ГРУППЫ
+        else:
+            self.update_layer_one_table_data()
 
     def on_download_page_choose_folder_path_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку выбора папки в разделе 'Скачать'"""
