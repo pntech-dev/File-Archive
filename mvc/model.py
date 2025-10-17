@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import yaml
+import shutil
 import datetime
 
 
@@ -293,6 +294,9 @@ class Model:
     def delete_group(self, group_name):
         """Функция удаляет группу"""
         try:
+            if not group_name:
+                return 1
+
             # Формируем путь к группе
             try:
                 group_path = os.path.join(self.config_data.get("versions_path"), group_name)
@@ -307,13 +311,49 @@ class Model:
             
             # Удаляем группу
             try:
-                os.rmdir(group_path)
+                shutil.rmtree(group_path)
                 print(f"Группа {group_name} успешно удалена.")
                 return 0
             
             except Exception as e:
                 print(f"Произошла ошибка при удалении группы.\nОшибка: {e}")
                 return 1
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return 1
+        
+    def delete_file(self, data):
+        """Функция удаляет файл"""
+        try:
+            if not data:
+                return 1
+
+            # Формируем путь
+            try:
+                file_path = os.path.join(self.config_data.get("versions_path"), data[0], data[1])
+
+            except Exception as e:
+                print(f"Произошла ошибка при формировании пути к удаляемому файлу.\nОшибка: {e}")
+                return 1
+
+            if not os.path.exists(file_path):
+                print(f"Файл не существует. Путь: {file_path}")
+                return 1
+            
+            # Удаляем файл
+            try:
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+
+                print(f"Файл {file_path} успешно удалён.")
+                return 0
+            
+            except Exception as e:
+                print(f"Произошла ошибка при удалении файла.\nОшибка: {e}")
+                return 1
+            
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1

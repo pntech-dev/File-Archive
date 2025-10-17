@@ -274,7 +274,16 @@ class Controller(QObject):
         comboboxes_datas = self.view.get_delete_page_comboboxes_datas()
 
         if button_type == "file":
-            print("=== Удалить файл ===")
+            file_page_data = []
+            # Ищем комбобоксы страницы удаления файлов
+            for combobox in comboboxes_datas.keys():
+                if comboboxes_datas[combobox].get("what_delete") == "file":
+                    # Получаем выбранные элементы из комбобоксов
+                    file_page_data.append(self.view.get_delete_page_combobox_text(combobox=combobox))
+
+            if file_page_data:
+                status_code = self.model.delete_file(data=file_page_data)
+
         elif button_type == "group":
             group_name = None
             # Ищем комбобокс страницы удаления группы
