@@ -6,6 +6,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
+        ('keyfile.key', '.'),
         ('config.yaml', '.'),
         ('version 4.0.0.txt', '.'),
         ('updater.exe', '.')

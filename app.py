@@ -22,6 +22,12 @@ class MyWindow(QMainWindow):
         self.setWindowIcon(icon)
 
         self.model = Model()
+
+        # Проверяем что данные получены
+        if not type(self.model.config_data) == dict:
+            print("Произошла ошибка при получении данных из файла конфигурации.")
+            sys.exit()
+
         self.view = View(ui=self.ui)
         self.controller = Controller(model=self.model, view=self.view)
 
