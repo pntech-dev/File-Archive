@@ -348,6 +348,10 @@ class View:
     def get_delete_page_version_combobox_current_text(self):
         """Функция возвращает текущий текст комбобокса версии в разделе 'Удалить'"""
         return self.ui.choose_group_to_delete_comboBox.currentText()
+    
+    def get_delete_page_combobox_text(self, combobox):
+        """Функция возвращает текст комбобокса в разделе 'Удалить'"""
+        return combobox.currentText()
 
     def set_delete_option_page(self, page):
         """Функция устанавливает страницу отображения варианта удаления"""

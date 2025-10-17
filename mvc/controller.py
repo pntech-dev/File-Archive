@@ -269,4 +269,26 @@ class Controller(QObject):
 
     def on_delete_page_delete_push_button_clicked(self, button_type):
         """Функция обрабатывает нажатие на кнопку удаления в разделе 'Удалить'"""
-        print(f"=== Удалить {button_type} ===")
+        status_code = 1
+    
+        comboboxes_datas = self.view.get_delete_page_comboboxes_datas()
+
+        if button_type == "file":
+            print("=== Удалить файл ===")
+        elif button_type == "group":
+            group_name = None
+            # Ищем комбобокс страницы удаления группы
+            for combobox in comboboxes_datas.keys():
+                if comboboxes_datas[combobox].get("what_delete") == "group":
+                    # Получаем выбранный элемент из комбобокса
+                    group_name = self.view.get_delete_page_combobox_text(combobox=combobox)
+                    break
+            
+            if group_name: # Если текст получен, удаляем
+                status_code = self.model.delete_group(group_name=group_name)
+        
+        # Если вернулся успешный статус код, обновляем таблицу и списки
+        if status_code == 0:
+            self.update_layer_one_table_data()
+            self.update_groups_comboboxes_data()
+            self.update_version_combobox_data()

@@ -289,3 +289,31 @@ class Model:
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return
+        
+    def delete_group(self, group_name):
+        """Функция удаляет группу"""
+        try:
+            # Формируем путь к группе
+            try:
+                group_path = os.path.join(self.config_data.get("versions_path"), group_name)
+
+            except Exception as e:
+                print(f"Произошла ошибка при формировании пути к удаляемой группе.\nОшибка: {e}")
+                return 1
+            
+            if not os.path.exists(group_path):
+                print(f"Группа с именем {group_name} не существует.")
+                return 1
+            
+            # Удаляем группу
+            try:
+                os.rmdir(group_path)
+                print(f"Группа {group_name} успешно удалена.")
+                return 0
+            
+            except Exception as e:
+                print(f"Произошла ошибка при удалении группы.\nОшибка: {e}")
+                return 1
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return 1
