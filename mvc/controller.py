@@ -1,3 +1,5 @@
+import re
+
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtCore import QObject, QEvent
 
@@ -171,7 +173,13 @@ class Controller(QObject):
 
     def on_download_page_download_push_button_clicked(self):
         """Функция обрабатывает нажатие на кнопку 'Скачать' в разделе 'Скачать'"""
-        print("=== Скачать ===")
+        text = self.view.get_choosen_label_text() # Получаем выбранный файл и группу
+
+        group = re.search(r"Выбрано изделие:\s*(.*?)\s*,\s*Версия:", text).group(1) # Получаем группу
+        file = re.search(r"Версия:\s*(.*)", text).group(1) # Получаем файл
+        save_path = self.view.get_download_save_path() # Получаем путь сохранения
+
+        status_code = self.model.download(group=group, file=file, save_path=save_path) # Вызываем скачивание
 
     # === Вкладка ДОБАВИТЬ ===
 

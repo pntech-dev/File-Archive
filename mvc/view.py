@@ -111,14 +111,18 @@ class View:
             data.append(self.ui.tableWidget.item(row, column).text())
 
         return data
-    
+
     def get_choosen_label_text(self):
         """Функция возвращает текст в строке выбранного файла в разделе 'Скачать'"""
         return self.ui.choose_file_label.text()
-    
+
     def get_search_lineedit_text(self):
         """Функция возвращает текст в строке поиска в разделе 'Скачать'"""
         return self.ui.search_lineEdit.text()
+    
+    def get_download_save_path(self):
+        """Функция возвращает текст из строки ввода пути сохранения файла в разделе 'Скачать'"""
+        return self.ui.save_file_path_lineEdit.text()
 
     def set_search_icon_state(self, state):
         """Функция устанавливает иконку строки поиска в зависимости от состояния строки поиска"""

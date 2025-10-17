@@ -473,3 +473,24 @@ class Model:
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
+        
+    def download(self, group, file, save_path):
+        """Функция скачивает файл (версия/инструкция)"""
+        try:
+            file_path = os.path.join(self.config_data.get("versions_path"), group, file)
+        
+        except Exception as e:
+            print(f"Произошла ошибка при формировании пути к файлу.\nОшибка: {e}")
+            return 1
+        
+        if os.path.isdir(file_path):
+            print("Скачиваем версию...")
+        else:
+            print("Скачиваем инструкцию...")
+        
+        print("Файл успешно скачан.")
+
+
+        """================"""
+        # НЕвыбираеться версия в разделе удалить
+        """================"""
