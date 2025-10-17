@@ -5,6 +5,8 @@ import yaml
 import shutil
 import datetime
 
+from cryptography.fernet import Fernet
+
 
 class Model:
     def __init__(self):
@@ -12,6 +14,7 @@ class Model:
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
         self.search_all_versions = False # Флаг поиска всех версий
         self.new_group_name = None # Имя новой группы
+        self.keyfile_path = os.path.join(os.path.dirname(sys.argv[0]), "keyfile.key")
 
     def __load_config(self):
         """Функция загружает данные из файла конфигурации"""
@@ -50,6 +53,31 @@ class Model:
                 return datetime.datetime.min
         except ValueError:
             return datetime.datetime.min
+        
+    def __encrypt_file(self, src_path: str, dst_path: str):
+        """Шифрует один файл и сохраняет зашифрованную копию по указанному пути."""
+        # Добавляем расширение .enc к файлу
+        dst_path = dst_path + ".enc"
+
+        # Читаем ключ из файла
+        with open(self.keyfile_path, "rb") as kf:
+            key = kf.read().strip()
+
+        fernet = Fernet(key)
+
+        # Читаем исходные данные
+        with open(src_path, "rb") as f:
+            data = f.read()
+
+        # Шифруем
+        encrypted_data = fernet.encrypt(data)
+
+        # Создаём каталог, если нужно
+        os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+
+        # Записываем зашифрованный файл
+        with open(dst_path, "wb") as f:
+            f.write(encrypted_data)
 
     def get_groups_names(self):
         """Функция возвращает список имен групп"""
@@ -357,3 +385,14 @@ class Model:
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
+        
+    def add_version(self, version_path, group_name):
+        """Функция добавляет версию"""
+        print("=== Добавить версию ===")
+        return 0
+    
+    def add_instruction(self, instruction_path, group_name):
+        """Функция добавляет инструкцию"""
+        dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
+        self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
+        return 0

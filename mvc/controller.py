@@ -233,7 +233,25 @@ class Controller(QObject):
 
     def on_add_page_add_push_button_clicked(self, button_type):
         """Функция обрабатывает нажатие на кнопку добавления в разделе 'Добавить'"""
-        print(f"=== Добавить {button_type}===")
+        status_code = 1
+
+        group_name = self.view.get_add_page_combobox_current_group_name() # Получаем имя группы
+
+        # Добавление версии
+        if button_type == "version":
+            version_path = self.view.get_version_path_lineedit_text() # Получаем путь к версии
+            status_code = self.model.add_version(version_path=version_path, group_name=group_name) # Вызываем добавление
+
+        # Добавление инструкции
+        elif button_type == "instruction":
+            instruction_path = self.view.get_instruction_path_lineedit_text() # Получаем путь к инструкции
+            status_code = self.model.add_instruction(instruction_path=instruction_path, group_name=group_name) # Вызываем добавление
+
+        # Если вернулся успешный статус код, обновляем элемениы UI
+        if status_code == 0:
+            self.update_layer_one_table_data()
+            self.update_groups_comboboxes_data()
+            self.update_version_combobox_data()
 
     # === Вкладка УДАЛИТЬ ===
 

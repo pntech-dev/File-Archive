@@ -146,7 +146,8 @@ class View:
             self.ui.tableWidget.insertRow(row)
             
             self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(data_row[0]))
-            self.ui.tableWidget.setItem(row, 1, QTableWidgetItem(data_row[1]))
+            version = data_row[1][:-4] if data_row[1].endswith(".enc") else data_row[1]
+            self.ui.tableWidget.setItem(row, 1, QTableWidgetItem(version))
 
     def set_layer_two_table_data(self, layer_two_data):
         """Функция устанавливает данные в таблице ВЕРСИИ"""
@@ -161,8 +162,9 @@ class View:
         for data_row in layer_two_data:
             row = self.ui.tableWidget.rowCount()
             self.ui.tableWidget.insertRow(row)
-
-            self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(data_row))
+            
+            version = data_row[:-4] if data_row.endswith(".enc") else data_row
+            self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(version))
 
     def set_choosen_label_text(self, data, in_group_flag):
         """Функция изменяет текст в строке выбранного файла в разделе 'Скачать'"""
@@ -254,6 +256,14 @@ class View:
     def get_add_page_combobox_current_group_name(self):
         """Функция возвращает текущий текст комбобокса имени группы в разделе 'Добавить'"""
         return self.ui.groups_comboBox.currentText()
+    
+    def get_version_path_lineedit_text(self):
+        """Функция возвращает текст в строке ввода пути версии в разделе 'Добавить'"""
+        return self.ui.choose_version_folder_lineEdit.text()
+    
+    def get_instruction_path_lineedit_text(self):
+        """Функция возвращает текст в строке ввода пути инструкции в разделе 'Добавить'"""
+        return self.ui.choose_instruction_file_lineEdit.text()
 
     def set_add_option_page(self, page):
         """Функция устанавливает страницу отображения варианта добавления в разделе 'Добавить'"""
