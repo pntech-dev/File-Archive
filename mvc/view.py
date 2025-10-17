@@ -146,7 +146,7 @@ class View:
             self.ui.tableWidget.insertRow(row)
             
             self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(data_row[0]))
-            version = data_row[1][:-4] if data_row[1].endswith(".enc") else data_row[1]
+            version = data_row[1][:-4] if not data_row[1] is None and data_row[1].endswith(".enc") else data_row[1]
             self.ui.tableWidget.setItem(row, 1, QTableWidgetItem(version))
 
     def set_layer_two_table_data(self, layer_two_data):
@@ -163,7 +163,7 @@ class View:
             row = self.ui.tableWidget.rowCount()
             self.ui.tableWidget.insertRow(row)
             
-            version = data_row[:-4] if data_row.endswith(".enc") else data_row
+            version = data_row[:-4] if not data_row is None and data_row.endswith(".enc") else data_row
             self.ui.tableWidget.setItem(row, 0, QTableWidgetItem(version))
 
     def set_choosen_label_text(self, data, in_group_flag):

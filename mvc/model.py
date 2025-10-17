@@ -5,6 +5,7 @@ import yaml
 import shutil
 import datetime
 
+from pathlib import Path
 from cryptography.fernet import Fernet
 
 
@@ -388,11 +389,87 @@ class Model:
         
     def add_version(self, version_path, group_name):
         """Функция добавляет версию"""
-        print("=== Добавить версию ===")
-        return 0
+        try:
+            if not version_path or not group_name:
+                return 1
+            
+            # Формируем путь к новой папке
+            src_path = Path(version_path)
+            
+            try:
+                dst_root = Path(os.path.join(self.config_data.get("versions_path"),group_name, src_path.name))
+
+            except Exception as e:
+                print(f"Произошла ошибка при формировании пути к новой папке.\nОшибка: {e}")
+                return 1
+            
+            if dst_root.exists():
+                print(f"Папка {dst_root} уже существует.")
+                return 1
+            
+            try:
+                dst_root.mkdir(parents=True, exist_ok=True)
+
+            except Exception as e:
+                print(f"Произошла ошибка при создании новой папки.\nОшибка: {e}")
+                return 1
+
+            # Копируем файлы и шифруем
+            try:
+                # Рекурсивно обходим исходную директорию
+                for root, dirs, files in os.walk(version_path):
+                    rel = Path(root).relative_to(version_path)  # относительный путь от корня исходной папки
+                    dst_dir = dst_root / rel
+                    dst_dir.mkdir(parents=True, exist_ok=True)
+
+                    # Перебираем файлы
+                    for filename in files:
+                        src_file = Path(root) / filename
+                        dst_file = dst_dir / filename
+                        self.__encrypt_file(str(src_file), str(dst_file)) # Используем функцию шифрования файла
+
+            except Exception as e:
+                print(f"Произошла ошибка при копировании и шифровании файлов.\nОшибка: {e}")
+                return 1
+
+            print("Папка успешно скопирована и зашифрована.")
+
+            return 0
+        
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return 1
     
     def add_instruction(self, instruction_path, group_name):
         """Функция добавляет инструкцию"""
-        dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
-        self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
-        return 0
+        try:
+            if not instruction_path and group_name:
+                return 1
+            
+            # Формируем путь
+            try:
+                dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
+
+            except Exception as e:
+                print(f"Произошла ошибка при формировании пути пути файла.\nОшибка: {e}")
+                return 1
+            
+            if os.path.exists(dst_path):
+                print(f"Файл {dst_path} уже существует.")
+                return 1
+
+            # Копируем и шифруем
+            try:
+                self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
+
+            except Exception as e:
+                print(f"Произошла ошибка при копировании и шифровании файла.\nОшибка: {e}")
+                return 1
+
+            print("Инструкция успешно скопирована и зашифрована.")
+
+            return 0
+        
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return 1
