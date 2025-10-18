@@ -548,7 +548,36 @@ class Model:
         
         try:
             if os.path.isdir(file_path):
-                print("Скачиваем версию...")
+                # Создаём путь исходной папки
+                src_path = Path(os.path.join(self.config_data.get("versions_path"), group, file))
+                if not src_path.exists():
+                    print(f"Директория {src_path} не существует.")
+                    return
+                
+                # Создаём путь сохранения
+                dst_path = Path(os.path.join(save_path, f"{group} {file}"))
+                if dst_path.exists():
+                    print(f"Директория {dst_path} уже существует.")
+                    return
+                
+                dst_path.mkdir(parents=True, exist_ok=True)
+                
+                # Рекурсивно обходим зашифрованную директорию
+                for root, dirs, files in os.walk(src_path):
+                    rel = Path(root).relative_to(src_path)
+                    dst_dir = dst_path / rel
+                    dst_dir.mkdir(parents=True, exist_ok=True)
+
+                    # Перебираем файлы
+                    for filename in files:
+                        # Обрабатываем только зашифрованные папки
+                        if not filename.endswith(".enc"):
+                            continue
+
+                        src_path = Path(root) / filename
+                        dst_path = dst_dir / filename[:-4] # Убираем расширение .enc
+                        self.__decryprt_file(src_path=src_path, dst_path=dst_path)
+
             else:
                 src_path = os.path.join(self.config_data.get("versions_path"), group, f"{file}.enc")
                 dst_path = os.path.join(save_path, f"{file}")
