@@ -179,7 +179,7 @@ class Controller(QObject):
         file = re.search(r"Версия:\s*(.*)", text).group(1) # Получаем файл
         save_path = self.view.get_download_save_path() # Получаем путь сохранения
 
-        status_code = self.model.download(group=group, file=file, save_path=save_path) # Вызываем скачивание
+        self.model.download(group=group, file=file, save_path=save_path) # Вызываем скачивание
 
     # === Вкладка ДОБАВИТЬ ===
 

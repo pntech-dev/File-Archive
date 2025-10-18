@@ -79,6 +79,28 @@ class Model:
         # Записываем зашифрованный файл
         with open(dst_path, "wb") as f:
             f.write(encrypted_data)
+    
+    def __decryprt_file(self, src_path: str, dst_path: str):
+        """Дешифрует один файл и сохраняет дешифрованную копию по указанному пути."""
+        try:
+            with open(self.keyfile_path, "rb") as kf:
+                key = kf.read().strip()
+
+            fernet = Fernet(key)
+
+            with open(src_path, "rb") as f:
+                encrypted_data = f.read()
+
+            decrypted_data = fernet.decrypt(encrypted_data)
+
+            os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+
+            with open(dst_path, "wb") as f:
+                f.write(decrypted_data)
+
+        except Exception as e:
+            print(f"Произошла ошибка при дешифровании файла.\nОшибка: {e}")
+            return
 
     def get_groups_names(self):
         """Функция возвращает список имен групп"""
@@ -126,6 +148,10 @@ class Model:
                 for ver in versions:
                     if not ver:
                         continue
+                        
+                    # Не добавляем временные файлы
+                    if ver.startswith("~"):
+                        continue
 
                     match = re.search(r"\d{2}\.\d{2}\.\d{4}", ver)
                     dates.append([ver, match.group() if match else None])
@@ -165,6 +191,27 @@ class Model:
 
         except Exception as e:
             print(f"Произошла непредвиденная ошибка в процессе получения актуальной версии.\nОшибка: {e}")
+            return
+        
+    def get_desktop_path(self):
+        """Функция возвращает путь к папке Desktop"""
+        try:
+            # Проверяем сначала путь к рабочему столу в OneDrive с русским названием
+            onedrive_desktop_path = os.path.join(os.path.expanduser("~"), "OneDrive", "Рабочий стол")
+            if os.path.exists(onedrive_desktop_path):
+                return onedrive_desktop_path
+
+            # Проверяем снова путь к рабочему столу в OneDrive
+            onedrive_desktop_path = os.path.join(os.path.expanduser("~"), "OneDrive", "Desktop")
+            if os.path.exists(onedrive_desktop_path):
+                return onedrive_desktop_path
+
+            # Если не найден, используем стандартный путь
+            desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+            return desktop_path
+
+        except Exception as e:
+            print(f"Произошла ошибка при получении пути к папке Desktop.\nОшибка: {e}")
             return
         
     def search(self, text):
@@ -481,16 +528,40 @@ class Model:
         
         except Exception as e:
             print(f"Произошла ошибка при формировании пути к файлу.\nОшибка: {e}")
-            return 1
+            return
         
-        if os.path.isdir(file_path):
-            print("Скачиваем версию...")
-        else:
-            print("Скачиваем инструкцию...")
+        try:
+            # Проверяем передан ли путь сохранения
+            if not save_path: # Если не передан, сохраняем на рабочий стол
+                save_path = self.get_desktop_path()
+
+                # Проверяем получен ли путь рабочего стола
+                if not os.path.exists(save_path):
+                    return
+            elif not os.path.exists(save_path):
+                print(f"Директория {save_path} не существует.")
+                return
         
+        except Exception as e:
+            print(f"Произошла ошибка при получении пути сохранения файла.\nОшибка: {e}")
+            return
+        
+        try:
+            if os.path.isdir(file_path):
+                print("Скачиваем версию...")
+            else:
+                src_path = os.path.join(self.config_data.get("versions_path"), group, f"{file}.enc")
+                dst_path = os.path.join(save_path, f"{file}")
+                self.__decryprt_file(src_path=src_path, dst_path=dst_path)
+        
+        except Exception as e:
+            print(f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
+            return
+
         print("Файл успешно скачан.")
+        return
 
 
-        """================"""
-        # НЕвыбираеться версия в разделе удалить
-        """================"""
+    """ ================ """
+    # НЕ выбираеться версия в разделе удалить
+    """ ================ """
