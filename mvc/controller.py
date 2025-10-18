@@ -72,8 +72,15 @@ class Controller(QObject):
             self.view.set_layer_one_table_data(data)
 
     def update_groups_comboboxes_data(self):
+        """Функция обновляет данные в комбобоксах названий групп"""
+        current_texts = {cb: cb.currentText() for cb in self.view.groups_comboboxes_lst}
+        
         group_names = self.model.get_groups_names()
         self.view.set_groups_comboboxes_data(group_names)
+
+        for cb, text in current_texts.items():
+            if text in group_names:
+                cb.setCurrentText(text)
 
     def update_version_combobox_data(self):
         if self._is_updating_versions:
@@ -284,9 +291,12 @@ class Controller(QObject):
         page = self.view.get_delete_option_page(button)
         self.view.set_delete_option_page(page)
 
-    def on_delete_page_group_comboboxes_state_changed(self):
+    def on_delete_page_group_comboboxes_state_changed(self, combobox):
         """Функция обрабатывает изменение объектов в комбобоксах в разделе 'Удалить'"""
-        self.update_version_combobox_data()
+        # Мы обновляем список версий только в том случае, если был изменён комбобкс групп
+        if combobox is self.view.ui.choose_group_to_delete_comboBox:
+            self.update_version_combobox_data()
+        
         self.update_delete_push_buttons_state()
 
     def on_delete_page_checkboxes_state_changed(self):

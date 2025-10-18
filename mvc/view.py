@@ -385,7 +385,7 @@ class View:
     def delete_page_group_comboboxes_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния комбобоксов в разделе 'Удалить'"""
         for combobox in self.delete_page_comboboxes_dict.keys():
-            combobox.currentIndexChanged.connect(handler)
+            combobox.currentIndexChanged.connect(lambda _, cb=combobox: handler(cb))
 
     def delete_page_checkboxes_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния чекбоксов в разделе 'Удалить'"""
