@@ -170,28 +170,52 @@ class Model:
             return []
         
     def get_actual_version(self, versions):
-        """Функция возвращает актуальную версию"""    
+        """Возвращает актуальную версию (папку или файл)."""
+        base_path = self.config_data.get("versions_path")
+
+        def extract_date(name):
+            match = re.search(r"\d{2}\.\d{2}\.\d{4}", name)
+            return self.__parse_date(match.group()) if match else None
+
         try:
-            # Получаем даты для каждой верси
-            dates = []
-            for ver in versions:
-                if not ver:
-                    continue
-
-                match = re.search(r"\d{2}\.\d{2}\.\d{4}", ver)
-                dates.append([ver, match.group() if match else None])
-
-            if not dates:
+            # --- фильтрация и разбор версий ---
+            items = [(v, extract_date(v)) for v in versions if v]
+            if not items:
                 return None
 
-            # Определяем актуальную
-            dates.sort(key=lambda x: self.__parse_date(x[1]), reverse=True)
+            # --- определяем, что есть на ФС ---
+            folders = [x for x in items if os.path.isdir(os.path.join(base_path, x[0]))]
+            files   = [x for x in items if os.path.isfile(os.path.join(base_path, x[0]))]
 
-            return dates[0][0]
+            # fallback: если нет данных о ФС
+            target = folders or files or items
+            is_folder = bool(folders or (not files and target is items))
+
+            # --- сортировка ---
+            has_dates = any(date for _, date in target)
+
+            def sort_key(x):
+                name, date = x
+                # Дата по убыванию, имя — в зависимости от типа
+                return (
+                    date or datetime.datetime.min,
+                    name.lower() if not is_folder else -ord(name[0].lower())
+                )
+
+            if has_dates:
+                # Если есть даты — сортируем по дате ↓, потом по имени (в зависимости от типа)
+                target.sort(key=lambda x: (x[1] or datetime.datetime.min, 
+                                        x[0].lower() if not is_folder else x[0].lower()),
+                            reverse=True)
+            else:
+                # Без дат — только по имени (по правилам)
+                target.sort(key=lambda x: x[0].lower(), reverse=is_folder)
+
+            return target[0][0]
 
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка в процессе получения актуальной версии.\nОшибка: {e}")
-            return
+            print(f"Ошибка при получении актуальной версии: {e}")
+            return None
         
     def get_desktop_path(self):
         """Функция возвращает путь к папке Desktop"""
