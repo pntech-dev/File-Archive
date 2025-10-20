@@ -4,8 +4,10 @@ import sys
 import yaml
 import shutil
 import datetime
+import subprocess
 
 from pathlib import Path
+from packaging import version
 from cryptography.fernet import Fernet
 
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -51,6 +53,7 @@ class Model(QObject):
                     config_data = yaml.safe_load(file)
 
                 return config_data
+            
             except Exception as e:
                 self.show_notification.emit("error", f"Произошла ошибка при загрузке данных из файла конфигурации.\nОшибка: {e}")
                 return 1
@@ -114,6 +117,52 @@ class Model(QObject):
         except Exception as e:
             self.show_notification.emit("error", f"Произошла ошибка при дешифровании файла.\nОшибка: {e}")
             return
+        
+    def check_program_version(self):
+        """Функция проверяет версию программы"""
+        program_server_path = self.config_data.get("server_program_path")
+
+        if not program_server_path or not os.path.exists(program_server_path):
+            return None
+        
+        program_server_files = os.listdir(program_server_path)
+        for file_name in program_server_files:
+            # Ищем файл, который начинается с "config" и заканчивается ".yaml"
+            if file_name.startswith("config") and file_name.endswith(".yaml"):
+                try:
+                    with open(os.path.join(program_server_path, file_name), "r", encoding="utf-8") as f:
+                        config_data = yaml.safe_load(f)
+                    
+                    local_version = str(self.config_data.get("program_version_number"))
+                    program_server_version = str(config_data.get("program_version_number"))
+
+                    if not program_server_version:
+                        return None
+
+                    if version.parse(program_server_version) > version.parse(local_version):
+                        return True
+                    else:
+                        return False
+                    
+                except IndexError:
+                    # Если формат имени файла не соответствует ожидаемому, пропускаем его
+                    continue
+        
+    def update_program(self):
+        """Функция вызывает обновление программы"""
+        updater_path = os.path.join(os.getcwd(), "updater.exe") # Создаём путь к программе обновления
+        
+        # Проверяем, что updater.exe существует
+        if not os.path.exists(updater_path):
+            self.show_notification.emit("error", f"Не найдена программа автоматического обновления: {updater_path}")
+            return
+
+        # Запускаем updater.exe с запросом прав администратора
+        try:
+            os.startfile(updater_path, 'runas')
+        except OSError as e:
+            self.show_notification.emit("error", f"Не удалось запустить программу обновления: {e}")
+
 
     def get_groups_names(self):
         """Функция возвращает список имен групп"""

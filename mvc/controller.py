@@ -1,6 +1,7 @@
 import re
+import sys
 
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QDialog
 from PyQt5.QtCore import QObject, QEvent, pyqtSignal
 
 
@@ -10,6 +11,8 @@ class Controller(QObject):
 
         self.model = model
         self.view = view
+
+        self.__check_program_version() # Проверяем версию программы
 
         self._is_updating_versions = False
 
@@ -59,6 +62,31 @@ class Controller(QObject):
         self.model.show_notification.connect(self.on_show_notification) # Сигнал показа уведомления
 
     # === Основные функции ===
+
+    def __check_program_version(self):
+        """Функция проверяет версию программы"""
+        is_version = self.model.check_program_version() # Проверяем версию программы
+        print("Is version flag: ", is_version)
+
+        # Если произошла ошибка во время проверки версии
+        if is_version is None:
+            self.on_show_notification(msg_type="error", text="Во время проверки версии произошла ошибка!\nОшибка связана с путём к файлу конфигурации")
+            exit()
+
+        # Если версия не совпадает (требуется обновление)
+        elif is_version:
+        
+            action = self.on_show_action_notification(msg_type="warning", 
+                                                      title="Обновление", 
+                                                      text="Обнаружена новая версия программы.\nПродолжить работу без обновления невозможно.\nЖелаете обновить?", 
+                                                      buttons_texts=["Обновить", "Закрыть"])
+            print("Action: ", action)
+            if action == 1:
+                self.model.update_program()
+                sys.exit() # Закрываем основное приложение после запуска обновления
+            else:
+                sys.exit()
+
 
     def update_layer_one_table_data(self, data=None):
         """Функция обновляет данные в таблице ГРУППЫ"""
@@ -366,3 +394,8 @@ class Controller(QObject):
         self.view.set_progress_bar_process_text(text="", set_to_zero=True)
         self.view.set_progress_bar_percents_text(percents="0%")
         self.view.set_progress_bar_value(value=0)
+
+    def on_show_action_notification(self, msg_type, title, text, buttons_texts):
+        """Функция обрабатывает показ уведомления с кнопкамими действия"""
+        notification = self.view.show_action_notification(msg_type=msg_type, title=title, text=text, buttons_texts=buttons_texts)
+        return notification

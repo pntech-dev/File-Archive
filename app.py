@@ -1,5 +1,7 @@
 import sys
 
+from classes import Notification
+
 from resources import resources_rc
 
 from ui import Ui_MainWindow
@@ -25,7 +27,10 @@ class MyWindow(QMainWindow):
 
         # Проверяем что данные получены
         if not type(self.model.config_data) == dict:
-            print("Произошла ошибка при получении данных из файла конфигурации.")
+            Notification.show_notification(msg_type="error", 
+                                           title="Ошибка", 
+                                           text="Произошла ошибка при получении данных из файла конфигурации.", 
+                                           button_text="Закрыть")
             sys.exit()
 
         self.view = View(ui=self.ui)

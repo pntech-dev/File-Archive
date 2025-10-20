@@ -1,2 +1,3 @@
 from .mainUI import Ui_MainWindow
-from .message_boxUI import Ui_Dialog
+from .message_boxUI import Ui_MessageBoxDialog
+from .action_message_boxUI import Ui_ActionMessageBoxDialog

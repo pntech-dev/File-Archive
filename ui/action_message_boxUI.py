@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/message_boxUI.ui'
+# Form implementation generated from reading ui file 'ui/action_message_boxUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -11,22 +11,16 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MessageBoxDialog(object):
-    def setupUi(self, MessageBoxDialog):
-        MessageBoxDialog.setObjectName("MessageBoxDialog")
-        MessageBoxDialog.resize(500, 200)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MessageBoxDialog.sizePolicy().hasHeightForWidth())
-        MessageBoxDialog.setSizePolicy(sizePolicy)
-        MessageBoxDialog.setMinimumSize(QtCore.QSize(0, 0))
-        MessageBoxDialog.setMaximumSize(QtCore.QSize(16777215, 16777215))
+class Ui_ActionMessageBoxDialog(object):
+    def setupUi(self, ActionMessageBoxDialog):
+        ActionMessageBoxDialog.setObjectName("ActionMessageBoxDialog")
+        ActionMessageBoxDialog.resize(500, 200)
+        ActionMessageBoxDialog.setMinimumSize(QtCore.QSize(0, 0))
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
-        MessageBoxDialog.setFont(font)
-        MessageBoxDialog.setStyleSheet("QDialog {\n"
+        ActionMessageBoxDialog.setFont(font)
+        ActionMessageBoxDialog.setStyleSheet("QDialog {\n"
 "    background-color: #FFFFFF;    /* Белый фон окна */\n"
 "}\n"
 "\n"
@@ -38,12 +32,11 @@ class Ui_MessageBoxDialog(object):
 "    background-color: #FFFFFF;\n"
 "    border: none;\n"
 "}")
-        MessageBoxDialog.setModal(False)
-        self.verticalLayout = QtWidgets.QVBoxLayout(MessageBoxDialog)
+        self.verticalLayout = QtWidgets.QVBoxLayout(ActionMessageBoxDialog)
         self.verticalLayout.setContentsMargins(16, 24, 16, 16)
         self.verticalLayout.setSpacing(24)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.message_frame = QtWidgets.QFrame(MessageBoxDialog)
+        self.message_frame = QtWidgets.QFrame(ActionMessageBoxDialog)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -87,35 +80,48 @@ class Ui_MessageBoxDialog(object):
         self.horizontalLayout_3.addWidget(self.message_text_label)
         self.horizontalLayout.addWidget(self.text_frame)
         self.verticalLayout.addWidget(self.message_frame)
-        self.button_frame = QtWidgets.QFrame(MessageBoxDialog)
-        self.button_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.button_frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.button_frame.setObjectName("button_frame")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.button_frame)
+        self.buttons_frame = QtWidgets.QFrame(ActionMessageBoxDialog)
+        self.buttons_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.buttons_frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.buttons_frame.setObjectName("buttons_frame")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.buttons_frame)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_2.setSpacing(0)
+        self.horizontalLayout_2.setSpacing(16)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem = QtWidgets.QSpacerItem(345, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(225, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem)
-        self.action_pushButton = QtWidgets.QPushButton(self.button_frame)
+        self.main_action_pushButton = QtWidgets.QPushButton(self.buttons_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.action_pushButton.sizePolicy().hasHeightForWidth())
-        self.action_pushButton.setSizePolicy(sizePolicy)
-        self.action_pushButton.setMinimumSize(QtCore.QSize(120, 35))
+        sizePolicy.setHeightForWidth(self.main_action_pushButton.sizePolicy().hasHeightForWidth())
+        self.main_action_pushButton.setSizePolicy(sizePolicy)
+        self.main_action_pushButton.setMinimumSize(QtCore.QSize(120, 35))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.action_pushButton.setFont(font)
-        self.action_pushButton.setObjectName("action_pushButton")
-        self.horizontalLayout_2.addWidget(self.action_pushButton)
-        self.verticalLayout.addWidget(self.button_frame)
+        self.main_action_pushButton.setFont(font)
+        self.main_action_pushButton.setObjectName("main_action_pushButton")
+        self.horizontalLayout_2.addWidget(self.main_action_pushButton)
+        self.secondary_action_pushButton = QtWidgets.QPushButton(self.buttons_frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.secondary_action_pushButton.sizePolicy().hasHeightForWidth())
+        self.secondary_action_pushButton.setSizePolicy(sizePolicy)
+        self.secondary_action_pushButton.setMinimumSize(QtCore.QSize(120, 35))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.secondary_action_pushButton.setFont(font)
+        self.secondary_action_pushButton.setObjectName("secondary_action_pushButton")
+        self.horizontalLayout_2.addWidget(self.secondary_action_pushButton)
+        self.verticalLayout.addWidget(self.buttons_frame)
 
-        self.retranslateUi(MessageBoxDialog)
-        QtCore.QMetaObject.connectSlotsByName(MessageBoxDialog)
+        self.retranslateUi(ActionMessageBoxDialog)
+        QtCore.QMetaObject.connectSlotsByName(ActionMessageBoxDialog)
 
-    def retranslateUi(self, MessageBoxDialog):
+    def retranslateUi(self, ActionMessageBoxDialog):
         _translate = QtCore.QCoreApplication.translate
-        MessageBoxDialog.setWindowTitle(_translate("MessageBoxDialog", "Dialog"))
-        self.message_text_label.setText(_translate("MessageBoxDialog", "TextLabel"))
-        self.action_pushButton.setText(_translate("MessageBoxDialog", "Ок"))
+        ActionMessageBoxDialog.setWindowTitle(_translate("ActionMessageBoxDialog", "Dialog"))
+        self.message_text_label.setText(_translate("ActionMessageBoxDialog", "TextLabel"))
+        self.main_action_pushButton.setText(_translate("ActionMessageBoxDialog", "Текст"))
+        self.secondary_action_pushButton.setText(_translate("ActionMessageBoxDialog", "Текст"))

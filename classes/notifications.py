@@ -1,4 +1,4 @@
-from ui import Ui_Dialog
+from ui import Ui_MessageBoxDialog, Ui_ActionMessageBoxDialog
 
 from resources import resources_rc
 
@@ -19,33 +19,69 @@ class CustomMessageBox(QDialog):
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
         # Подключаем UI
-        self.ui = Ui_Dialog()
+        self.ui = Ui_MessageBoxDialog()
         self.ui.setupUi(self)
+        self.ui.message_text_label.setTextFormat(Qt.PlainText)
 
         # Настраиваем UI
         self.setWindowTitle(title) # Устанавливаем название окна
+        self.ui.message_icon_label.setPixmap(QPixmap(f":/icons/notifications/{msg_type}.svg")) # Устанавливаем иконку
         self.ui.message_text_label.setText(text) # Устанавливаем текст окна уведомления
+        self.ui.message_text_label.adjustSize() # Растягиваем текст
         self.ui.action_pushButton.setText(button_text) # Устанавливаем текст кнопки
         self.ui.action_pushButton.clicked.connect(self.accept) # Подключаем обработку нажатия на кнопку
 
         # Обрабатываем типы уведомлений. Устанавлвиаем иконку и стиль кнопки
         if msg_type == "info":
-            self.ui.message_icon_label.setPixmap(QPixmap(":/icons/notifications/info.svg"))
             self.ui.action_pushButton.setStyleSheet(main_button_style)
 
         elif msg_type == "warning":
-            self.ui.message_icon_label.setPixmap(QPixmap(":/icons/notifications/warning.svg"))
             self.ui.action_pushButton.setStyleSheet(secondary_button_style)
 
         elif msg_type == "error":
-            self.ui.message_icon_label.setPixmap(QPixmap(":/icons/notifications/error.svg"))
             self.ui.action_pushButton.setStyleSheet(secondary_button_style)
+
+
+class CustomActionsMessageBox(QDialog):
+    def __init__(self, msg_type, title, text, buttons_texts, parent=None):
+        super().__init__(parent)
+
+        # Иконка приложения
+        icon = QIcon(":/icons/icon.ico")
+        self.setWindowIcon(icon)
+
+        # Убиарем кнопку "?" у окна
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+
+        # Подключаем UI
+        self.ui = Ui_ActionMessageBoxDialog()
+        self.ui.setupUi(self)
+        self.ui.message_text_label.setTextFormat(Qt.PlainText)
+
+        # Настраиваем UI
+        self.setWindowTitle(title) # Устанавливаем название окна
+        self.ui.message_text_label.setText(text) # Устанавливаем текст окна уведомления
+        self.ui.message_text_label.adjustSize() # Растягиваем текст
+        self.ui.main_action_pushButton.setText(buttons_texts[0]) # Устанавливаем текст акцентной кнопки
+        self.ui.secondary_action_pushButton.setText(buttons_texts[1]) # Устанавливаем текст второстепенной кнопки
+        self.ui.main_action_pushButton.setStyleSheet(main_button_style) # Устанавливаем стиль акцентной кнопки
+        self.ui.secondary_action_pushButton.setStyleSheet(secondary_button_style) # Устанавливаем стиль второстепенной кнопки
+        self.ui.message_icon_label.setPixmap(QPixmap(f":/icons/notifications/{msg_type}.svg")) # Устанавливаем иконку
+
+        # Подключаем действия кнопок
+        self.ui.main_action_pushButton.clicked.connect(self.accept)
+        self.ui.secondary_action_pushButton.clicked.connect(self.reject)
 
 class Notification:
     def show_notification(msg_type, title, text, button_text):
         """Функция показывает уведомление"""
         CustomMessageBox(msg_type, title, text, button_text).exec()
 
+    def show_actions_notification(msg_type, title, text, buttons_texts):
+        """Функция показывает уведомление с возможностью выбора действия"""
+        result = CustomActionsMessageBox(msg_type, title, text, buttons_texts).exec()
+        return result
+    
 
 # Стили кнопок
 main_button_style = """

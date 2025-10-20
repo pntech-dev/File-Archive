@@ -419,3 +419,7 @@ class View:
     def show_notification(self, msg_type, title, text, button_text):
         """Функция показывает уведомление"""
         Notification.show_notification(msg_type=msg_type, title=title, text=text, button_text=button_text)
+
+    def show_action_notification(self, msg_type, title, text, buttons_texts):
+        """Функция показывает сообщение с кнопками действий"""
+        return Notification.show_actions_notification(msg_type=msg_type, title=title, text=text, buttons_texts=buttons_texts)

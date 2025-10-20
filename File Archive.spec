@@ -1,17 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
 
+cryptography_datas, cryptography_binaries, cryptography_hiddenimports = collect_all('cryptography')
 
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[],
+    binaries=cryptography_binaries,
     datas=[
         ('keyfile.key', '.'),
         ('config.yaml', '.'),
         ('version 4.0.0.txt', '.'),
         ('updater.exe', '.')
-        ],
-    hiddenimports=[],
+    ] + cryptography_datas,
+    hiddenimports=['PyYaml'] + cryptography_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -50,7 +52,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
