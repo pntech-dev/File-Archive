@@ -2,7 +2,7 @@ import sys
 
 from resources import resources_rc
 
-from ui.mainUI import Ui_MainWindow
+from ui import Ui_MainWindow
 
 from mvc import Model, View, Controller
 

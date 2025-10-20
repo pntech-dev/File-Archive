@@ -20,5 +20,9 @@
     <file>search/search_icon.svg</file>
     <file>search/search_icon_focus.svg</file>
     <file>search/search_icon_disabled.svg</file>
+
+    <file>notifications/error.svg</file>
+    <file>notifications/info.svg</file>
+    <file>notifications/warning.svg</file>
   </qresource>
 </RCC>

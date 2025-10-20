@@ -56,6 +56,7 @@ class Controller(QObject):
 
         # Сигналы
         self.model.progress_chehged.connect(self.on_progress_bar_changed) # Сигнал изменения прогресс бара
+        self.model.show_notification.connect(self.on_show_notification) # Сигнал показа уведомления
 
     # === Основные функции ===
 
@@ -230,7 +231,7 @@ class Controller(QObject):
         """Функция обрабатывает нажатие на кнопку создания группы в разделе 'Добавить'"""
         new_group_name = self.view.get_new_group_name_lineedit_text() # Получаем имя новой группы
         self.model.new_group_name = new_group_name # Запоминаем имя новой группы
-        
+
         status_code = self.model.create_new_group(group_name=new_group_name) # Создаём группу
 
         if status_code == 0:
@@ -344,10 +345,24 @@ class Controller(QObject):
             self.update_groups_comboboxes_data()
             self.update_version_combobox_data()
 
-    # === Прогресс бар ===
+    # === Сигналы ===
 
     def on_progress_bar_changed(self, process_text, value):
         """Функция обрабатывает изменение состояния прогресс бара"""
         self.view.set_progress_bar_process_text(text=process_text)
         self.view.set_progress_bar_percents_text(percents=str(value) + "%")
         self.view.set_progress_bar_value(value=value)
+
+    def on_show_notification(self, msg_type, text):
+        """Функция обрабатывает показ уведомления"""
+        if msg_type == "info":
+            self.view.show_notification(msg_type=msg_type, title="Информация", text=text, button_text="Ок")
+        elif msg_type == "warning":
+            self.view.show_notification(msg_type=msg_type, title="Предупреждение", text=text, button_text="Ок")
+        elif msg_type == "error":
+            self.view.show_notification(msg_type=msg_type, title="Ошибка", text=text, button_text="Закрыть")
+        
+        # Обеуляем прогресс бар
+        self.view.set_progress_bar_process_text(text="", set_to_zero=True)
+        self.view.set_progress_bar_percents_text(percents="0%")
+        self.view.set_progress_bar_value(value=0)

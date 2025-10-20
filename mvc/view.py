@@ -2,6 +2,8 @@ import re
 
 from resources import resources_rc
 
+from classes import Notification
+
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QLineEdit, QHeaderView, QTableWidgetItem, QAbstractItemView, QScroller
 
@@ -412,3 +414,8 @@ class View:
     def set_progress_bar_value(self, value):
         """Функция устанавливает значение прогресс бара"""
         self.ui.progressBar.setValue(value)
+
+    # === Уведомления ===
+    def show_notification(self, msg_type, title, text, button_text):
+        """Функция показывает уведомление"""
+        Notification.show_notification(msg_type=msg_type, title=title, text=text, button_text=button_text)

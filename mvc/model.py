@@ -13,6 +13,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 class Model(QObject):
     progress_chehged = pyqtSignal(str, int) # Сигнал изменения прогресс бара
+    show_notification = pyqtSignal(str, str) # Сигнал отображения уведомления (Тип, Текст)
 
     def __init__(self):
         super().__init__()
@@ -35,13 +36,13 @@ class Model(QObject):
             # Получаем путь к исполняемому файлу и проверяем существование
             exe_file_path = os.path.abspath(sys.argv[0])
             if not os.path.exists(exe_file_path):
-                print(f"Произошла ошибка при получении пути к исполняемому файлу.\nПуть: {exe_file_path}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении пути к исполняемому файлу.\nПуть: {exe_file_path}")
                 return 1
             
             # Получаем путь к файлу конфигурации и проверяем существование
             config_path = os.path.join(os.path.dirname(exe_file_path), "config.yaml")
             if not os.path.exists(config_path):
-                print(f"Произошла ошибка при получении пути к файлу конфигурации.\nПуть: {config_path}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении пути к файлу конфигурации.\nПуть: {config_path}")
                 return 1
             
             try:
@@ -51,11 +52,11 @@ class Model(QObject):
 
                 return config_data
             except Exception as e:
-                print(f"Произошла ошибка при загрузке данных из файла конфигурации.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при загрузке данных из файла конфигурации.\nОшибка: {e}")
                 return 1
             
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
 
     def __parse_date(self, date_str):
         """Функция парсит дату в формате ДД.ММ.ГГГГ"""
@@ -111,7 +112,7 @@ class Model(QObject):
                 f.write(decrypted_data)
 
         except Exception as e:
-            print(f"Произошла ошибка при дешифровании файла.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при дешифровании файла.\nОшибка: {e}")
             return
 
     def get_groups_names(self):
@@ -122,11 +123,11 @@ class Model(QObject):
             try:
                 path_to_groups = self.config_data.get("versions_path")
             except Exception as e:
-                print(f"Произошла ошибка при получении пути к группам из файла конфигурации.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении пути к группам из файла конфигурации.\nОшибка: {e}")
                 return []
             
             if not os.path.exists(path_to_groups):
-                print(f"Произошла ошибка при получении пути к группам.\nПуть: {path_to_groups}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении пути к группам.\nПуть: {path_to_groups}")
                 return []
             try:
                 groups_names = os.listdir(path_to_groups)
@@ -134,11 +135,11 @@ class Model(QObject):
                 return sorted(groups_names)
             
             except Exception as e:
-                print(f"Произошла ошибка при получении списка имен групп.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении списка имен групп.\nОшибка: {e}")
                 return []
             
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
 
     def get_group_versions(self, group_name):
         """Функция возвращает список версий группы"""
@@ -146,11 +147,11 @@ class Model(QObject):
             try:
                 path_to_group = os.path.join(self.config_data.get("versions_path"), group_name)
             except Exception as e:
-                print(f"Произошла ошибка при получении пути к группе.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении пути к группе.\nОшибка: {e}")
                 return []
             
             if not os.path.exists(path_to_group):
-                print(f"Путь к выбранной группе не существует ли недоступен.\nПуть: {path_to_group}")
+                self.show_notification.emit("error", f"Путь к выбранной группе не существует или недоступен.\nПуть: {path_to_group}")
                 return []
 
             try:
@@ -175,10 +176,10 @@ class Model(QObject):
                 return sorted_versions
             
             except Exception as e:
-                print(f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
                 return []
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return []
         
     def get_actual_version(self, versions):
@@ -226,7 +227,7 @@ class Model(QObject):
             return target[0][0]
 
         except Exception as e:
-            print(f"Ошибка при получении актуальной версии: {e}")
+            self.show_notification.emit("error", f"Ошибка при получении актуальной версии: {e}")
             return None
         
     def get_desktop_path(self):
@@ -247,7 +248,7 @@ class Model(QObject):
             return desktop_path
 
         except Exception as e:
-            print(f"Произошла ошибка при получении пути к папке Desktop.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при получении пути к папке Desktop.\nОшибка: {e}")
             return
         
     def search(self, text):
@@ -262,7 +263,7 @@ class Model(QObject):
                 if not groups:
                     return []
             except Exception as e:
-                print(f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
                 return []
             
             # Получаем список списков, в виде [[группа, актуальная версия]]
@@ -273,20 +274,20 @@ class Model(QObject):
                         versions = self.get_group_versions(group)
 
                     except Exception as e:
-                        print(f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
+                        self.show_notification.emit("error", f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
                         continue
 
                     try:
                         actual_version = self.get_actual_version(versions)
                         
                     except Exception as e:
-                        print(f"Произошла ошибка при получении актуальной версии группы.\nОшибка: {e}")
+                        self.show_notification.emit("error", f"Произошла ошибка при получении актуальной версии группы.\nОшибка: {e}")
                         continue
 
                     groups_versions.append([group, actual_version])
 
             except Exception as e:
-                print(f"Произошла ошибка в процессе формирования списков групп и версий.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка в процессе формирования списков групп и версий.\nОшибка: {e}")
                 return []
             
             # Выполняем поиск
@@ -309,11 +310,11 @@ class Model(QObject):
                 return result
             
             except Exception as e:
-                print(f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
                 return []
             
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return []
         
     def search_all(self, text):
@@ -327,7 +328,7 @@ class Model(QObject):
                 groups = self.get_groups_names()
 
             except Exception as e:
-                print(f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
                 return []
 
             if not groups:
@@ -340,7 +341,7 @@ class Model(QObject):
                     groups_versions[group] = self.get_group_versions(group)
 
             except Exception as e:
-                print(f"Произошла ошибка при получении списка версий групп.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при получении списка версий групп.\nОшибка: {e}")
                 return []
             
             # Выполняем поиск
@@ -364,11 +365,11 @@ class Model(QObject):
                 return result
 
             except Exception as e:
-                print(f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
                 return []
                                 
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return []
         
     def create_new_group(self, group_name):
@@ -386,14 +387,14 @@ class Model(QObject):
                 group_path = os.path.join(self.config_data.get("versions_path"), group_name)
 
             except Exception as e:
-                print(f"Произошла ошибка при формировании пути к новой группе.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к новой группе.\nОшибка: {e}")
                 return 1
             
             # Проверяем существут ли такая группа
             current_step += progress_step_size
             self.progress_chehged.emit("Проверяем существование группы...", current_step)
             if os.path.exists(group_path):
-                print(f"Группа с именем {group_name} уже существует.")
+                self.show_notification.emit("error", f"Группа с именем {group_name} уже существует.")
                 return 1
 
             # Создаём группу
@@ -401,16 +402,16 @@ class Model(QObject):
             self.progress_chehged.emit("Создаём группу...", current_step)
             try:
                 os.makedirs(group_path)
-                print(f"Группа {group_name} успешно создана.")
                 self.progress_chehged.emit("Группа создана.", 100)
+                self.show_notification.emit("info", f"Группа {group_name} успешно создана.")
                 return 0
             
             except Exception as e:
-                print(f"Произошла ошибка при создании новой группы.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при создании новой группы.\nОшибка: {e}")
                 return 1
         
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
         
     def delete_group(self, group_name):
@@ -428,11 +429,11 @@ class Model(QObject):
                 group_path = os.path.join(self.config_data.get("versions_path"), group_name)
 
             except Exception as e:
-                print(f"Произошла ошибка при формировании пути к удаляемой группе.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к удаляемой группе.\nОшибка: {e}")
                 return 1
             
             if not os.path.exists(group_path):
-                print(f"Группа с именем {group_name} не существует.")
+                self.show_notification.emit("error", f"Группа с именем {group_name} не существует.")
                 return 1
             
             # Удаляем группу
@@ -440,17 +441,16 @@ class Model(QObject):
             self.progress_chehged.emit("Удаляем группу...", current_step)
             try:
                 shutil.rmtree(group_path)
-                print(f"Группа {group_name} успешно удалена.")
                 self.progress_chehged.emit("Группа удалена.", 100)
-
+                self.show_notification.emit("info", f"Группа {group_name} успешно удалена.")
                 return 0
             
             except Exception as e:
-                print(f"Произошла ошибка при удалении группы.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при удалении группы.\nОшибка: {e}")
                 return 1
             
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
         
     def delete_file(self, data):
@@ -468,11 +468,11 @@ class Model(QObject):
                 file_path = os.path.join(self.config_data.get("versions_path"), data[0], data[1])
 
             except Exception as e:
-                print(f"Произошла ошибка при формировании пути к удаляемому файлу.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к удаляемому файлу.\nОшибка: {e}")
                 return 1
 
             if not os.path.exists(file_path):
-                print(f"Файл не существует. Путь: {file_path}")
+                self.show_notification.emit("error", f"Файл не существует. Путь: {file_path}")
                 return 1
             
             # Удаляем файл
@@ -484,16 +484,16 @@ class Model(QObject):
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
 
-                print(f"Файл {file_path} успешно удалён.")
                 self.progress_chehged.emit("Файл удалён.", 100)
+                self.show_notification.emit("info", f"Файл {file_path} успешно удалён.")
                 return 0
             
             except Exception as e:
-                print(f"Произошла ошибка при удалении файла.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при удалении файла.\nОшибка: {e}")
                 return 1
             
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
         
     def add_version(self, version_path, group_name):
@@ -513,18 +513,18 @@ class Model(QObject):
                 dst_root = Path(os.path.join(self.config_data.get("versions_path"),group_name, src_path.name))
 
             except Exception as e:
-                print(f"Произошла ошибка при формировании пути к новой папке.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к новой папке.\nОшибка: {e}")
                 return 1
             
             if dst_root.exists():
-                print(f"Папка {dst_root} уже существует.")
+                self.show_notification.emit("error", f"Папка {dst_root} уже существует.")
                 return 1
             
             try:
                 dst_root.mkdir(parents=True, exist_ok=True)
 
             except Exception as e:
-                print(f"Произошла ошибка при создании новой папки.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при создании новой папки.\nОшибка: {e}")
                 return 1
 
             # Копируем файлы и шифруем
@@ -544,16 +544,16 @@ class Model(QObject):
                         self.__encrypt_file(str(src_file), str(dst_file)) # Используем функцию шифрования файла
 
             except Exception as e:
-                print(f"Произошла ошибка при копировании и шифровании файлов.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при копировании и шифровании файлов.\nОшибка: {e}")
                 return 1
 
-            print("Папка успешно скопирована и зашифрована.")
             self.progress_chehged.emit("Версия добавлена.", 100)
+            self.show_notification.emit("info", "Папка успешно скопирована и зашифрована.")
 
             return 0
         
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
     
     def add_instruction(self, instruction_path, group_name):
@@ -571,11 +571,11 @@ class Model(QObject):
                 dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
 
             except Exception as e:
-                print(f"Произошла ошибка при формировании пути пути файла.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при формировании пути файла.\nОшибка: {e}")
                 return 1
             
             if os.path.exists(dst_path):
-                print(f"Файл {dst_path} уже существует.")
+                self.show_notification.emit("error", f"Файл {dst_path} уже существует.")
                 return 1
 
             # Копируем и шифруем
@@ -585,16 +585,16 @@ class Model(QObject):
                 self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
 
             except Exception as e:
-                print(f"Произошла ошибка при копировании и шифровании файла.\nОшибка: {e}")
+                self.show_notification.emit("error", f"Произошла ошибка при копировании и шифровании файла.\nОшибка: {e}")
                 return 1
 
-            print("Инструкция успешно скопирована и зашифрована.")
             self.progress_chehged.emit("Инструкция добавлена.", 100)
+            self.show_notification.emit("info", "Инструкция успешно скопирована и зашифрована.")
 
             return 0
         
         except Exception as e:
-            print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
         
     def download(self, group, file, save_path):
@@ -603,7 +603,7 @@ class Model(QObject):
             file_path = os.path.join(self.config_data.get("versions_path"), group, file)
         
         except Exception as e:
-            print(f"Произошла ошибка при формировании пути к файлу.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при формировании пути к файлу.\nОшибка: {e}")
             return
         
         try:
@@ -615,11 +615,11 @@ class Model(QObject):
                 if not os.path.exists(save_path):
                     return
             elif not os.path.exists(save_path):
-                print(f"Директория {save_path} не существует.")
+                self.show_notification.emit("error", f"Директория {save_path} не существует.")
                 return
         
         except Exception as e:
-            print(f"Произошла ошибка при получении пути сохранения файла.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при получении пути сохранения файла.\nОшибка: {e}")
             return
         
         try:
@@ -631,7 +631,7 @@ class Model(QObject):
                 self.progress_chehged.emit("Создаём путь исходной папки...", current_step)
                 src_path = Path(os.path.join(self.config_data.get("versions_path"), group, file))
                 if not src_path.exists():
-                    print(f"Директория {src_path} не существует.")
+                    self.show_notification.emit("error", f"Директория {src_path} не существует.")
                     return
 
                 # Создаём путь сохранения
@@ -639,7 +639,7 @@ class Model(QObject):
                 self.progress_chehged.emit("Создаём путь сохранения...", current_step)
                 dst_path = Path(os.path.join(save_path, f"{group} {file}"))
                 if dst_path.exists():
-                    print(f"Директория {dst_path} уже существует.")
+                    self.show_notification.emit("error", f"Директория {dst_path} уже существует.")
                     return
                 
                 dst_path.mkdir(parents=True, exist_ok=True)
@@ -678,9 +678,9 @@ class Model(QObject):
                 self.__decryprt_file(src_path=src_path, dst_path=dst_path)
         
         except Exception as e:
-            print(f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
             return
 
-        print("Файл успешно скачан.")
         self.progress_chehged.emit("Скачивание завершено.", 100)
+        self.show_notification.emit("info", "Файл успешно скачан.")
         return
