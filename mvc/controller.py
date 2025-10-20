@@ -1,7 +1,7 @@
 import re
 
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QObject, QEvent
+from PyQt5.QtCore import QObject, QEvent, pyqtSignal
 
 
 class Controller(QObject):
@@ -53,6 +53,9 @@ class Controller(QObject):
         # Таблица
         self.view.download_page_table_row_clicked(self.on_download_page_table_row_clicked) # Нажатие на строку таблицы
         self.view.download_page_table_row_double_clicked(self.on_download_page_table_row_double_clicked) # Двойное нажатие на строку таблицы
+
+        # Сигналы
+        self.model.progress_chehged.connect(self.on_progress_bar_changed) # Сигнал изменения прогресс бара
 
     # === Основные функции ===
 
@@ -227,11 +230,14 @@ class Controller(QObject):
         """Функция обрабатывает нажатие на кнопку создания группы в разделе 'Добавить'"""
         new_group_name = self.view.get_new_group_name_lineedit_text() # Получаем имя новой группы
         self.model.new_group_name = new_group_name # Запоминаем имя новой группы
-        self.model.create_new_group(group_name=new_group_name) # Создаём группу
-        self.update_layer_one_table_data() # Вызываем обновление таблицы
-        self.update_groups_comboboxes_data() # Обновляем данные в комбобоксах названий групп
-        self.view.set_new_group_to_combobox(new_group_name=new_group_name) # Устанавливаем новую группу в комбобоксе
-        self.update_version_combobox_data() # Обновляем данные в комбобоксе версий групп
+        
+        status_code = self.model.create_new_group(group_name=new_group_name) # Создаём группу
+
+        if status_code == 0:
+            self.update_layer_one_table_data() # Вызываем обновление таблицы
+            self.update_groups_comboboxes_data() # Обновляем данные в комбобоксах названий групп
+            self.view.set_new_group_to_combobox(new_group_name=new_group_name) # Устанавливаем новую группу в комбобоксе
+            self.update_version_combobox_data() # Обновляем данные в комбобоксе версий групп
 
     def on_add_page_new_group_name_lineedit_text_changed(self, text):
         """Функция обрабатывает изменение текста в строке ввода имени новой группы в разделе 'Добавить'"""
@@ -337,3 +343,11 @@ class Controller(QObject):
             self.update_layer_one_table_data()
             self.update_groups_comboboxes_data()
             self.update_version_combobox_data()
+
+    # === Прогресс бар ===
+
+    def on_progress_bar_changed(self, process_text, value):
+        """Функция обрабатывает изменение состояния прогресс бара"""
+        self.view.set_progress_bar_process_text(text=process_text)
+        self.view.set_progress_bar_percents_text(percents=str(value) + "%")
+        self.view.set_progress_bar_value(value=value)

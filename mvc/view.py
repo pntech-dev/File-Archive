@@ -400,3 +400,15 @@ class View:
 
     # === Прогресс бар ===
     # Текста прогресс бара, прогресс бар
+
+    def set_progress_bar_process_text(self, text, set_to_zero=False):
+        """Функция устанавливает текст прогресс бара"""
+        self.ui.process_label.setText(f"Процесс: {text}" if not set_to_zero else "Процесс...")
+
+    def set_progress_bar_percents_text(self, percents):
+        """Функция устанавливает текст прогресс бара"""
+        self.ui.percent_label.setText(percents)
+
+    def set_progress_bar_value(self, value):
+        """Функция устанавливает значение прогресс бара"""
+        self.ui.progressBar.setValue(value)

@@ -2473,6 +2473,12 @@ QPushButton:disabled {
              </item>
              <item>
               <widget class="QLabel" name="percent_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="font">
                 <font>
                  <family>Segoe UI</family>

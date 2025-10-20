@@ -8,14 +8,26 @@ import datetime
 from pathlib import Path
 from cryptography.fernet import Fernet
 
+from PyQt5.QtCore import QObject, pyqtSignal
 
-class Model:
+
+class Model(QObject):
+    progress_chehged = pyqtSignal(str, int) # Сигнал изменения прогресс бара
+
     def __init__(self):
+        super().__init__()
+
         self.config_data = self.__load_config() # Получаем данные из файла конфигурации
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
         self.search_all_versions = False # Флаг поиска всех версий
         self.new_group_name = None # Имя новой группы
-        self.keyfile_path = os.path.join(os.path.dirname(sys.argv[0]), "keyfile.key")
+        self.keyfile_path = os.path.join(os.path.dirname(sys.argv[0]), "keyfile.key") # Ключ шифрования
+
+        # Прогресс бар
+        self.DOWNLOAD_PROGRESS_BAR_STEP = 3
+        self.CREATE_NEW_GROUP_PROGRESS_BAR_STEP = 3
+        self.ADD_PROGRESS_BAR_STEP = 2
+        self.DELETE_PROGRESS_BAR_STEP = 2
 
     def __load_config(self):
         """Функция загружает данные из файла конфигурации"""
@@ -365,39 +377,53 @@ class Model:
             if not group_name:
                 return
             
+            progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
+            current_step = 0 
+            
             # Создаём путь к новой группе
+            self.progress_chehged.emit("Формируем путь к группе...", current_step)
             try:
                 group_path = os.path.join(self.config_data.get("versions_path"), group_name)
 
             except Exception as e:
                 print(f"Произошла ошибка при формировании пути к новой группе.\nОшибка: {e}")
-                return
+                return 1
             
             # Проверяем существут ли такая группа
+            current_step += progress_step_size
+            self.progress_chehged.emit("Проверяем существование группы...", current_step)
             if os.path.exists(group_path):
                 print(f"Группа с именем {group_name} уже существует.")
-                return
-            
+                return 1
+
             # Создаём группу
+            current_step += progress_step_size
+            self.progress_chehged.emit("Создаём группу...", current_step)
             try:
                 os.makedirs(group_path)
                 print(f"Группа {group_name} успешно создана.")
+                self.progress_chehged.emit("Группа создана.", 100)
+                return 0
             
             except Exception as e:
                 print(f"Произошла ошибка при создании новой группы.\nОшибка: {e}")
-                return
+                return 1
         
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
-            return
+            return 1
         
     def delete_group(self, group_name):
         """Функция удаляет группу"""
         try:
             if not group_name:
                 return 1
+            
+            progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
+            current_step = 0 
 
             # Формируем путь к группе
+            self.progress_chehged.emit("Формируем путь к группе...", current_step)
             try:
                 group_path = os.path.join(self.config_data.get("versions_path"), group_name)
 
@@ -410,14 +436,19 @@ class Model:
                 return 1
             
             # Удаляем группу
+            current_step += progress_step_size
+            self.progress_chehged.emit("Удаляем группу...", current_step)
             try:
                 shutil.rmtree(group_path)
                 print(f"Группа {group_name} успешно удалена.")
+                self.progress_chehged.emit("Группа удалена.", 100)
+
                 return 0
             
             except Exception as e:
                 print(f"Произошла ошибка при удалении группы.\nОшибка: {e}")
                 return 1
+            
         except Exception as e:
             print(f"Произошла непредвиденная ошибка.\nОшибка: {e}")
             return 1
@@ -427,8 +458,12 @@ class Model:
         try:
             if not data:
                 return 1
+            
+            progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
+            current_step = 0 
 
             # Формируем путь
+            self.progress_chehged.emit("Формируем путь к файлу...", current_step)
             try:
                 file_path = os.path.join(self.config_data.get("versions_path"), data[0], data[1])
 
@@ -441,6 +476,8 @@ class Model:
                 return 1
             
             # Удаляем файл
+            current_step += progress_step_size
+            self.progress_chehged.emit("Удаляем файл...", current_step)
             try:
                 if os.path.isfile(file_path):
                     os.remove(file_path)
@@ -448,6 +485,7 @@ class Model:
                     shutil.rmtree(file_path)
 
                 print(f"Файл {file_path} успешно удалён.")
+                self.progress_chehged.emit("Файл удалён.", 100)
                 return 0
             
             except Exception as e:
@@ -464,7 +502,11 @@ class Model:
             if not version_path or not group_name:
                 return 1
             
+            progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
+            current_step = 0 
+            
             # Формируем путь к новой папке
+            self.progress_chehged.emit("Формируем путь к папке новой версии...", current_step)
             src_path = Path(version_path)
             
             try:
@@ -486,6 +528,8 @@ class Model:
                 return 1
 
             # Копируем файлы и шифруем
+            current_step += progress_step_size
+            self.progress_chehged.emit("Копируем и шифруем файлы...", current_step)
             try:
                 # Рекурсивно обходим исходную директорию
                 for root, dirs, files in os.walk(version_path):
@@ -504,6 +548,7 @@ class Model:
                 return 1
 
             print("Папка успешно скопирована и зашифрована.")
+            self.progress_chehged.emit("Версия добавлена.", 100)
 
             return 0
         
@@ -517,7 +562,11 @@ class Model:
             if not instruction_path and group_name:
                 return 1
             
+            progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
+            current_step = 0 
+            
             # Формируем путь
+            self.progress_chehged.emit("Формируем путь к файлу...", current_step)
             try:
                 dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
 
@@ -530,6 +579,8 @@ class Model:
                 return 1
 
             # Копируем и шифруем
+            current_step += progress_step_size
+            self.progress_chehged.emit("Копируем и шифруем файл...", current_step)
             try:
                 self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
 
@@ -538,6 +589,7 @@ class Model:
                 return 1
 
             print("Инструкция успешно скопирована и зашифрована.")
+            self.progress_chehged.emit("Инструкция добавлена.", 100)
 
             return 0
         
@@ -572,13 +624,19 @@ class Model:
         
         try:
             if os.path.isdir(file_path):
+                progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
+                current_step = 0 
+
                 # Создаём путь исходной папки
+                self.progress_chehged.emit("Создаём путь исходной папки...", current_step)
                 src_path = Path(os.path.join(self.config_data.get("versions_path"), group, file))
                 if not src_path.exists():
                     print(f"Директория {src_path} не существует.")
                     return
-                
+
                 # Создаём путь сохранения
+                current_step += progress_step_size
+                self.progress_chehged.emit("Создаём путь сохранения...", current_step)
                 dst_path = Path(os.path.join(save_path, f"{group} {file}"))
                 if dst_path.exists():
                     print(f"Директория {dst_path} уже существует.")
@@ -587,6 +645,8 @@ class Model:
                 dst_path.mkdir(parents=True, exist_ok=True)
                 
                 # Рекурсивно обходим зашифрованную директорию
+                current_step += progress_step_size
+                self.progress_chehged.emit("Скачиаваем файлы...", current_step)
                 for root, dirs, files in os.walk(src_path):
                     rel = Path(root).relative_to(src_path)
                     dst_dir = dst_path / rel
@@ -603,8 +663,18 @@ class Model:
                         self.__decryprt_file(src_path=src_file, dst_path=dst_file)
 
             else:
+                progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
+                current_step = 0 
+
+                self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
                 src_path = os.path.join(self.config_data.get("versions_path"), group, f"{file}.enc")
+
+                current_step += progress_step_size
+                self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
                 dst_path = os.path.join(save_path, f"{file}")
+
+                current_step += progress_step_size
+                self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
                 self.__decryprt_file(src_path=src_path, dst_path=dst_path)
         
         except Exception as e:
@@ -612,4 +682,5 @@ class Model:
             return
 
         print("Файл успешно скачан.")
+        self.progress_chehged.emit("Скачивание завершено.", 100)
         return
