@@ -9,8 +9,13 @@ from PyQt5.QtWidgets import QLineEdit, QHeaderView, QTableWidgetItem, QAbstractI
 
 
 class View:
-    def __init__(self, ui):
+    def __init__(self, ui, authenticated):
         self.ui = ui
+        self.authenticated = authenticated
+
+        if not self.authenticated:
+            self.ui.add_tab_pushButton.setEnabled(False)
+            self.ui.delete_tab_pushButton.setEnabled(False)
 
         """=== Таблица ==="""
         self.table_groups_layer_headers = ["Изделие", "Последняя версия"]

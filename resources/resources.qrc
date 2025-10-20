@@ -24,5 +24,9 @@
     <file>notifications/error.svg</file>
     <file>notifications/info.svg</file>
     <file>notifications/warning.svg</file>
+
+    <file>auth/auth_bg_photo.png</file>
+    <file>auth/lock_white.svg</file>
+    <file>auth/lock_blue.svg</file>
   </qresource>
 </RCC>

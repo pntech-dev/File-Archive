@@ -66,7 +66,6 @@ class Controller(QObject):
     def __check_program_version(self):
         """Функция проверяет версию программы"""
         is_version = self.model.check_program_version() # Проверяем версию программы
-        print("Is version flag: ", is_version)
 
         # Если произошла ошибка во время проверки версии
         if is_version is None:
