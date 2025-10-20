@@ -598,9 +598,9 @@ class Model:
                         if not filename.endswith(".enc"):
                             continue
 
-                        src_path = Path(root) / filename
-                        dst_path = dst_dir / filename[:-4] # Убираем расширение .enc
-                        self.__decryprt_file(src_path=src_path, dst_path=dst_path)
+                        src_file = Path(root) / filename
+                        dst_file = dst_dir / filename[:-4] # Убираем расширение .enc
+                        self.__decryprt_file(src_path=src_file, dst_path=dst_file)
 
             else:
                 src_path = os.path.join(self.config_data.get("versions_path"), group, f"{file}.enc")

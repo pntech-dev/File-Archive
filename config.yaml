@@ -1,4 +1,4 @@
-versions_path: 'C:\Users\MSI\Desktop\File Archive SERVER' # Путь к папкам с версиями ПО на сервере
+versions_path: '\\SRV\PNDatabases\File Aechive ENC' # Путь к папкам с версиями ПО на сервере
 server_program_path: '\\SRV\PNPrograms\File Archive' # Путь к программе на сервере
 
 program_name: 'File Archive' # Наименование программы
