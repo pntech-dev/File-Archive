@@ -8,7 +8,7 @@ import subprocess
 
 from pathlib import Path
 from packaging import version
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -51,15 +51,20 @@ class Model(QObject):
                 # Загружаем данные из файла конфигурации
                 with open(config_path, "r", encoding="utf-8") as file:
                     config_data = yaml.safe_load(file)
-
+    
                 return config_data
-            
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при загрузке данных из файла конфигурации.\nОшибка: {e}")
+            except FileNotFoundError:
+                self.show_notification.emit("error", f"Файл конфигурации не найден по пути: {config_path}")
                 return 1
-            
+            except yaml.YAMLError as e:
+                self.show_notification.emit("error", f"Ошибка в синтаксисе файла конфигурации: {config_path}\nОшибка: {e}")
+                return 1
+            except Exception as e:
+                self.show_notification.emit("error", f"Произошла непредвиденная ошибка при чтении файла конфигурации.\nОшибка: {e}")
+                return 1            
         except Exception as e:
             self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            return 1
 
     def __parse_date(self, date_str):
         """Функция парсит дату в формате ДД.ММ.ГГГГ"""
@@ -114,8 +119,14 @@ class Model(QObject):
             with open(dst_path, "wb") as f:
                 f.write(decrypted_data)
 
+        except FileNotFoundError:
+            self.show_notification.emit("error", f"Ошибка: Не найден файл ключа или исходный файл для дешифрования.")
+            return
+        except InvalidToken:
+            self.show_notification.emit("error", f"Ошибка дешифрования: ключ недействителен или данные повреждены.")
+            return
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла ошибка при дешифровании файла.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при дешифровании файла.\nОшибка: {e}")
             return
         
     def check_program_version(self):
@@ -167,68 +178,64 @@ class Model(QObject):
     def get_groups_names(self):
         """Функция возвращает список имен групп"""
         try:
-            groups_names = []
-
-            try:
-                path_to_groups = self.config_data.get("versions_path")
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при получении пути к группам из файла конфигурации.\nОшибка: {e}")
+            path_to_groups = self.config_data.get("versions_path")
+            if not path_to_groups:
+                self.show_notification.emit("error", "Путь к группам не настроен в файле конфигурации.")
                 return []
-            
+
             if not os.path.exists(path_to_groups):
-                self.show_notification.emit("error", f"Произошла ошибка при получении пути к группам.\nПуть: {path_to_groups}")
+                self.show_notification.emit("error", f"Путь к группам не существует или недоступен.\nПуть: {path_to_groups}")
                 return []
-            try:
-                groups_names = os.listdir(path_to_groups)
 
-                return sorted(groups_names)
-            
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при получении списка имен групп.\nОшибка: {e}")
-                return []
-            
+            groups_names = os.listdir(path_to_groups)
+            return sorted(groups_names)
+
+        except FileNotFoundError:
+            self.show_notification.emit("error", f"Путь к группам не найден: {path_to_groups}")
+            return []
+        except PermissionError:
+            self.show_notification.emit("error", f"Отсутствуют права доступа к папке с группами: {path_to_groups}")
+            return []
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при получении списка групп.\nОшибка: {e}")
+            return []
 
     def get_group_versions(self, group_name):
         """Функция возвращает список версий группы"""
         try:
-            try:
-                path_to_group = os.path.join(self.config_data.get("versions_path"), group_name)
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при получении пути к группе.\nОшибка: {e}")
+            versions_path = self.config_data.get("versions_path")
+            if not versions_path:
+                self.show_notification.emit("error", "Путь к версиям не настроен в файле конфигурации.")
                 return []
-            
+
+            path_to_group = os.path.join(versions_path, group_name)
             if not os.path.exists(path_to_group):
                 self.show_notification.emit("error", f"Путь к выбранной группе не существует или недоступен.\nПуть: {path_to_group}")
                 return []
 
-            try:
-                versions = os.listdir(path_to_group)
-                
-                dates = []
-                for ver in versions:
-                    if not ver:
-                        continue
-                        
-                    # Не добавляем временные файлы
-                    if ver.startswith("~"):
-                        continue
-
-                    match = re.search(r"\d{2}\.\d{2}\.\d{4}", ver)
-                    dates.append([ver, match.group() if match else None])
-
-                dates.sort(key=lambda x: self.__parse_date(x[1]), reverse=True)
-
-                sorted_versions = [date[0] for date in dates]
-
-                return sorted_versions
+            versions = os.listdir(path_to_group)
             
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
-                return []
+            dates = []
+            for ver in versions:
+                if not ver or ver.startswith("~"):
+                    continue
+
+                match = re.search(r"\d{2}\.\d{2}\.\d{4}", ver)
+                dates.append([ver, match.group() if match else None])
+
+            dates.sort(key=lambda x: self.__parse_date(x[1]), reverse=True)
+
+            sorted_versions = [date[0] for date in dates]
+            return sorted_versions
+
+        except FileNotFoundError:
+            self.show_notification.emit("error", f"Путь к группе не найден: {path_to_group}")
+            return []
+        except PermissionError:
+            self.show_notification.emit("error", f"Отсутствуют права доступа к папке группы: {path_to_group}")
+            return []
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при получении версий группы.\nОшибка: {e}")
             return []
         
     def get_actual_version(self, versions):
