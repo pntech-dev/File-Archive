@@ -8,6 +8,9 @@ from PyQt5.QtWidgets import QDialog, QLineEdit
 
 
 class PasswordDialog(QDialog):
+    UNAUTHENTICATED_LOGIN_RESULT = 2
+    MIN_PASSWORD_LENGTH = 4
+
     def __init__(self, correct_password, parent=None):
         super().__init__(parent)
 
@@ -46,15 +49,18 @@ class PasswordDialog(QDialog):
             self.password_action.setIcon(QIcon(":/icons/auth/lock_white.svg"))
 
     def unauthenticated_login(self):
-        self.done(2)
+        self.done(self.UNAUTHENTICATED_LOGIN_RESULT)
+
+    def _update_hint_style(self, is_valid):
+        if is_valid:
+            self.ui.hint_label.setStyleSheet("color: #16A34A")
+        else:
+            self.ui.hint_label.setStyleSheet("color: #64748B")
 
     def update_ok_button_state(self):
-        if len(self.ui.password_lineEdit.text()) < 4:
-            self.ui.full_mode_pushButton.setEnabled(False)
-            self.ui.hint_label.setStyleSheet("color: #64748B")
-        else:
-            self.ui.full_mode_pushButton.setEnabled(True)
-            self.ui.hint_label.setStyleSheet("color: #16A34A")
+        is_long_enough = len(self.ui.password_lineEdit.text()) >= self.MIN_PASSWORD_LENGTH
+        self.ui.full_mode_pushButton.setEnabled(is_long_enough)
+        self._update_hint_style(is_long_enough)
 
     def check_password(self):
         if self.ui.password_lineEdit.text() == self.correct_password:
