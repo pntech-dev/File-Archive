@@ -57,11 +57,26 @@ To run the project from the source code, follow these steps:
     python app.py
     ```
 
+## Building the project
+
+To build the project into a single executable file, you can use `pyinstaller`.
+
+1.  **Install pyinstaller:**
+    ```bash
+    pip install pyinstaller
+    ```
+
+2.  **Build the project:**
+    ```bash
+    pyinstaller "File Archive.spec"
+    ```
+
 ## Technology Stack
 
 -   **Language**: Python
 -   **GUI**: PyQt5
 -   **Configuration**: PyYAML
+-   **Cryptography**: cryptography
 -   **Architecture**: MVC (Model-View-Controller)
 
 ---
@@ -125,9 +140,24 @@ To run the project from the source code, follow these steps:
     python app.py
     ```
 
+## Сборка проекта
+
+Для сборки проекта в один исполняемый файл можно использовать `pyinstaller`.
+
+1.  **Установите pyinstaller:**
+    ```bash
+    pip install pyinstaller
+    ```
+
+2.  **Соберите проект:**
+    ```bash
+    pyinstaller "File Archive.spec"
+    ```
+
 ## Технологический стек
 
 -   **Язык**: Python
 -   **GUI**: PyQt5
 -   **Конфигурация**: PyYAML
+-   **Криптография**: cryptography
 -   **Архитектура**: MVC (Model-View-Controller)
