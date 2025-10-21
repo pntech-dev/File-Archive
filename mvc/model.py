@@ -599,3 +599,21 @@ class Model(QObject):
         except Exception as e:
             self.show_notification.emit("error", f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
             return 1
+
+    def set_password(self, new_password):
+        """Функция устанавливает новый пароль"""
+        try:
+            config_path = Path(sys.argv[0]).resolve().parent / "config.yaml"
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config_data = yaml.safe_load(f)
+            
+            config_data['password'] = new_password
+
+            with open(config_path, 'w', encoding='utf-8') as f:
+                yaml.dump(config_data, f, allow_unicode=True)
+            
+            self.config_data['password'] = new_password # update in-memory config
+            return 0
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при смене пароля.\nОшибка: {e}")
+            return 1

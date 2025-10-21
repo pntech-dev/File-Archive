@@ -45,6 +45,7 @@ class MyWindow(QMainWindow):
 
         if password:
             dialog = PasswordDialog(correct_password=password)
+            dialog.password_changed.connect(self.set_password)
             result = dialog.exec_()
 
             if result == QDialog.Accepted: # Входим в полный режим
@@ -58,6 +59,10 @@ class MyWindow(QMainWindow):
             
         else: # Если пароьль не задан, входим в обычный режим
             return False
+
+    def set_password(self, new_password):
+        """Функция устанавливает новый пароль"""
+        self.model.set_password(new_password)
 
 
 if __name__ == "__main__":
