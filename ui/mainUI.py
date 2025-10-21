@@ -303,10 +303,11 @@ class Ui_MainWindow(object):
 "\n"
 "/* === Заголовки === */\n"
 "QHeaderView::section {\n"
-"    background-color: #F8FAFC;       /* Светлый фон заголовков */\n"
-"    color: #334155;                  /* Цвет текста */\n"
+"    background-color: #F8FAFC;\n"
+"    color: #334155;\n"
 "    border: none;\n"
 "    border-right: 1px solid #E2E8F0;\n"
+"    border-bottom: 1px solid #E2E8F0;\n"
 "    padding: 6px 8px;\n"
 "    font-weight: 600;\n"
 "}\n"
@@ -321,9 +322,14 @@ class Ui_MainWindow(object):
 "    padding: 4px 8px;\n"
 "}\n"
 "\n"
+"/* === Hover (наведение) === */\n"
+"QTableWidget::item:hover {\n"
+"    background-color: #EEF4FF;       /* Мягкий синий оттенок */\n"
+"}\n"
+"\n"
 "/* === Стиль выделенной строки === */\n"
 "QTableWidget::item:selected {\n"
-"    background-color: #C8D9FF;   /* Цвет выделения строки */\n"
+"    background-color: #C8D9FF;       /* Акцент выделения */\n"
 "}\n"
 "\n"
 "/* === Скроллбар (вертикальный) === */\n"
@@ -380,7 +386,8 @@ class Ui_MainWindow(object):
 "    border: none;\n"
 "    border-right: 1px solid #E2E8F0;\n"
 "    border-bottom: 1px solid #E2E8F0;\n"
-"}")
+"}\n"
+"")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setStyleSheet("")
         self.centralwidget.setObjectName("centralwidget")

@@ -32,33 +32,31 @@ class Ui_PasswordDialog(object):
 "\n"
 "\n"
 "\n"
-"/* === Акцентная кнопка=== */\n"
+"/* === Второстепенные кнопки === */\n"
 "QPushButton {\n"
-"    background-color: #2563EB;       /* Основной синий */\n"
-"    color: #FFFFFF;                  /* Белый текст */\n"
-"    font-weight: bold;               /* Жирный шрифт */\n"
-"    border: none;                    /* Без рамки */\n"
+"    background-color: transparent;   /* Без заливки */\n"
+"    color: #334155;                  /* Основной цвет текста */\n"
+"    font-weight: normal;             /* Обычная жирность */\n"
+"    border: 1px solid #64748B;       /* Серо-синяя рамка */\n"
 "    border-radius: 6px;              /* Скругления */\n"
-"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"    padding: 6px 12px;               /* Внутренние отступы */\n"
 "}\n"
 "\n"
 "/* === Наведение (hover) === */\n"
 "QPushButton:hover {\n"
-"    background-color: #5283EF;       /* Более светлый синий */\n"
+"    border: 1px solid #8B98AA;       /* Более светлая рамка */\n"
 "}\n"
 "\n"
 "/* === Нажатие (pressed / checked) === */\n"
 "QPushButton:pressed,\n"
 "QPushButton:checked {\n"
-"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"    border: 1px solid #515E71;       /* Более тёмная рамка */\n"
 "}\n"
 "\n"
 "/* === Отключена (disabled) === */\n"
 "QPushButton:disabled {\n"
-"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
-"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
-"    border: none;\n"
-"    border-radius: 6px;\n"
+"    color: #E2E8F0;                  /* Бледный текст */\n"
+"    border: 1px solid #F8FAFC;       /* Светлая рамка */\n"
 "}\n"
 "\n"
 "\n"
@@ -171,6 +169,34 @@ class Ui_PasswordDialog(object):
         font.setBold(True)
         font.setWeight(75)
         self.full_mode_pushButton.setFont(font)
+        self.full_mode_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;       /* Основной синий */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"    border: none;                    /* Без рамки */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;       /* Более светлый синий */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}")
         self.full_mode_pushButton.setObjectName("full_mode_pushButton")
         self.verticalLayout.addWidget(self.full_mode_pushButton)
         self.verticalLayout_2.addWidget(self.password_frame)
@@ -190,8 +216,8 @@ class Ui_PasswordDialog(object):
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setBold(False)
+        font.setWeight(50)
         self.base_mode_pushButton.setFont(font)
         self.base_mode_pushButton.setObjectName("base_mode_pushButton")
         self.verticalLayout_2.addWidget(self.base_mode_pushButton)
@@ -302,6 +328,34 @@ class Ui_PasswordDialog(object):
         font.setBold(True)
         font.setWeight(75)
         self.change_pushButton.setFont(font)
+        self.change_pushButton.setStyleSheet("/* === Акцентная кнопка=== */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;       /* Основной синий */\n"
+"    color: #FFFFFF;                  /* Белый текст */\n"
+"    font-weight: bold;               /* Жирный шрифт */\n"
+"    border: none;                    /* Без рамки */\n"
+"    border-radius: 6px;              /* Скругления */\n"
+"    padding: 6px 12px;               /* Отступы для аккуратности */\n"
+"}\n"
+"\n"
+"/* === Наведение (hover) === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;       /* Более светлый синий */\n"
+"}\n"
+"\n"
+"/* === Нажатие (pressed / checked) === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;       /* Тёмно-синий при клике */\n"
+"}\n"
+"\n"
+"/* === Отключена (disabled) === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;       /* Бледно-синий фон */\n"
+"    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}")
         self.change_pushButton.setObjectName("change_pushButton")
         self.verticalLayout_4.addWidget(self.change_pushButton)
         spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)

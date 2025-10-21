@@ -302,10 +302,11 @@ QTableWidget {
 
 /* === Заголовки === */
 QHeaderView::section {
-    background-color: #F8FAFC;       /* Светлый фон заголовков */
-    color: #334155;                  /* Цвет текста */
+    background-color: #F8FAFC;
+    color: #334155;
     border: none;
     border-right: 1px solid #E2E8F0;
+	border-bottom: 1px solid #E2E8F0;
     padding: 6px 8px;
     font-weight: 600;
 }
@@ -320,9 +321,14 @@ QTableWidget::item {
     padding: 4px 8px;
 }
 
+/* === Hover (наведение) === */
+QTableWidget::item:hover {
+    background-color: #EEF4FF;       /* Мягкий синий оттенок */
+}
+
 /* === Стиль выделенной строки === */
 QTableWidget::item:selected {
-    background-color: #C8D9FF;   /* Цвет выделения строки */
+    background-color: #C8D9FF;       /* Акцент выделения */
 }
 
 /* === Скроллбар (вертикальный) === */
@@ -331,7 +337,7 @@ QScrollBar:vertical {
     background: transparent;
     width: 10px;
     margin: 2px;
-	border-radius: 2px;
+    border-radius: 2px;
 }
 
 QScrollBar::handle:vertical {
@@ -355,7 +361,7 @@ QScrollBar:horizontal {
     background: transparent;
     height: 10px;
     margin: 2px;
-	border-radius: 2px;
+    border-radius: 2px;
 }
 
 QScrollBar::handle:horizontal {
@@ -379,7 +385,8 @@ QTableCornerButton::section {
     border: none;
     border-right: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
-}</string>
+}
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
