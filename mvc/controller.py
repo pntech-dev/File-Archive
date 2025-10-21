@@ -18,7 +18,7 @@ class Controller(QObject):
 
         # Настройки до запуска
         self.update_layer_one_table_data() # Загружаем данные в таблицу ГРУППЫ
-        self.update_groups_comboboxes_data() # Загружаем данные в комбобоксы названий групп
+        self.view.set_groups_comboboxes_data(self.model.get_groups_names()) # Загружаем данные в комбобоксы названий групп
         self.update_version_combobox_data() # Загружаем данные в комбобоксы версий групп
 
         # Устанавливаем фильтр событий для строки поиска
@@ -101,17 +101,6 @@ class Controller(QObject):
             self.view.set_layer_one_table_data(layer_one_data) # Вызываем заполнение таблицы
         else:
             self.view.set_layer_one_table_data(data)
-
-    def update_groups_comboboxes_data(self):
-        """Функция обновляет данные в комбобоксах названий групп"""
-        current_texts = {cb: cb.currentText() for cb in self.view.groups_comboboxes_lst}
-        
-        group_names = self.model.get_groups_names()
-        self.view.set_groups_comboboxes_data(group_names)
-
-        for cb, text in current_texts.items():
-            if text in group_names:
-                cb.setCurrentText(text)
 
     def update_version_combobox_data(self):
         if self._is_updating_versions:
@@ -263,7 +252,7 @@ class Controller(QObject):
 
         if status_code == 0:
             self.update_layer_one_table_data() # Вызываем обновление таблицы
-            self.update_groups_comboboxes_data() # Обновляем данные в комбобоксах названий групп
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names()) # Обновляем данные в комбобоксах названий групп
             self.view.set_new_group_to_combobox(new_group_name=new_group_name) # Устанавливаем новую группу в комбобоксе
             self.update_version_combobox_data() # Обновляем данные в комбобоксе версий групп
 
@@ -299,7 +288,7 @@ class Controller(QObject):
         # Если вернулся успешный статус код, обновляем элемениы UI
         if status_code == 0:
             self.update_layer_one_table_data()
-            self.update_groups_comboboxes_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
             self.update_version_combobox_data()
 
     # === Вкладка УДАЛИТЬ ===
@@ -369,8 +358,9 @@ class Controller(QObject):
         # Если вернулся успешный статус код, обновляем таблицу и списки
         if status_code == 0:
             self.update_layer_one_table_data()
-            self.update_groups_comboboxes_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
             self.update_version_combobox_data()
+            self.view.set_delete_checkboxes_state(type=button_type, state=False)
 
     # === Сигналы ===
 

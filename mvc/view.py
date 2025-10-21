@@ -384,6 +384,12 @@ class View:
             if self.delete_page_delete_push_buttons_dict.get(button) == button_type:
                 button.setEnabled(state)
 
+    def set_delete_checkboxes_state(self, type, state):
+        """Функция устанавливает состояние чекбоксов в разделе 'Удалить'"""
+        for checkbox in self.delete_page_checkboxes_dict.keys():
+            if self.delete_page_checkboxes_dict.get(checkbox) == type:
+                checkbox.setChecked(state)
+
     def delete_page_radio_buttons_state_changed(self, handler):
         """Функция устанавливает обработчик изменения состояния радио-кнопок в разделе 'Удалить'"""
         for button in self.delete_options_dict.keys():
