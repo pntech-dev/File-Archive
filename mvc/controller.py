@@ -361,6 +361,7 @@ class Controller(QObject):
             self.view.set_groups_comboboxes_data(self.model.get_groups_names())
             self.update_version_combobox_data()
             self.view.set_delete_checkboxes_state(type=button_type, state=False)
+            self.view.set_choosen_label_text(data=None, in_group_flag=None)
 
     # === Сигналы ===
 

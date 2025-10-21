@@ -1,5 +1,3 @@
-import re
-
 from resources import resources_rc
 
 from classes import Notification
@@ -16,6 +14,8 @@ class View:
         if not self.authenticated:
             self.ui.add_tab_pushButton.setEnabled(False)
             self.ui.delete_tab_pushButton.setEnabled(False)
+
+        self.current_group_name = ""
 
         """=== Таблица ==="""
         self.table_groups_layer_headers = ["Изделие", "Последняя версия"]
@@ -181,13 +181,16 @@ class View:
         """Функция изменяет текст в строке выбранного файла в разделе 'Скачать'"""
         if data is None:
             self.ui.choose_file_label.setText("Выбрано изделие:")
+            self.current_group_name = ""
             return
 
         if not in_group_flag:
+            # Режим просмотра групп - data = [group_name, version]
+            self.current_group_name = data[0]
             self.ui.choose_file_label.setText(f"Выбрано изделие: {data[0]}, Версия: {data[1]}")
         else:
-            match = re.search(r"Выбрано изделие:\s*(.*?)\s*,\s*Версия:", self.ui.choose_file_label.text())
-            self.ui.choose_file_label.setText(f"Выбрано изделие: {match.group(1)}, Версия: {data[0]}")
+            # Режим просмотра версий внутри группы - data = [version]
+            self.ui.choose_file_label.setText(f"Выбрано изделие: {self.current_group_name}, Версия: {data[0]}")
     
     def set_back_button_state(self, state):
         """Функция устанавливает состояние кнопки 'Назад' в разделе 'Скачать'"""
