@@ -206,7 +206,7 @@ class Controller(QObject):
         file = re.search(r"Версия:\s*(.*)", text).group(1) # Получаем файл
         save_path = self.view.get_download_save_path() # Получаем путь сохранения
 
-        self.model.download(group=group, file=file, save_path=save_path) # Вызываем скачивание
+        self.model.download_in_thread(group=group, file=file, save_path=save_path) # Вызываем скачивание
 
     # === Вкладка ДОБАВИТЬ ===
 
@@ -248,7 +248,7 @@ class Controller(QObject):
         new_group_name = self.view.get_new_group_name_lineedit_text() # Получаем имя новой группы
         self.model.new_group_name = new_group_name # Запоминаем имя новой группы
 
-        status_code = self.model.create_new_group(group_name=new_group_name) # Создаём группу
+        status_code = self.model.create_group_in_thread(group_name=new_group_name) # Создаём группу
 
         if status_code == 0:
             self.update_layer_one_table_data() # Вызываем обновление таблицы
@@ -278,12 +278,12 @@ class Controller(QObject):
         # Добавление версии
         if button_type == "version":
             version_path = self.view.get_version_path_lineedit_text() # Получаем путь к версии
-            status_code = self.model.add_version(version_path=version_path, group_name=group_name) # Вызываем добавление
+            status_code = self.model.add_version_in_thread(version_path=version_path, group_name=group_name) # Вызываем добавление
 
         # Добавление инструкции
         elif button_type == "instruction":
             instruction_path = self.view.get_instruction_path_lineedit_text() # Получаем путь к инструкции
-            status_code = self.model.add_instruction(instruction_path=instruction_path, group_name=group_name) # Вызываем добавление
+            status_code = self.model.add_instruction_in_thread(instruction_path=instruction_path, group_name=group_name) # Вызываем добавление
 
         # Если вернулся успешный статус код, обновляем элемениы UI
         if status_code == 0:
@@ -341,7 +341,7 @@ class Controller(QObject):
                     file_page_data.append(self.view.get_delete_page_combobox_text(combobox=combobox))
 
             if file_page_data:
-                status_code = self.model.delete_file(data=file_page_data)
+                status_code = self.model.delete_file_in_thread(data=file_page_data)
 
         elif button_type == "group":
             group_name = None
@@ -353,7 +353,7 @@ class Controller(QObject):
                     break
             
             if group_name: # Если текст получен, удаляем
-                status_code = self.model.delete_group(group_name=group_name)
+                status_code = self.model.delete_group_in_thread(group_name=group_name)
         
         # Если вернулся успешный статус код, обновляем таблицу и списки
         if status_code == 0:

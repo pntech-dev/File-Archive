@@ -4,6 +4,7 @@ import sys
 import yaml
 import shutil
 import datetime
+import threading
 
 from pathlib import Path
 from packaging import version
@@ -652,3 +653,47 @@ class Model(QObject):
             print(f"--- ДИАГНОСТИКА: ОШИБКА при смене пароля: {e} ---")
             self.show_notification.emit("error", f"Произошла ошибка при смене пароля.\nОшибка: {e}")
             return 1
+        
+    def download_in_thread(self, group, file, save_path):
+        """Функция скачивает файл (версию/инструкцию) в отдельном потоке."""
+        thread = threading.Thread(target=self.download, args=(group, file, save_path))
+        thread.daemon = True
+        thread.start()
+        return thread
+        
+    def create_group_in_thread(self, group_name):
+        """Функция создает группу в отдельном потоке."""
+        thread = threading.Thread(target=self.create_new_group, args=(group_name,))
+        thread.daemon = True
+        thread.start()
+        return thread
+    
+    def add_version_in_thread(self, version_path, group_name):
+        """Функция добавляет версию в отдельном потоке."""
+        thread = threading.Thread(target=self.add_version, args=(version_path, group_name))
+        thread.daemon = True
+        thread.start()
+        return thread
+
+
+    def add_instruction_in_thread(self, instruction_path, group_name):
+        """Функция добавляет инструкцию в отдельном потоке."""
+        thread = threading.Thread(target=self.add_instruction, args=(instruction_path, group_name))
+        thread.daemon = True
+        thread.start()
+        return thread
+    
+    def delete_group_in_thread(self, group_name):
+        """Функция удаляет группу в отдельном потоке."""
+        thread = threading.Thread(target=self.delete_group, args=(group_name,))
+        thread.daemon = True
+        thread.start()
+        return thread
+
+
+    def delete_file_in_thread(self, data):
+        """Функция удаляет файл в отдельном потоке."""
+        thread = threading.Thread(target=self.delete_file, args=(data,))
+        thread.daemon = True
+        thread.start()
+        return thread
