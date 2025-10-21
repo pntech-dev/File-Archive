@@ -4,7 +4,6 @@ import sys
 import yaml
 import shutil
 import datetime
-import subprocess
 
 from pathlib import Path
 from packaging import version
@@ -312,164 +311,103 @@ class Model(QObject):
         try:
             if not text:
                 return []
-            
-            # Получаем список групп
-            try:
-                groups = self.get_groups_names()
-                if not groups:
-                    return []
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
+
+            groups = self.get_groups_names()
+            if not groups:
                 return []
-            
-            # Получаем список списков, в виде [[группа, актуальная версия]]
+
             groups_versions = []
-            try:
-                for group in groups:
-                    try:
-                        versions = self.get_group_versions(group)
+            for group in groups:
+                versions = self.get_group_versions(group)
+                actual_version = self.get_actual_version(versions)
+                groups_versions.append([group, actual_version])
 
-                    except Exception as e:
-                        self.show_notification.emit("error", f"Произошла ошибка при получении списка версий группы.\nОшибка: {e}")
-                        continue
+            result = []
+            search_text = text.lower().strip()
+            for group_version in groups_versions:
+                group_name = group_version[0].lower().strip()
 
-                    try:
-                        actual_version = self.get_actual_version(versions)
-                        
-                    except Exception as e:
-                        self.show_notification.emit("error", f"Произошла ошибка при получении актуальной версии группы.\nОшибка: {e}")
-                        continue
-
-                    groups_versions.append([group, actual_version])
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка в процессе формирования списков групп и версий.\nОшибка: {e}")
-                return []
-            
-            # Выполняем поиск
-            try:
-                result = []
-                for group_version in groups_versions:
-                    text = text.lower().strip()
-                    group_name = group_version[0].lower().strip()
-
-                    if group_version[1] is None:
-                        if text in group_name and group_version not in result:
-                            result.append(group_version)
-                        continue
-                        
-                    version = group_version[1].lower().strip()
-                    
-                    if text in group_name or text in version and group_version not in result:
+                if group_version[1] is None:
+                    if search_text in group_name and group_version not in result:
                         result.append(group_version)
+                    continue
 
-                return result
-            
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
-                return []
-            
+                version = group_version[1].lower().strip()
+
+                if (search_text in group_name or search_text in version) and group_version not in result:
+                    result.append(group_version)
+
+            return result
+
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при поиске.\nОшибка: {e}")
             return []
-        
+
     def search_all(self, text):
         """Функция выполняет поиск в таблице ПО ВСЕМ ВЕРСИЯМ И ГРУППАМ"""
         try:
             if not text:
                 return []
-            
-            # Получаем спсиок групп
-            try:
-                groups = self.get_groups_names()
 
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при получении списка групп.\nОшибка: {e}")
-                return []
-
+            groups = self.get_groups_names()
             if not groups:
                 return []
-            
-            # Получаем словарь, где ключ - группа, значение - список версий
-            try:
-                groups_versions = {}
-                for group in groups:
-                    groups_versions[group] = self.get_group_versions(group)
 
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при получении списка версий групп.\nОшибка: {e}")
-                return []
-            
-            # Выполняем поиск
+            groups_versions = {}
+            for group in groups:
+                groups_versions[group] = self.get_group_versions(group)
 
-            try:
-                result = []
-                for group, versions in groups_versions.items():
-                    text = text.lower().strip()
-                    group_text = group.lower().strip()
+            result = []
+            search_text = text.lower().strip()
+            for group, versions in groups_versions.items():
+                group_text = group.lower().strip()
 
-                    if not versions:
-                        if text in group_text and [group, None] not in result:
-                            result.append([group, None])
-                    else:
-                        for version in versions:
-                            version_text = version.lower().strip() if version else ""
-                            
-                            if (text in group_text or text in version_text) and [group, version] not in result:
-                                result.append([group, version])
+                if not versions:
+                    if search_text in group_text and [group, None] not in result:
+                        result.append([group, None])
+                else:
+                    for version in versions:
+                        version_text = version.lower().strip() if version else ""
+                        
+                        if (search_text in group_text or search_text in version_text) and [group, version] not in result:
+                            result.append([group, version])
 
-                return result
+            return result
 
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка в процессе поиска.\nОшибка: {e}")
-                return []
-                                
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при поиске по всем версиям.\nОшибка: {e}")
             return []
         
     def create_new_group(self, group_name):
         """Функция создает новую группу"""
         try:
             if not group_name:
-                return
-            
-            progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
-            current_step = 0 
-            
-            # Создаём путь к новой группе
-            self.progress_chehged.emit("Формируем путь к группе...", current_step)
-            try:
-                group_path = os.path.join(self.config_data.get("versions_path"), group_name)
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к новой группе.\nОшибка: {e}")
                 return 1
-            
-            # Проверяем существут ли такая группа
+
+            progress_step_size = 100 // self.CREATE_NEW_GROUP_PROGRESS_BAR_STEP
+            current_step = 0
+
+            self.progress_chehged.emit("Формируем путь к группе...", current_step)
+            group_path = os.path.join(self.config_data.get("versions_path"), group_name)
+
             current_step += progress_step_size
             self.progress_chehged.emit("Проверяем существование группы...", current_step)
             if os.path.exists(group_path):
                 self.show_notification.emit("error", f"Группа с именем {group_name} уже существует.")
                 return 1
 
-            # Создаём группу
             current_step += progress_step_size
             self.progress_chehged.emit("Создаём группу...", current_step)
-            try:
-                os.makedirs(group_path)
-                self.progress_chehged.emit("Группа создана.", 100)
-                self.show_notification.emit("info", f"Группа {group_name} успешно создана.")
-                return 0
+            os.makedirs(group_path)
             
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при создании новой группы.\nОшибка: {e}")
-                return 1
-        
+            self.progress_chehged.emit("Группа создана.", 100)
+            self.show_notification.emit("info", f"Группа {group_name} успешно создана.")
+            return 0
+
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при создании новой группы.\nОшибка: {e}")
             return 1
-        
+
     def delete_group(self, group_name):
         """Функция удаляет группу"""
         try:
@@ -479,34 +417,23 @@ class Model(QObject):
             progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
             current_step = 0 
 
-            # Формируем путь к группе
             self.progress_chehged.emit("Формируем путь к группе...", current_step)
-            try:
-                group_path = os.path.join(self.config_data.get("versions_path"), group_name)
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к удаляемой группе.\nОшибка: {e}")
-                return 1
+            group_path = os.path.join(self.config_data.get("versions_path"), group_name)
             
             if not os.path.exists(group_path):
                 self.show_notification.emit("error", f"Группа с именем {group_name} не существует.")
                 return 1
             
-            # Удаляем группу
             current_step += progress_step_size
             self.progress_chehged.emit("Удаляем группу...", current_step)
-            try:
-                shutil.rmtree(group_path)
-                self.progress_chehged.emit("Группа удалена.", 100)
-                self.show_notification.emit("info", f"Группа {group_name} успешно удалена.")
-                return 0
-            
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при удалении группы.\nОшибка: {e}")
-                return 1
+            shutil.rmtree(group_path)
+
+            self.progress_chehged.emit("Группа удалена.", 100)
+            self.show_notification.emit("info", f"Группа {group_name} успешно удалена.")
+            return 0
             
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при удалении группы.\nОшибка: {e}")
             return 1
         
     def delete_file(self, data):
@@ -518,38 +445,26 @@ class Model(QObject):
             progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
             current_step = 0 
 
-            # Формируем путь
             self.progress_chehged.emit("Формируем путь к файлу...", current_step)
-            try:
-                file_path = os.path.join(self.config_data.get("versions_path"), data[0], data[1])
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к удаляемому файлу.\nОшибка: {e}")
-                return 1
+            file_path = os.path.join(self.config_data.get("versions_path"), data[0], data[1])
 
             if not os.path.exists(file_path):
                 self.show_notification.emit("error", f"Файл не существует. Путь: {file_path}")
                 return 1
             
-            # Удаляем файл
             current_step += progress_step_size
             self.progress_chehged.emit("Удаляем файл...", current_step)
-            try:
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
-                elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
 
-                self.progress_chehged.emit("Файл удалён.", 100)
-                self.show_notification.emit("info", f"Файл {file_path} успешно удалён.")
-                return 0
-            
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при удалении файла.\nОшибка: {e}")
-                return 1
+            self.progress_chehged.emit("Файл удалён.", 100)
+            self.show_notification.emit("info", f"Файл {file_path} успешно удалён.")
+            return 0
             
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при удалении файла.\nОшибка: {e}")
             return 1
         
     def add_version(self, version_path, group_name):
@@ -561,96 +476,63 @@ class Model(QObject):
             progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
             current_step = 0 
             
-            # Формируем путь к новой папке
             self.progress_chehged.emit("Формируем путь к папке новой версии...", current_step)
             src_path = Path(version_path)
-            
-            try:
-                dst_root = Path(os.path.join(self.config_data.get("versions_path"),group_name, src_path.name))
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при формировании пути к новой папке.\nОшибка: {e}")
-                return 1
+            dst_root = Path(os.path.join(self.config_data.get("versions_path"), group_name, src_path.name))
             
             if dst_root.exists():
                 self.show_notification.emit("error", f"Папка {dst_root} уже существует.")
                 return 1
             
-            try:
-                dst_root.mkdir(parents=True, exist_ok=True)
+            dst_root.mkdir(parents=True, exist_ok=True)
 
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при создании новой папки.\nОшибка: {e}")
-                return 1
-
-            # Копируем файлы и шифруем
             current_step += progress_step_size
             self.progress_chehged.emit("Копируем и шифруем файлы...", current_step)
-            try:
-                # Рекурсивно обходим исходную директорию
-                for root, dirs, files in os.walk(version_path):
-                    rel = Path(root).relative_to(version_path)  # относительный путь от корня исходной папки
-                    dst_dir = dst_root / rel
-                    dst_dir.mkdir(parents=True, exist_ok=True)
+            
+            for root, dirs, files in os.walk(version_path):
+                rel = Path(root).relative_to(version_path)
+                dst_dir = dst_root / rel
+                dst_dir.mkdir(parents=True, exist_ok=True)
 
-                    # Перебираем файлы
-                    for filename in files:
-                        src_file = Path(root) / filename
-                        dst_file = dst_dir / filename
-                        self.__encrypt_file(str(src_file), str(dst_file)) # Используем функцию шифрования файла
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при копировании и шифровании файлов.\nОшибка: {e}")
-                return 1
+                for filename in files:
+                    src_file = Path(root) / filename
+                    dst_file = dst_dir / filename
+                    self.__encrypt_file(str(src_file), str(dst_file))
 
             self.progress_chehged.emit("Версия добавлена.", 100)
             self.show_notification.emit("info", "Папка успешно скопирована и зашифрована.")
-
             return 0
         
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при добавлении версии.\nОшибка: {e}")
             return 1
     
     def add_instruction(self, instruction_path, group_name):
         """Функция добавляет инструкцию"""
         try:
-            if not instruction_path and group_name:
+            if not instruction_path or not group_name:
                 return 1
             
             progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
             current_step = 0 
             
-            # Формируем путь
             self.progress_chehged.emit("Формируем путь к файлу...", current_step)
-            try:
-                dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при формировании пути файла.\nОшибка: {e}")
-                return 1
+            dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
             
             if os.path.exists(dst_path):
                 self.show_notification.emit("error", f"Файл {dst_path} уже существует.")
                 return 1
 
-            # Копируем и шифруем
             current_step += progress_step_size
             self.progress_chehged.emit("Копируем и шифруем файл...", current_step)
-            try:
-                self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
-
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла ошибка при копировании и шифровании файла.\nОшибка: {e}")
-                return 1
+            self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
 
             self.progress_chehged.emit("Инструкция добавлена.", 100)
             self.show_notification.emit("info", "Инструкция успешно скопирована и зашифрована.")
-
             return 0
         
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
+            self.show_notification.emit("error", f"Произошла ошибка при добавлении инструкции.\nОшибка: {e}")
             return 1
         
     def download(self, group, file, save_path):
@@ -658,49 +540,33 @@ class Model(QObject):
         try:
             file_path = os.path.join(self.config_data.get("versions_path"), group, file)
         
-        except Exception as e:
-            self.show_notification.emit("error", f"Произошла ошибка при формировании пути к файлу.\nОшибка: {e}")
-            return
-        
-        try:
-            # Проверяем передан ли путь сохранения
-            if not save_path: # Если не передан, сохраняем на рабочий стол
+            if not save_path:
                 save_path = self.get_desktop_path()
-
-                # Проверяем получен ли путь рабочего стола
-                if not os.path.exists(save_path):
-                    return
+                if not save_path or not os.path.exists(save_path):
+                    return 1
             elif not os.path.exists(save_path):
                 self.show_notification.emit("error", f"Директория {save_path} не существует.")
-                return
-        
-        except Exception as e:
-            self.show_notification.emit("error", f"Произошла ошибка при получении пути сохранения файла.\nОшибка: {e}")
-            return
-        
-        try:
+                return 1
+            
             if os.path.isdir(file_path):
                 progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
                 current_step = 0 
 
-                # Создаём путь исходной папки
                 self.progress_chehged.emit("Создаём путь исходной папки...", current_step)
-                src_path = Path(os.path.join(self.config_data.get("versions_path"), group, file))
+                src_path = Path(file_path)
                 if not src_path.exists():
                     self.show_notification.emit("error", f"Директория {src_path} не существует.")
-                    return
+                    return 1
 
-                # Создаём путь сохранения
                 current_step += progress_step_size
                 self.progress_chehged.emit("Создаём путь сохранения...", current_step)
                 dst_path = Path(os.path.join(save_path, f"{group} {file}"))
                 if dst_path.exists():
                     self.show_notification.emit("error", f"Директория {dst_path} уже существует.")
-                    return
+                    return 1
                 
                 dst_path.mkdir(parents=True, exist_ok=True)
                 
-                # Рекурсивно обходим зашифрованную директорию
                 current_step += progress_step_size
                 self.progress_chehged.emit("Скачиаваем файлы...", current_step)
                 for root, dirs, files in os.walk(src_path):
@@ -708,15 +574,13 @@ class Model(QObject):
                     dst_dir = dst_path / rel
                     dst_dir.mkdir(parents=True, exist_ok=True)
 
-                    # Перебираем файлы
                     for filename in files:
-                        # Обрабатываем только зашифрованные папки
                         if not filename.endswith(".enc"):
                             continue
 
                         src_file = Path(root) / filename
-                        dst_file = dst_dir / filename[:-4] # Убираем расширение .enc
-                        self.__decryprt_file(src_path=src_file, dst_path=dst_file)
+                        dst_file = dst_dir / filename[:-4]
+                        self.__decryprt_file(src_path=str(src_file), dst_path=str(dst_file))
 
             else:
                 progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
@@ -733,10 +597,10 @@ class Model(QObject):
                 self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
                 self.__decryprt_file(src_path=src_path, dst_path=dst_path)
         
+            self.progress_chehged.emit("Скачивание завершено.", 100)
+            self.show_notification.emit("info", "Файл успешно скачан.")
+            return 0
+
         except Exception as e:
             self.show_notification.emit("error", f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
-            return
-
-        self.progress_chehged.emit("Скачивание завершено.", 100)
-        self.show_notification.emit("info", "Файл успешно скачан.")
-        return
+            return 1
