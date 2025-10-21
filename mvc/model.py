@@ -33,9 +33,6 @@ class Model(QObject):
         self.keyfile_path = self.base_path / "_internal" / "keyfile.key" # Ключ шифрования
         self.password_file_path = self.base_path / "_internal" / "password.key" # Файл с паролем
 
-        if self.config_data is not None:
-            self._migrate_password_from_config()
-
         # Прогресс бар
         self.DOWNLOAD_PROGRESS_BAR_STEP = 3
         self.CREATE_NEW_GROUP_PROGRESS_BAR_STEP = 3
@@ -60,41 +57,6 @@ class Model(QObject):
         except Exception as e:
             self.show_notification.emit("error", f"Произошла непредвиденная ошибка при чтении файла конфигурации.\nОшибка: {e}")
             return None
-
-    def _migrate_password_from_config(self):
-        """Переносит пароль из config.yaml в отдельный файл password.key."""
-        config_path = self.base_path / "config.yaml"
-        if not config_path.exists() or self.password_file_path.exists():
-            return
-
-        try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                temp_config_data = yaml.safe_load(f)
-
-            if temp_config_data and 'password' in temp_config_data:
-                password_value = temp_config_data.get('password', '')
-                
-                plaintext_password = self._decrypt_string(str(password_value))
-                
-                if plaintext_password:
-                    encrypted_password = self._encrypt_string(plaintext_password)
-                    with open(self.password_file_path, 'w', encoding='utf-8') as pf:
-                        pf.write(encrypted_password)
-
-                # Удаляем пароль из config.yaml
-                with open(config_path, 'r', encoding='utf-8') as f:
-                    config_lines = f.readlines()
-                
-                with open(config_path, 'w', encoding='utf-8') as f:
-                    for line in config_lines:
-                        if not line.strip().startswith('password:'):
-                            f.write(line)
-
-                if self.config_data and 'password' in self.config_data:
-                    del self.config_data['password']
-                self.show_notification.emit("info", "Пароль был перенесен в отдельное хранилище.")
-        except Exception as e:
-            print(f"Ошибка при миграции пароля: {e}")
 
     def __parse_date(self, date_str):
         """Функция парсит дату в формате ДД.ММ.ГГГГ"""
@@ -159,6 +121,33 @@ class Model(QObject):
             self.show_notification.emit("error", f"Произошла непредвиденная ошибка при дешифровании файла.\nОшибка: {e}")
             return
         
+    def _get_fernet(self):
+        """Читает ключ из файла и возвращает объект Fernet."""
+        with open(self.keyfile_path, "rb") as kf:
+            key = kf.read().strip()
+        return Fernet(key)
+    
+    def _encrypt_string(self, plaintext: str) -> str:
+        """Шифрует строку и возвращает ее в виде base64-текста."""
+        if not plaintext:
+            return ""
+        fernet = self._get_fernet()
+        encrypted_bytes = fernet.encrypt(plaintext.encode('utf-8'))
+        return encrypted_bytes.decode('utf-8')
+
+    def _decrypt_string(self, encrypted_text: str) -> str:
+        """Дешифрует строку, с обратной совместимостью для открытого текста."""
+        if not encrypted_text:
+            return ""
+        try:
+            fernet = self._get_fernet()
+            decrypted_bytes = fernet.decrypt(encrypted_text.encode('utf-8'))
+            return decrypted_bytes.decode('utf-8')
+        except InvalidToken:
+            return encrypted_text
+        except Exception:
+            return ""
+        
     def check_program_version(self):
         """Функция проверяет версию программы"""
         program_server_path = Path(self.config_data.get("server_program_path"))
@@ -200,7 +189,7 @@ class Model(QObject):
 
         # Запускаем updater.exe с запросом прав администратора
         try:
-            os.startfile(updater_path, 'runas')
+            os.startfile(updater_path)
         except OSError as e:
             self.show_notification.emit("error", f"Не удалось запустить программу обновления: {e}")
 
@@ -629,33 +618,6 @@ class Model(QObject):
         except Exception as e:
             self.show_notification.emit("error", f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
             return 1
-
-    def _get_fernet(self):
-        """Читает ключ из файла и возвращает объект Fernet."""
-        with open(self.keyfile_path, "rb") as kf:
-            key = kf.read().strip()
-        return Fernet(key)
-
-    def _encrypt_string(self, plaintext: str) -> str:
-        """Шифрует строку и возвращает ее в виде base64-текста."""
-        if not plaintext:
-            return ""
-        fernet = self._get_fernet()
-        encrypted_bytes = fernet.encrypt(plaintext.encode('utf-8'))
-        return encrypted_bytes.decode('utf-8')
-
-    def _decrypt_string(self, encrypted_text: str) -> str:
-        """Дешифрует строку, с обратной совместимостью для открытого текста."""
-        if not encrypted_text:
-            return ""
-        try:
-            fernet = self._get_fernet()
-            decrypted_bytes = fernet.decrypt(encrypted_text.encode('utf-8'))
-            return decrypted_bytes.decode('utf-8')
-        except InvalidToken:
-            return encrypted_text
-        except Exception:
-            return ""
 
     def get_decrypted_password(self) -> str | None:
         """Получает и дешифрует пароль из файла password.key."""
