@@ -23,7 +23,7 @@ class Model(QObject):
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
         self.search_all_versions = False # Флаг поиска всех версий
         self.new_group_name = None # Имя новой группы
-        self.keyfile_path = os.path.join(os.path.dirname(sys.argv[0]), "keyfile.key") # Ключ шифрования
+        self.keyfile_path = Path(sys.argv[0]).parent / "keyfile.key" # Ключ шифрования
 
         # Прогресс бар
         self.DOWNLOAD_PROGRESS_BAR_STEP = 3
@@ -35,14 +35,14 @@ class Model(QObject):
         """Функция загружает данные из файла конфигурации"""
         try:
             # Получаем путь к исполняемому файлу и проверяем существование
-            exe_file_path = os.path.abspath(sys.argv[0])
-            if not os.path.exists(exe_file_path):
+            exe_file_path = Path(sys.argv[0]).resolve()
+            if not exe_file_path.exists():
                 self.show_notification.emit("error", f"Произошла ошибка при получении пути к исполняемому файлу.\nПуть: {exe_file_path}")
                 return 1
             
             # Получаем путь к файлу конфигурации и проверяем существование
-            config_path = os.path.join(os.path.dirname(exe_file_path), "config.yaml")
-            if not os.path.exists(config_path):
+            config_path = exe_file_path.parent / "config.yaml"
+            if not config_path.exists():
                 self.show_notification.emit("error", f"Произошла ошибка при получении пути к файлу конфигурации.\nПуть: {config_path}")
                 return 1
             
@@ -78,7 +78,7 @@ class Model(QObject):
     def __encrypt_file(self, src_path: str, dst_path: str):
         """Шифрует один файл и сохраняет зашифрованную копию по указанному пути."""
         # Добавляем расширение .enc к файлу
-        dst_path = dst_path + ".enc"
+        dst_path_obj = Path(str(dst_path) + ".enc")
 
         # Читаем ключ из файла
         with open(self.keyfile_path, "rb") as kf:
@@ -94,10 +94,10 @@ class Model(QObject):
         encrypted_data = fernet.encrypt(data)
 
         # Создаём каталог, если нужно
-        os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+        dst_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
         # Записываем зашифрованный файл
-        with open(dst_path, "wb") as f:
+        with open(dst_path_obj, "wb") as f:
             f.write(encrypted_data)
     
     def __decryprt_file(self, src_path: str, dst_path: str):
@@ -113,7 +113,7 @@ class Model(QObject):
 
             decrypted_data = fernet.decrypt(encrypted_data)
 
-            os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+            Path(dst_path).parent.mkdir(parents=True, exist_ok=True)
 
             with open(dst_path, "wb") as f:
                 f.write(decrypted_data)
@@ -130,17 +130,17 @@ class Model(QObject):
         
     def check_program_version(self):
         """Функция проверяет версию программы"""
-        program_server_path = self.config_data.get("server_program_path")
+        program_server_path = Path(self.config_data.get("server_program_path"))
 
-        if not program_server_path or not os.path.exists(program_server_path):
+        if not program_server_path.exists():
             return None
         
-        program_server_files = os.listdir(program_server_path)
+        program_server_files = [p.name for p in program_server_path.iterdir()]
         for file_name in program_server_files:
             # Ищем файл, который начинается с "config" и заканчивается ".yaml"
             if file_name.startswith("config") and file_name.endswith(".yaml"):
                 try:
-                    with open(os.path.join(program_server_path, file_name), "r", encoding="utf-8") as f:
+                    with open(program_server_path / file_name, "r", encoding="utf-8") as f:
                         config_data = yaml.safe_load(f)
                     
                     local_version = str(self.config_data.get("program_version_number"))
@@ -160,10 +160,10 @@ class Model(QObject):
         
     def update_program(self):
         """Функция вызывает обновление программы"""
-        updater_path = os.path.join(os.getcwd(), "updater.exe") # Создаём путь к программе обновления
+        updater_path = Path.cwd() / "updater.exe"
         
         # Проверяем, что updater.exe существует
-        if not os.path.exists(updater_path):
+        if not updater_path.exists():
             self.show_notification.emit("error", f"Не найдена программа автоматического обновления: {updater_path}")
             return
 
@@ -177,16 +177,12 @@ class Model(QObject):
     def get_groups_names(self):
         """Функция возвращает список имен групп"""
         try:
-            path_to_groups = self.config_data.get("versions_path")
-            if not path_to_groups:
-                self.show_notification.emit("error", "Путь к группам не настроен в файле конфигурации.")
-                return []
-
-            if not os.path.exists(path_to_groups):
+            path_to_groups = Path(self.config_data.get("versions_path"))
+            if not path_to_groups.exists():
                 self.show_notification.emit("error", f"Путь к группам не существует или недоступен.\nПуть: {path_to_groups}")
                 return []
 
-            groups_names = os.listdir(path_to_groups)
+            groups_names = [p.name for p in path_to_groups.iterdir()]
             return sorted(groups_names)
 
         except FileNotFoundError:
@@ -202,17 +198,13 @@ class Model(QObject):
     def get_group_versions(self, group_name):
         """Функция возвращает список версий группы"""
         try:
-            versions_path = self.config_data.get("versions_path")
-            if not versions_path:
-                self.show_notification.emit("error", "Путь к версиям не настроен в файле конфигурации.")
-                return []
-
-            path_to_group = os.path.join(versions_path, group_name)
-            if not os.path.exists(path_to_group):
+            versions_path = Path(self.config_data.get("versions_path"))
+            path_to_group = versions_path / group_name
+            if not path_to_group.exists():
                 self.show_notification.emit("error", f"Путь к выбранной группе не существует или недоступен.\nПуть: {path_to_group}")
                 return []
 
-            versions = os.listdir(path_to_group)
+            versions = [p.name for p in path_to_group.iterdir()]
             
             dates = []
             for ver in versions:
@@ -239,7 +231,7 @@ class Model(QObject):
         
     def get_actual_version(self, versions):
         """Возвращает актуальную версию (папку или файл)."""
-        base_path = self.config_data.get("versions_path")
+        base_path = Path(self.config_data.get("versions_path"))
 
         def extract_date(name):
             match = re.search(r"\d{2}\.\d{2}\.\d{4}", name)
@@ -252,8 +244,8 @@ class Model(QObject):
                 return None
 
             # --- определяем, что есть на ФС ---
-            folders = [x for x in items if os.path.isdir(os.path.join(base_path, x[0]))]
-            files   = [x for x in items if os.path.isfile(os.path.join(base_path, x[0]))]
+            folders = [x for x in items if (base_path / x[0]).is_dir()]
+            files   = [x for x in items if (base_path / x[0]).is_file()]
 
             # fallback: если нет данных о ФС
             target = folders or files or items
@@ -289,17 +281,17 @@ class Model(QObject):
         """Функция возвращает путь к папке Desktop"""
         try:
             # Проверяем сначала путь к рабочему столу в OneDrive с русским названием
-            onedrive_desktop_path = os.path.join(os.path.expanduser("~"), "OneDrive", "Рабочий стол")
-            if os.path.exists(onedrive_desktop_path):
+            onedrive_desktop_path = Path.home() / "OneDrive" / "Рабочий стол"
+            if onedrive_desktop_path.exists():
                 return onedrive_desktop_path
 
             # Проверяем снова путь к рабочему столу в OneDrive
-            onedrive_desktop_path = os.path.join(os.path.expanduser("~"), "OneDrive", "Desktop")
-            if os.path.exists(onedrive_desktop_path):
+            onedrive_desktop_path = Path.home() / "OneDrive" / "Desktop"
+            if onedrive_desktop_path.exists():
                 return onedrive_desktop_path
 
             # Если не найден, используем стандартный путь
-            desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+            desktop_path = Path.home() / "Desktop"
             return desktop_path
 
         except Exception as e:
@@ -388,17 +380,17 @@ class Model(QObject):
             current_step = 0
 
             self.progress_chehged.emit("Формируем путь к группе...", current_step)
-            group_path = os.path.join(self.config_data.get("versions_path"), group_name)
+            group_path = Path(self.config_data.get("versions_path")) / group_name
 
             current_step += progress_step_size
             self.progress_chehged.emit("Проверяем существование группы...", current_step)
-            if os.path.exists(group_path):
+            if group_path.exists():
                 self.show_notification.emit("error", f"Группа с именем {group_name} уже существует.")
                 return 1
 
             current_step += progress_step_size
             self.progress_chehged.emit("Создаём группу...", current_step)
-            os.makedirs(group_path)
+            group_path.mkdir(parents=True, exist_ok=True)
             
             self.progress_chehged.emit("Группа создана.", 100)
             self.show_notification.emit("info", f"Группа {group_name} успешно создана.")
@@ -418,9 +410,9 @@ class Model(QObject):
             current_step = 0 
 
             self.progress_chehged.emit("Формируем путь к группе...", current_step)
-            group_path = os.path.join(self.config_data.get("versions_path"), group_name)
+            group_path = Path(self.config_data.get("versions_path")) / group_name
             
-            if not os.path.exists(group_path):
+            if not group_path.exists():
                 self.show_notification.emit("error", f"Группа с именем {group_name} не существует.")
                 return 1
             
@@ -446,17 +438,17 @@ class Model(QObject):
             current_step = 0 
 
             self.progress_chehged.emit("Формируем путь к файлу...", current_step)
-            file_path = os.path.join(self.config_data.get("versions_path"), data[0], data[1])
+            file_path = Path(self.config_data.get("versions_path")) / data[0] / data[1]
 
-            if not os.path.exists(file_path):
+            if not file_path.exists():
                 self.show_notification.emit("error", f"Файл не существует. Путь: {file_path}")
                 return 1
             
             current_step += progress_step_size
             self.progress_chehged.emit("Удаляем файл...", current_step)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-            elif os.path.isdir(file_path):
+            if file_path.is_file():
+                file_path.unlink()
+            elif file_path.is_dir():
                 shutil.rmtree(file_path)
 
             self.progress_chehged.emit("Файл удалён.", 100)
@@ -478,7 +470,7 @@ class Model(QObject):
             
             self.progress_chehged.emit("Формируем путь к папке новой версии...", current_step)
             src_path = Path(version_path)
-            dst_root = Path(os.path.join(self.config_data.get("versions_path"), group_name, src_path.name))
+            dst_root = Path(self.config_data.get("versions_path")) / group_name / src_path.name
             
             if dst_root.exists():
                 self.show_notification.emit("error", f"Папка {dst_root} уже существует.")
@@ -490,12 +482,13 @@ class Model(QObject):
             self.progress_chehged.emit("Копируем и шифруем файлы...", current_step)
             
             for root, dirs, files in os.walk(version_path):
-                rel = Path(root).relative_to(version_path)
+                root_path = Path(root)
+                rel = root_path.relative_to(version_path)
                 dst_dir = dst_root / rel
                 dst_dir.mkdir(parents=True, exist_ok=True)
 
                 for filename in files:
-                    src_file = Path(root) / filename
+                    src_file = root_path / filename
                     dst_file = dst_dir / filename
                     self.__encrypt_file(str(src_file), str(dst_file))
 
@@ -517,15 +510,16 @@ class Model(QObject):
             current_step = 0 
             
             self.progress_chehged.emit("Формируем путь к файлу...", current_step)
-            dst_path = os.path.join(self.config_data.get("versions_path"), group_name, os.path.basename(instruction_path))
+            instruction_path_obj = Path(instruction_path)
+            dst_path = Path(self.config_data.get("versions_path")) / group_name / instruction_path_obj.name
             
-            if os.path.exists(dst_path):
+            if dst_path.exists():
                 self.show_notification.emit("error", f"Файл {dst_path} уже существует.")
                 return 1
 
             current_step += progress_step_size
             self.progress_chehged.emit("Копируем и шифруем файл...", current_step)
-            self.__encrypt_file(src_path=instruction_path, dst_path=dst_path)
+            self.__encrypt_file(src_path=instruction_path, dst_path=str(dst_path))
 
             self.progress_chehged.emit("Инструкция добавлена.", 100)
             self.show_notification.emit("info", "Инструкция успешно скопирована и зашифрована.")
@@ -538,29 +532,29 @@ class Model(QObject):
     def download(self, group, file, save_path):
         """Функция скачивает файл (версия/инструкция)"""
         try:
-            file_path = os.path.join(self.config_data.get("versions_path"), group, file)
+            file_path = Path(self.config_data.get("versions_path")) / group / file
         
             if not save_path:
                 save_path = self.get_desktop_path()
-                if not save_path or not os.path.exists(save_path):
+                if not save_path or not save_path.exists():
                     return 1
-            elif not os.path.exists(save_path):
+            elif not Path(save_path).exists():
                 self.show_notification.emit("error", f"Директория {save_path} не существует.")
                 return 1
             
-            if os.path.isdir(file_path):
+            if file_path.is_dir():
                 progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
                 current_step = 0 
 
                 self.progress_chehged.emit("Создаём путь исходной папки...", current_step)
-                src_path = Path(file_path)
+                src_path = file_path
                 if not src_path.exists():
                     self.show_notification.emit("error", f"Директория {src_path} не существует.")
                     return 1
 
                 current_step += progress_step_size
                 self.progress_chehged.emit("Создаём путь сохранения...", current_step)
-                dst_path = Path(os.path.join(save_path, f"{group} {file}"))
+                dst_path = Path(save_path) / f"{group} {file}"
                 if dst_path.exists():
                     self.show_notification.emit("error", f"Директория {dst_path} уже существует.")
                     return 1
@@ -570,7 +564,8 @@ class Model(QObject):
                 current_step += progress_step_size
                 self.progress_chehged.emit("Скачиаваем файлы...", current_step)
                 for root, dirs, files in os.walk(src_path):
-                    rel = Path(root).relative_to(src_path)
+                    root_path = Path(root)
+                    rel = root_path.relative_to(src_path)
                     dst_dir = dst_path / rel
                     dst_dir.mkdir(parents=True, exist_ok=True)
 
@@ -578,24 +573,24 @@ class Model(QObject):
                         if not filename.endswith(".enc"):
                             continue
 
-                        src_file = Path(root) / filename
+                        src_file = root_path / filename
                         dst_file = dst_dir / filename[:-4]
-                        self.__decryprt_file(src_path=str(src_file), dst_path=str(dst_file))
+                        self.__decryprt_file(str(src_file), str(dst_file))
 
             else:
                 progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
                 current_step = 0 
 
                 self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
-                src_path = os.path.join(self.config_data.get("versions_path"), group, f"{file}.enc")
+                src_path = Path(self.config_data.get("versions_path")) / group / f"{file}.enc"
 
                 current_step += progress_step_size
                 self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
-                dst_path = os.path.join(save_path, f"{file}")
+                dst_path = Path(save_path) / f"{file}"
 
                 current_step += progress_step_size
                 self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
-                self.__decryprt_file(src_path=src_path, dst_path=dst_path)
+                self.__decryprt_file(str(src_path), str(dst_path))
         
             self.progress_chehged.emit("Скачивание завершено.", 100)
             self.show_notification.emit("info", "Файл успешно скачан.")
