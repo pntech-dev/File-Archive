@@ -30,8 +30,8 @@ class Model(QObject):
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
         self.search_all_versions = False # Флаг поиска всех версий
         self.new_group_name = None # Имя новой группы
-        self.keyfile_path = self.base_path / "keyfile.key" # Ключ шифрования
-        self.password_file_path = self.base_path / "password.key" # Файл с паролем
+        self.keyfile_path = self.base_path / "_internal" / "keyfile.key" # Ключ шифрования
+        self.password_file_path = self.base_path / "_internal" / "password.key" # Файл с паролем
 
         if self.config_data is not None:
             self._migrate_password_from_config()
