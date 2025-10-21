@@ -41,7 +41,7 @@ class MyWindow(QMainWindow):
     def check_password(self):
         """Функция проверяет пароль"""
         # Получаем пароль из файла конфигурации
-        password = self.model.config_data.get("password")
+        password = self.model.get_decrypted_password()
 
         if password:
             dialog = PasswordDialog(correct_password=password)

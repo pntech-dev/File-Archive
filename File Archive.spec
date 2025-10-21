@@ -8,6 +8,7 @@ a = Analysis(
     pathex=[],
     binaries=cryptography_binaries,
     datas=[
+        ('password.key', '.'),
         ('keyfile.key', '.'),
         ('config.yaml', '.'),
         ('version 4.0.0.txt', '.'),

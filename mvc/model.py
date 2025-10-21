@@ -19,11 +19,22 @@ class Model(QObject):
     def __init__(self):
         super().__init__()
 
+        # Определяем базовый путь для скрипта и скомпилированного приложения
+        if getattr(sys, 'frozen', False):
+            self.base_path = Path(sys.executable).parent
+        else:
+            # Путь к папке проекта (e.g., File Archive/)
+            self.base_path = Path(__file__).parent.parent
+
         self.config_data = self.__load_config() # Получаем данные из файла конфигурации
         self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
         self.search_all_versions = False # Флаг поиска всех версий
         self.new_group_name = None # Имя новой группы
-        self.keyfile_path = Path(sys.argv[0]).parent / "keyfile.key" # Ключ шифрования
+        self.keyfile_path = self.base_path / "keyfile.key" # Ключ шифрования
+        self.password_file_path = self.base_path / "password.key" # Файл с паролем
+
+        if self.config_data is not None:
+            self._migrate_password_from_config()
 
         # Прогресс бар
         self.DOWNLOAD_PROGRESS_BAR_STEP = 3
@@ -34,36 +45,56 @@ class Model(QObject):
     def __load_config(self):
         """Функция загружает данные из файла конфигурации"""
         try:
-            # Получаем путь к исполняемому файлу и проверяем существование
-            exe_file_path = Path(sys.argv[0]).resolve()
-            if not exe_file_path.exists():
-                self.show_notification.emit("error", f"Произошла ошибка при получении пути к исполняемому файлу.\nПуть: {exe_file_path}")
-                return 1
-            
-            # Получаем путь к файлу конфигурации и проверяем существование
-            config_path = exe_file_path.parent / "config.yaml"
+            config_path = self.base_path / "config.yaml"
             if not config_path.exists():
-                self.show_notification.emit("error", f"Произошла ошибка при получении пути к файлу конфигурации.\nПуть: {config_path}")
-                return 1
+                self.show_notification.emit("error", f"Файл конфигурации не найден.\nПуть: {config_path}")
+                return None
             
-            try:
-                # Загружаем данные из файла конфигурации
-                with open(config_path, "r", encoding="utf-8") as file:
-                    config_data = yaml.safe_load(file)
-    
-                return config_data
-            except FileNotFoundError:
-                self.show_notification.emit("error", f"Файл конфигурации не найден по пути: {config_path}")
-                return 1
-            except yaml.YAMLError as e:
-                self.show_notification.emit("error", f"Ошибка в синтаксисе файла конфигурации: {config_path}\nОшибка: {e}")
-                return 1
-            except Exception as e:
-                self.show_notification.emit("error", f"Произошла непредвиденная ошибка при чтении файла конфигурации.\nОшибка: {e}")
-                return 1            
+            with open(config_path, "r", encoding="utf-8") as file:
+                config = yaml.safe_load(file)
+                # Удаляем ключ пароля, если он все еще там есть, т.к. он больше не используется
+                if config and 'password' in config:
+                    del config['password']
+                return config
+
         except Exception as e:
-            self.show_notification.emit("error", f"Произошла непредвиденная ошибка.\nОшибка: {e}")
-            return 1
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при чтении файла конфигурации.\nОшибка: {e}")
+            return None
+
+    def _migrate_password_from_config(self):
+        """Переносит пароль из config.yaml в отдельный файл password.key."""
+        config_path = self.base_path / "config.yaml"
+        if not config_path.exists() or self.password_file_path.exists():
+            return
+
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                temp_config_data = yaml.safe_load(f)
+
+            if temp_config_data and 'password' in temp_config_data:
+                password_value = temp_config_data.get('password', '')
+                
+                plaintext_password = self._decrypt_string(str(password_value))
+                
+                if plaintext_password:
+                    encrypted_password = self._encrypt_string(plaintext_password)
+                    with open(self.password_file_path, 'w', encoding='utf-8') as pf:
+                        pf.write(encrypted_password)
+
+                # Удаляем пароль из config.yaml
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config_lines = f.readlines()
+                
+                with open(config_path, 'w', encoding='utf-8') as f:
+                    for line in config_lines:
+                        if not line.strip().startswith('password:'):
+                            f.write(line)
+
+                if self.config_data and 'password' in self.config_data:
+                    del self.config_data['password']
+                self.show_notification.emit("info", "Пароль был перенесен в отдельное хранилище.")
+        except Exception as e:
+            print(f"Ошибка при миграции пароля: {e}")
 
     def __parse_date(self, date_str):
         """Функция парсит дату в формате ДД.ММ.ГГГГ"""
@@ -172,7 +203,6 @@ class Model(QObject):
             os.startfile(updater_path, 'runas')
         except OSError as e:
             self.show_notification.emit("error", f"Не удалось запустить программу обновления: {e}")
-
 
     def get_groups_names(self):
         """Функция возвращает список имен групп"""
@@ -600,20 +630,63 @@ class Model(QObject):
             self.show_notification.emit("error", f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
             return 1
 
-    def set_password(self, new_password):
-        """Функция устанавливает новый пароль"""
-        try:
-            config_path = Path(sys.argv[0]).resolve().parent / "config.yaml"
-            with open(config_path, 'r', encoding='utf-8') as f:
-                config_data = yaml.safe_load(f)
-            
-            config_data['password'] = new_password
+    def _get_fernet(self):
+        """Читает ключ из файла и возвращает объект Fernet."""
+        with open(self.keyfile_path, "rb") as kf:
+            key = kf.read().strip()
+        return Fernet(key)
 
-            with open(config_path, 'w', encoding='utf-8') as f:
-                yaml.dump(config_data, f, allow_unicode=True)
+    def _encrypt_string(self, plaintext: str) -> str:
+        """Шифрует строку и возвращает ее в виде base64-текста."""
+        if not plaintext:
+            return ""
+        fernet = self._get_fernet()
+        encrypted_bytes = fernet.encrypt(plaintext.encode('utf-8'))
+        return encrypted_bytes.decode('utf-8')
+
+    def _decrypt_string(self, encrypted_text: str) -> str:
+        """Дешифрует строку, с обратной совместимостью для открытого текста."""
+        if not encrypted_text:
+            return ""
+        try:
+            fernet = self._get_fernet()
+            decrypted_bytes = fernet.decrypt(encrypted_text.encode('utf-8'))
+            return decrypted_bytes.decode('utf-8')
+        except InvalidToken:
+            return encrypted_text
+        except Exception:
+            return ""
+
+    def get_decrypted_password(self) -> str | None:
+        """Получает и дешифрует пароль из файла password.key."""
+        if not self.password_file_path.exists():
+            return None
+        
+        try:
+            with open(self.password_file_path, 'r', encoding='utf-8') as f:
+                encrypted_password = f.read().strip()
+
+            if not encrypted_password:
+                return None
             
-            self.config_data['password'] = new_password # update in-memory config
+            return self._decrypt_string(encrypted_password)
+        except Exception:
+            return None
+
+    def set_password(self, new_password):
+        """Функция устанавливает новый пароль в password.key."""
+        try:
+            print(f"--- ДИАГНОСТИКА: Вызван метод set_password ---")
+            print(f"--- ДИАГНОСТИКА: Попытка записи в файл: {self.password_file_path.resolve()} ---")
+            encrypted_password = self._encrypt_string(new_password)
+            print(f"--- ДИАГНОСТИКА: Новый зашифрованный пароль: {encrypted_password[:15]}... ---")
+            
+            with open(self.password_file_path, 'w', encoding='utf-8') as f:
+                f.write(encrypted_password)
+            
+            print(f"--- ДИАГНОСТИКА: Файл password.key успешно записан. ---")
             return 0
         except Exception as e:
+            print(f"--- ДИАГНОСТИКА: ОШИБКА при смене пароля: {e} ---")
             self.show_notification.emit("error", f"Произошла ошибка при смене пароля.\nОшибка: {e}")
             return 1
