@@ -1,16 +1,20 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
 
+cryptography_datas, cryptography_binaries, cryptography_hiddenimports = collect_all('cryptography')
 
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[],
+    binaries=cryptography_binaries,
     datas=[
+        ('password.key', '.'),
+        ('keyfile.key', '.'),
         ('config.yaml', '.'),
-        ('version 3.2.0.txt', '.'),
+        ('version 4.0.0.txt', '.'),
         ('updater.exe', '.')
-        ],
-    hiddenimports=[],
+    ] + cryptography_datas,
+    hiddenimports=['PyYaml'] + cryptography_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -66,3 +70,29 @@ coll = COLLECT(
     upx_exclude=[],
     name='File Archive',
 )
+
+import shutil
+import os
+
+# === Пост-сборочное копирование нужных файлов из _internal в корень ===
+dist_dir = os.path.join('dist', 'File Archive')
+internal_dir = os.path.join(dist_dir, '_internal')
+
+# Список файлов, которые нужно вытащить из _internal
+files_to_copy = [
+    'config.yaml',
+    'version 4.0.0.txt',
+    'updater.exe'
+]
+
+for filename in files_to_copy:
+    src = os.path.join(internal_dir, filename)
+    dst = os.path.join(dist_dir, filename)
+    try:
+        if os.path.exists(src):
+            shutil.copy2(src, dst)
+            print(f"[Post-Build] ✅ {filename} скопирован в {dist_dir}")
+        else:
+            print(f"[Post-Build] ⚠️ {filename} не найден в _internal")
+    except Exception as e:
+        print(f"[Post-Build] ❌ Ошибка при копировании {filename}: {e}")

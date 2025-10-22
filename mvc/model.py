@@ -1,697 +1,716 @@
 import os
+import re
 import sys
 import yaml
 import shutil
-import hashlib
+import datetime
 import threading
-import subprocess
 
-from datetime import datetime
+from pathlib import Path
+from packaging import version
+from cryptography.fernet import Fernet, InvalidToken
+
 from PyQt5.QtCore import QObject, pyqtSignal
 
+
 class Model(QObject):
-    show_notification = pyqtSignal(str, str)  # Сигнал для показа уведомления
-    progress_changed = pyqtSignal(int)  # Сигнал для изменения значения прогресс бара
+    progress_chehged = pyqtSignal(str, int) # Сигнал изменения прогресс бара
+    show_notification = pyqtSignal(str, str) # Сигнал отображения уведомления (Тип, Текст)
+    operation_finished = pyqtSignal(str, int) # Сигнал завершения операции (имя операции, статус код)
 
     def __init__(self):
         super().__init__()
 
-        self.config_file_path = self.__get_config_file_path() # Получаем путь к файлу конфигурации
-        self.versions_path = self.__get_versions_path() # Получаем путь к папке групп версий
-        self.program_version_number = self.__get_program_version_number() # Получаем версию программы
-        self.program_server_path = self.__get_program_server_path() # Получаем путь к программе на сервере
-
-        self.versions_groups = None
-        self.update_versions_groups() # Получаем список групп версий
-        
-        self.in_group = False # Флаг, определяющий что отображает таблица, группы или версии для группы
-        self.current_group = None # Текущая выбранная группа
-        self.current_group_versions = None # Список версий для выбранной группы
-
-        self.search_text = "" # Текст в строке поиска
-
-        self.choosen_path_to_download = "" # Путь для загрузки
-
-        self.choosen_group = None # Выбранная группа
-        self.choosen_version = None # Выбранная версия
-
-        self.new_group_name = "" # Имя новой группы
-        self.new_file_path = "" # Путь к папке новой версии
-        self.new_instruction_path = "" # Путь к файлу новой иструкции
-
-    def __get_config_file_path(self):
-        """Функция возвращает путь к файлу конфигурации"""
-        exe_file_path = os.path.abspath(sys.argv[0]) # Получаем путь к исполняемому файлу
-        if not os.path.exists(exe_file_path): # Проверяем что путь существует
-            return None
-        
-        exe_file_dir_path = os.path.dirname(exe_file_path) # Получаем папку исполняемого файла
-
-        config_path = None # Путь к файлу конфигурации
-        for file in os.listdir(exe_file_dir_path): # Перебираем все объекты в папке исполняемого файла
-            if file == "config.yaml": # Если объект равен config.yaml
-                config_path = os.path.join(exe_file_dir_path, file) # Создаём путь к файлу конфигурации
-
-        return config_path
-    
-    def __get_config_data(self, config_path=None):
-        """Функция возвращает данные файла конфигурации"""
-        config_file_path = self.config_file_path
-        if config_path is not None:
-            config_file_path = config_path
-           
-        # Проверяем что путь к файлу конфигурации существует
-        if not config_file_path or not os.path.exists(config_file_path):
-            return None
-
-        config_data = {} # Данные файла конфигурации
-        with open(config_file_path, "r", encoding="utf-8") as f: # Чиатем файл конфигурации
-            config_data = yaml.safe_load(f) # Сохраняем данные
-
-        return config_data
-    
-    def __get_versions_path(self):
-        """Функция возвращает путь к папке с версиями на сервере из файла конфигурации"""
-        config_data = self.__get_config_data() # Получаем данные файла конфигурации
-
-        if config_data: # Если данные файла конфигурации не пусты
-            try:
-                return config_data["versions_path"] # Возвращаем путь
-            except:
-                # Выводим ошибку и возвращаем None
-                self.show_notification.emit("error", f"Не удалось найти путь к файлам версий в файле конфигурации: {self.config_file_path}")
-                return None
-            
-    def __get_program_version_number(self):
-        """Функция возвращает версию программы"""
-        config_data = self.__get_config_data() # Получаем данные файла конфигурации
-
-        if config_data: # Если данные файла конфигурации не пусты
-            try:
-                return config_data["program_version_number"] # Возвращаем версию
-            except:
-                # Выводим ошибку и возвращаем None
-                self.show_notification.emit("error", f"Не удалось обнаружить номер версии программы в файле конфигурации: {self.config_file_path}")
-                return None
-            
-    def __get_program_server_path(self):
-        """Функция возвращает путь к программе на сервере"""
-        config_data = self.__get_config_data() # Получаем данные файла конфигурации
-
-        if config_data: # Если данные файла конфигурации не пусты
-            try:
-                return config_data["server_program_path"] # Возвращаем путь
-            except:
-                # Выводим ошибку и возвращаем None
-                self.show_notification.emit("error", f"Не удалось обнаружить путь к программе на сервере в файле конфигурации: {self.config_file_path}")
-                return None
-            
-    def __get_file_hash(self, file_path):
-        """Функция возвращает хеш файла"""""
-        hasher = hashlib.md5()
-
-        try:
-            with open(file_path, 'rb') as file:
-                for chunk in iter(lambda: file.read(4096), b''):
-                    hasher.update(chunk)
-            return hasher.hexdigest()
-        except Exception as e:
-            print(f"Ошибка при получении хеша файла: {file_path}. Ошибка: {str(e)}")
-            return None
-        
-    def __get_all_files(self, path):
-        """Функция возвращает список всех файлов в указанной папке"""
-        files_lst = []
-
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                files_lst.append(file_path)
-
-        return files_lst
-
-    def __extarct_date(self, version_string):
-        """Функция извлекает дату из строки"""
-        date_part = version_string[-10:] # Получаем дату из строки
-
-        try:
-            return datetime.strptime(date_part, "%d.%m.%Y") # Врзвращаем дату в формате: (2024, 11, 26)
-        except:
-            return datetime.min
-        
-    def __download_file(self):
-        """Функция загружает выбранный файл на рабочий стол или по выбранному пути"""
-        if len(self.choosen_path_to_download) == 0: # Скачиваем на рабочий стол
-            desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-
-            src = os.path.join(self.versions_path, self.choosen_group, self.choosen_version) # Формируем путь к папке выбранной версии
-            if not os.path.exists(src):
-                self.show_notification.emit("error", "Ошибка при загрузке!\nВыбранный файл версии недоступен на сервере")
-                return
-            
-            dst = os.path.join(desktop_path, f"{self.choosen_group} {self.choosen_version}") # Формируем путь к итоговой папке
-
+        # Определяем базовый путь для скрипта и скомпилированного приложения
+        if getattr(sys, 'frozen', False):
+            self.base_path = Path(sys.executable).parent
         else:
-            if not os.path.exists(self.choosen_path_to_download):
-                self.show_notification.emit("error", "Ошибка при загрузке!\nВыбранный путь не существует или недоступен")
-                return
-            
-            dst = os.path.join(self.choosen_path_to_download, f"{self.choosen_group} {self.choosen_version}") # Формируем путь к итоговой папке
-            
-            src = os.path.join(self.versions_path, self.choosen_group, self.choosen_version) # Формируем путь к папке выбранной версии
-            if not os.path.exists(src):
-                self.show_notification.emit("error", "Ошибка при загрузке!\nВыбранный файл версии недоступен на сервере")
-                return
-        
-        if src and dst:
-            if os.path.exists(dst):
-                self.show_notification.emit("error", f"Целевая папка уже существует: {dst}")
-                return
-            try:
-                # Создаем корневую папку назначения, даже если она пустая
-                os.makedirs(dst, exist_ok=True)
+            # Путь к папке проекта (e.g., File Archive/)
+            self.base_path = Path(__file__).parent.parent
 
-                # Проверяем, если выбран файл, копируем
-                if os.path.isfile(src):
-                    self.progress_changed.emit(0)
-                    shutil.copy2(src, dst)
-                    self.progress_changed.emit(100)  # Завершаем прогресс
+        self.config_data = self.__load_config() # Получаем данные из файла конфигурации
+        self.in_group = False # Флаг нахождения таблицы в отображении всех версий группы
+        self.search_all_versions = False # Флаг поиска всех версий
+        self.new_group_name = None # Имя новой группы
+        self.keyfile_path = self.base_path / "_internal" / "keyfile.key" # Ключ шифрования
+        self.password_file_path = self.base_path / "_internal" / "password.key" # Файл с паролем
 
-                # Собираем список файлов для копирования
-                files = []
-                for root, dirs, file_names in os.walk(src):
-                    for file_name in file_names:
-                        files.append(os.path.join(root, file_name))
-                total = len(files)
-                copied = 0
-                try:
-                    if total > 0: # Если есть файлы для копирования
-                        for file_path in files:
-                            copied += 1
-                            percent = int(copied / total * 100)
-                            self.progress_changed.emit(percent)  # Передаем прогресс
-                            
-                            rel_path = os.path.relpath(file_path, src)
-                            dst_path = os.path.join(dst, rel_path)
-                            os.makedirs(os.path.dirname(dst_path), exist_ok=True)
-                            shutil.copy2(file_path, dst_path)
-                    else: # Если папка пуста, прогресс сразу 100%
-                        self.progress_changed.emit(100)
-                except Exception as e: # Добавил e для отладки
-                    self.show_notification.emit("error", f"Возникла непредвиденная ошибка при загрузке файла: {e}")
-                    self.progress_changed.emit(0)
+        # Прогресс бар
+        self.DOWNLOAD_PROGRESS_BAR_STEP = 3
+        self.CREATE_NEW_GROUP_PROGRESS_BAR_STEP = 3
+        self.ADD_PROGRESS_BAR_STEP = 2
+        self.DELETE_PROGRESS_BAR_STEP = 2
 
-                self.show_notification.emit("info", f"Файл '{self.choosen_version}' успешно загружен!\nПуть: {dst}")
-
-            except FileExistsError:
-                self.show_notification.emit("error", f"Целевая папка уже существует: {dst}")
-                
-            except Exception as e:
-                self.show_notification.emit("error", f"Ошибка при загрузке файла: {e}")
-
-    def __add_file(self, group, signal):
-        """Функция добавляет новую версию в выбранную группу"""
-        self.progress_changed.emit(0)  # Устанавливаем прогресс в 0% перед началом
-
-        # Проверяем, что группа выбрана
-        if not group:
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", "Не выбрана группа в которую будет добавляться версия")
-            return
-
-        src = self.new_file_path  # Путь к папке новой версии
-        dst = os.path.join(self.versions_path, group, os.path.basename(self.new_file_path))  # Путь назначения на сервере
-
-        # Проверяем, что исходная и целевая папки существуют
-        if not os.path.exists(src):
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", f"Путь к папке новой версии не существует или недоступен\nПуть: {src}")
-            return
-
-        if os.path.exists(dst):
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", f"Целевая папка уже существует!\nПуть: {dst}")
-            return
-
+    def __load_config(self):
+        """Функция загружает данные из файла конфигурации"""
         try:
-            files = []
-            dirs = []
+            config_path = self.base_path / "config.yaml"
+            if not config_path.exists():
+                self.show_notification.emit("error", f"Файл конфигурации не найден.\nПуть: {config_path}")
+                return None
+            
+            with open(config_path, "r", encoding="utf-8") as file:
+                config = yaml.safe_load(file)
+                # Удаляем ключ пароля, если он все еще там есть, т.к. он больше не используется
+                if config and 'password' in config:
+                    del config['password']
+                return config
 
-            # Собираем список всех папок и файлов
-            for root, subdirs, file_names in os.walk(src):
-                # добавляем директории (чтобы скопировать пустые)
-                for subdir in subdirs:
-                    rel_dir = os.path.relpath(os.path.join(root, subdir), src)
-                    dirs.append(os.path.join(dst, rel_dir))
-                # добавляем файлы
-                for file_name in file_names:
-                    rel_file = os.path.relpath(os.path.join(root, file_name), src)
-                    files.append(os.path.join(rel_file))
-
-            # Сначала создаём корневую папку назначения
-            os.makedirs(dst, exist_ok=True)
-
-            # Создаём все директории (включая пустые)
-            for d in dirs:
-                os.makedirs(d, exist_ok=True)
-
-            total = len(files)
-            copied = 0
-
-            # Копируем файлы по одному с прогрессом
-            for rel_file in files:
-                src_path = os.path.join(src, rel_file)
-                dst_path = os.path.join(dst, rel_file)
-                os.makedirs(os.path.dirname(dst_path), exist_ok=True)
-                shutil.copy2(src_path, dst_path)
-                copied += 1
-                percent = int(copied / total * 100) if total > 0 else 100
-                self.progress_changed.emit(percent)
-
-            self.progress_changed.emit(100)  # Завершаем прогресс
-            self.show_notification.emit("info", "Папка успешно добавлена на сервер!")
-            signal.emit()  # Сигнал об успешном завершении
         except Exception as e:
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", f"Ошибка при добавлении папки на сервер: {e}")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при чтении файла конфигурации.\nОшибка: {e}")
+            return None
 
-    def __add_instruction(self, group, signal):
-        """Функция добавляет инструкцию"""
-        self.progress_changed.emit(0)  # Устанавливаем прогресс в 0% перед началом
+    def __parse_date(self, date_str):
+        """Функция парсит дату в формате ДД.ММ.ГГГГ"""
+        try:
+            if date_str:
+                return datetime.datetime.strptime(date_str, "%d.%m.%Y")
+            else:
+                return datetime.datetime.min
+        except ValueError:
+            return datetime.datetime.min
+        
+    def __encrypt_file(self, src_path: str, dst_path: str):
+        """Шифрует один файл и сохраняет зашифрованную копию по указанному пути."""
+        # Добавляем расширение .enc к файлу
+        dst_path_obj = Path(str(dst_path) + ".enc")
 
-        # Проверяем, что группа выбрана
-        if not group:
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", "Не выбрана группа в которую будет добавляться версия")
-            return
+        # Читаем ключ из файла
+        with open(self.keyfile_path, "rb") as kf:
+            key = kf.read().strip()
 
-        src = self.new_instruction_path  # Путь к файлу новой инструкции
-        dst = os.path.join(self.versions_path, group, os.path.basename(self.new_instruction_path))  # Путь назначения на сервере
+        fernet = Fernet(key)
+
+        # Читаем исходные данные
+        with open(src_path, "rb") as f:
+            data = f.read()
+
+        # Шифруем
+        encrypted_data = fernet.encrypt(data)
+
+        # Создаём каталог, если нужно
+        dst_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+        # Записываем зашифрованный файл
+        with open(dst_path_obj, "wb") as f:
+            f.write(encrypted_data)
     
-        # Проверяем, что исходный и целовой файлы не существует
-        if not os.path.exists(src):
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", f"Путь к файлу новой инструкции не существует или недоступен\nПуть: {src}")
-            return
-
-        if os.path.exists(dst):
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", f"Такой файл иннструкции уже существует!\nПуть: {dst}")
-            return
-
+    def __decryprt_file(self, src_path: str, dst_path: str):
+        """Дешифрует один файл и сохраняет дешифрованную копию по указанному пути."""
         try:
-            shutil.copy2(src, dst)
-            self.progress_changed.emit(100)  # Завершаем прогресс
-            self.show_notification.emit("info", "Инструкция успешно добавлена на сервер!")
-            signal.emit()  # Сигнал об успешном завершении
+            with open(self.keyfile_path, "rb") as kf:
+                key = kf.read().strip()
+
+            fernet = Fernet(key)
+
+            with open(src_path, "rb") as f:
+                encrypted_data = f.read()
+
+            decrypted_data = fernet.decrypt(encrypted_data)
+
+            Path(dst_path).parent.mkdir(parents=True, exist_ok=True)
+
+            with open(dst_path, "wb") as f:
+                f.write(decrypted_data)
+
+        except FileNotFoundError:
+            self.show_notification.emit("error", f"Ошибка: Не найден файл ключа или исходный файл для дешифрования.")
+            return
+        except InvalidToken:
+            self.show_notification.emit("error", f"Ошибка дешифрования: ключ недействителен или данные повреждены.")
+            return
         except Exception as e:
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", f"Ошибка при добавлении инструкции на сервер: {e}")
-
-    def __delete_group(self, group, signal):
-        """Функция удаляет переданную группу с прогрессом удаления файлов"""
-        # Проверяем, что группа выбрана
-        if not group:
-            self.show_notification.emit("error", "Не выбранна группа для удаления")
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при дешифровании файла.\nОшибка: {e}")
             return
-
-        group_path = os.path.join(self.versions_path, group)  # Путь к группе
-
-        # Проверяем, что папка группы существует
-        if not os.path.exists(group_path):
-            self.show_notification.emit("error", f"Путь к выбранной группе не существует или недоступен. Путь: {group_path}")
-            return
-
-        try:
-            # Собираем список всех файлов и папок внутри группы
-            files = []
-            for root, dirs, file_names in os.walk(group_path):
-                for file_name in file_names:
-                    files.append(os.path.join(root, file_name))
-                for dir_name in dirs:
-                    files.append(os.path.join(root, dir_name))
-
-            total = len(files)  # Общее количество файлов и папок для удаления
-            deleted = 0  # Счетчик удалённых файлов/папок
-
-            # Удаляем все файлы
-            for file_path in files:
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.remove(file_path)  # Удаляем файл или ссылку
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)  # Удаляем папку
-                except Exception as e:
-                    # Если ошибка при удалении, показываем уведомление, но продолжаем
-                    self.show_notification.emit("error", f"Ошибка при удалении: {file_path}\n{e}")
-                deleted += 1
-                percent = int(deleted / total * 100) if total > 0 else 100
-                self.progress_changed.emit(percent)  # Обновляем прогресс бар
-
-            # После удаления всех файлов и папок, удаляем саму группу
-            if os.path.exists(group_path):
-                shutil.rmtree(group_path)
-
-            self.show_notification.emit("info", f"Группа '{group}' успешно удалена")
-            signal.emit()  # Сигнал об успешном завершении
-        except Exception as e:
-            self.show_notification.emit("error", f"Произошла ошибка во время удаления группы, ошибка: {e}")
-
-    def __delete_file(self, group, file, signal):
-        """Функция удаляет переданный файл (папку версии) из переданной группы с прогрессом удаления файлов"""
-        # Проверяем, что выбраны группа и файл
-        if not group or not file:
-            self.show_notification.emit("error", "Не выбранна группа или файл для удаления")
-            return
-
-        file_path = os.path.join(self.versions_path, group, file) # Путь к файлу
-
-        # Проверяем, что папка версии существует
-        if not os.path.exists(file_path):
-            self.show_notification.emit("error", f"Путь к выбранному файлу не существует или недоступен. Путь: {file_path}")
-            return
-
-        try:
-            # Если файл для удаления, тогда удаляем файл
-            if os.path.isfile(file_path):
-                self.progress_changed.emit(0)
-                os.remove(file_path)
-                self.progress_changed.emit(100)
-                self.show_notification.emit("info", f"Файл '{file}' в группе '{group}' успешно удален")
-                signal.emit()  # Сигнал об успешном завершении
-                return
-
-            # Собираем список всех файлов и папок внутри версии
-            items = []
-            for root, dirs, file_names in os.walk(file_path):
-                for file_name in file_names:
-                    items.append(os.path.join(root, file_name))  # Добавляем файл
-                for dir_name in dirs:
-                    items.append(os.path.join(root, dir_name))  # Добавляем подпапку
-
-            total = len(items)  # Общее количество файлов и папок для удаления
-            deleted = 0  # Счетчик удалённых файлов/папок
-
-            # Удаляем все файлы и папки по одному, обновляя прогресс
-            for item_path in items:
-                try:
-                    if os.path.isfile(item_path) or os.path.islink(item_path):
-                        os.remove(item_path)  # Удаляем файл или ссылку
-                    elif os.path.isdir(item_path):
-                        shutil.rmtree(item_path)  # Удаляем папку
-                except Exception as e:
-                    # Если ошибка при удалении, показываем уведомление, но продолжаем
-                    self.show_notification.emit("error", f"Ошибка при удалении: {item_path}\n{e}")
-                deleted += 1
-                percent = int(deleted / total * 100) if total > 0 else 100
-                self.progress_changed.emit(percent)  # Обновляем прогресс бар
-
-            # После удаления всех файлов и папок, удаляем саму папку версии
-            if os.path.exists(file_path):
-                shutil.rmtree(file_path)
-
-            self.show_notification.emit("info", f"Файл '{file}' в группе '{group}' успешно удален")
-            signal.emit()  # Сигнал об успешном завершении
-        except Exception as e:
-            self.show_notification.emit("error", f"Произошла ошибка во время удаления файла, ошибка: {e}")
-
-    def __compare_files(self, files_lst_1, files_lst_2):
-        """Функция сверяет актуальную и добавляемую версию"""
-
-        # Вычисляем относительные пути и хэши
-        actual_version_files = {}
-        for file_path in files_lst_1:
-            file_hash = self.__get_file_hash(file_path)
-
-            if file_hash:
-                actual_version_files[file_path] = file_hash
         
-        new_version_files = {}
-        for file_path in files_lst_2:
-            file_hash = self.__get_file_hash(file_path)
+    def _get_fernet(self):
+        """Читает ключ из файла и возвращает объект Fernet."""
+        with open(self.keyfile_path, "rb") as kf:
+            key = kf.read().strip()
+        return Fernet(key)
+    
+    def _encrypt_string(self, plaintext: str) -> str:
+        """Шифрует строку и возвращает ее в виде base64-текста."""
+        if not plaintext:
+            return ""
+        fernet = self._get_fernet()
+        encrypted_bytes = fernet.encrypt(plaintext.encode('utf-8'))
+        return encrypted_bytes.decode('utf-8')
 
-            if file_hash:
-                new_version_files[file_path] = file_hash
-
-        # Инициализируем списки для результатов
-        unchanged = []    # неизмененные
-        changed = []      # измененные  
-        new_files = []    # новые
-        deleted_files = []  # удаленные
-
-        '''Проверка на изменения'''
-        # Проверяем на наличие файлов без изменений
-        for path, file_hash in actual_version_files.items(): # Перебираем все значения в словаре актуальной версии
-            if file_hash in new_version_files.values(): # Если хэш файла в словаре новой версии
-                unchanged.append(path) # Добавляем путь к файлу без изменений
-
-        # Проверяем на наличие файлов с изменениями
-        for path, file_hash in new_version_files.items(): # Перебираем все значения в словаре новой версии
-            if file_hash not in actual_version_files.values(): # Если хэш файла в словаре актуальной версии
-                changed.append(path) # Добавляем путь к файлу с изменениями
-
-        '''Проверка на наличие файлов'''
-        # Формируем словари файлов актуальной и новой версий
-        files_lst_1_names = {file: os.path.basename(file) for file in files_lst_1} # Словарь файлов актуальной версии, где ключ: путь к файлу, значение: имя файла
-        files_lst_2_names = {file: os.path.basename(file) for file in files_lst_2} # Словарь файлов новой версии, где ключ: путь к файлу, значение: имя файла
+    def _decrypt_string(self, encrypted_text: str) -> str:
+        """Дешифрует строку, с обратной совместимостью для открытого текста."""
+        if not encrypted_text:
+            return ""
+        try:
+            fernet = self._get_fernet()
+            decrypted_bytes = fernet.decrypt(encrypted_text.encode('utf-8'))
+            return decrypted_bytes.decode('utf-8')
+        except InvalidToken:
+            return encrypted_text
+        except Exception:
+            return ""
         
-        # Проверяем на наличие новых файлов
-        for path, name in files_lst_2_names.items(): # Перебираем все значения в словаре новой версии
-            if name not in files_lst_1_names.values(): # Если имя файла не в словаре актуальной версии
-                new_files.append(path) # Добавляем путь к новому файлу
-
-        # Проверяем на наличие пропавших файлов
-        for path, name in files_lst_1_names.items(): # Перебираем все значения в словаре актуальной версии
-            if name not in files_lst_2_names.values(): # Если имя файла не в словаре новой версии
-                deleted_files.append(path) # Добавляем путь к пропавшему файлу
-
-        # Возвращаем в виде: файлы без измененний, файлы с изменениями, новые файлы, пропавшие файлы
-        return unchanged, changed, new_files, deleted_files
-
     def check_program_version(self):
         """Функция проверяет версию программы"""
-        if not self.program_server_path or not os.path.exists(self.program_server_path):
+        program_server_path = Path(self.config_data.get("server_program_path"))
+
+        if not program_server_path.exists():
             return None
         
-        program_server_files = os.listdir(self.program_server_path)
+        program_server_files = [p.name for p in program_server_path.iterdir()]
         for file_name in program_server_files:
             # Ищем файл, который начинается с "config" и заканчивается ".yaml"
             if file_name.startswith("config") and file_name.endswith(".yaml"):
                 try:
-                    with open(os.path.join(self.program_server_path, file_name), "r", encoding="utf-8") as f:
+                    with open(program_server_path / file_name, "r", encoding="utf-8") as f:
                         config_data = yaml.safe_load(f)
-
-                    program_server_version = config_data["program_version_number"] # Получаем версию программы на сервере
                     
+                    local_version = str(self.config_data.get("program_version_number"))
+                    program_server_version = str(config_data.get("program_version_number"))
+
                     if not program_server_version:
                         return None
 
-                    if program_server_version <= self.program_version_number:
+                    if version.parse(program_server_version) > version.parse(local_version):
                         return True
+                    else:
+                        return False
+                    
                 except IndexError:
                     # Если формат имени файла не соответствует ожидаемому, пропускаем его
                     continue
-        else:
-            return False
         
     def update_program(self):
         """Функция вызывает обновление программы"""
-        updater_path = os.path.join(os.getcwd(), "updater.exe") # Создаём путь к программе обновления
+        updater_path = Path.cwd() / "updater.exe"
         
         # Проверяем, что updater.exe существует
-        if not os.path.exists(updater_path):
-            self.show_notification.emit("error", f"Не найден файл обновления: {updater_path}")
+        if not updater_path.exists():
+            self.show_notification.emit("error", f"Не найдена программа автоматического обновления: {updater_path}")
             return
 
         # Запускаем updater.exe с запросом прав администратора
-        # Используем 'runas' для повышения прав
-        subprocess.run(['powershell', '-Command', f'Start-Process "{updater_path}" -ArgumentList "{self.program_server_path}" -Verb RunAs'], shell=True)
+        try:
+            os.startfile(updater_path)
+        except OSError as e:
+            self.show_notification.emit("error", f"Не удалось запустить программу обновления: {e}")
 
-    def open_config_file(self):
-        """Функция открывает файл конфигурации"""
-        os.startfile(self.config_file_path)
+    def get_groups_names(self):
+        """Функция возвращает список имен групп"""
+        try:
+            path_to_groups = Path(self.config_data.get("versions_path"))
+            if not path_to_groups.exists():
+                self.show_notification.emit("error", f"Путь к группам не существует или недоступен.\nПуть: {path_to_groups}")
+                return []
 
-    def get_password(self):
-        """Функция возвращает пароль из файла конфигурации"""
-        server_config_file_path = os.path.join(self.program_server_path, "config.yaml")
-        if os.path.exists(server_config_file_path):
-            config_data = self.__get_config_data(config_path=server_config_file_path)
-            return config_data
-        else:
-            self.show_notification.emit("error", f"Не найден файл конфигурации на сервере. Путь: {server_config_file_path}\nДоступ возможен в обычном режиме.")
+            groups_names = [p.name for p in path_to_groups.iterdir()]
+            return sorted(groups_names)
+
+        except FileNotFoundError:
+            self.show_notification.emit("error", f"Путь к группам не найден: {path_to_groups}")
+            return []
+        except PermissionError:
+            self.show_notification.emit("error", f"Отсутствуют права доступа к папке с группами: {path_to_groups}")
+            return []
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при получении списка групп.\nОшибка: {e}")
+            return []
+
+    def get_group_versions(self, group_name):
+        """Функция возвращает список версий группы"""
+        try:
+            versions_path = Path(self.config_data.get("versions_path"))
+            path_to_group = versions_path / group_name
+            if not path_to_group.exists():
+                self.show_notification.emit("error", f"Путь к выбранной группе не существует или недоступен.\nПуть: {path_to_group}")
+                return []
+
+            versions = [p.name for p in path_to_group.iterdir()]
+            
+            dates = []
+            for ver in versions:
+                if not ver or ver.startswith("~"):
+                    continue
+
+                match = re.search(r"\d{2}\.\d{2}\.\d{4}", ver)
+                dates.append([ver, match.group() if match else None])
+
+            dates.sort(key=lambda x: self.__parse_date(x[1]), reverse=True)
+
+            sorted_versions = [date[0] for date in dates]
+            return sorted_versions
+
+        except FileNotFoundError:
+            self.show_notification.emit("error", f"Путь к группе не найден: {path_to_group}")
+            return []
+        except PermissionError:
+            self.show_notification.emit("error", f"Отсутствуют права доступа к папке группы: {path_to_group}")
+            return []
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при получении версий группы.\nОшибка: {e}")
+            return []
+        
+    def get_actual_version(self, versions):
+        """Возвращает актуальную версию (папку или файл)."""
+        base_path = Path(self.config_data.get("versions_path"))
+
+        def extract_date(name):
+            match = re.search(r"\d{2}\.\d{2}\.\d{4}", name)
+            return self.__parse_date(match.group()) if match else None
+
+        try:
+            # --- фильтрация и разбор версий ---
+            items = [(v, extract_date(v)) for v in versions if v]
+            if not items:
+                return None
+
+            # --- определяем, что есть на ФС ---
+            folders = [x for x in items if (base_path / x[0]).is_dir()]
+            files   = [x for x in items if (base_path / x[0]).is_file()]
+
+            # fallback: если нет данных о ФС
+            target = folders or files or items
+            is_folder = bool(folders or (not files and target is items))
+
+            # --- сортировка ---
+            has_dates = any(date for _, date in target)
+
+            def sort_key(x):
+                name, date = x
+                # Дата по убыванию, имя — в зависимости от типа
+                return (
+                    date or datetime.datetime.min,
+                    name.lower() if not is_folder else -ord(name[0].lower())
+                )
+
+            if has_dates:
+                # Если есть даты — сортируем по дате ↓, потом по имени (в зависимости от типа)
+                target.sort(key=lambda x: (x[1] or datetime.datetime.min, 
+                                        x[0].lower() if not is_folder else x[0].lower()),
+                            reverse=True)
+            else:
+                # Без дат — только по имени (по правилам)
+                target.sort(key=lambda x: x[0].lower(), reverse=is_folder)
+
+            return target[0][0]
+
+        except Exception as e:
+            self.show_notification.emit("error", f"Ошибка при получении актуальной версии: {e}")
+            return None
+        
+    def get_desktop_path(self):
+        """Функция возвращает путь к папке Desktop"""
+        try:
+            # Проверяем сначала путь к рабочему столу в OneDrive с русским названием
+            onedrive_desktop_path = Path.home() / "OneDrive" / "Рабочий стол"
+            if onedrive_desktop_path.exists():
+                return onedrive_desktop_path
+
+            # Проверяем снова путь к рабочему столу в OneDrive
+            onedrive_desktop_path = Path.home() / "OneDrive" / "Desktop"
+            if onedrive_desktop_path.exists():
+                return onedrive_desktop_path
+
+            # Если не найден, используем стандартный путь
+            desktop_path = Path.home() / "Desktop"
+            return desktop_path
+
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при получении пути к папке Desktop.\nОшибка: {e}")
+            return
+        
+    def search(self, text):
+        """Функция выполняет поиск в таблице ПОСЛДЕНИЕ ВЕРСИИ ГРУПП"""
+        try:
+            if not text:
+                return []
+
+            groups = self.get_groups_names()
+            if not groups:
+                return []
+
+            groups_versions = []
+            for group in groups:
+                versions = self.get_group_versions(group)
+                actual_version = self.get_actual_version(versions)
+                groups_versions.append([group, actual_version])
+
+            result = []
+            search_text = text.lower().strip()
+            for group_version in groups_versions:
+                group_name = group_version[0].lower().strip()
+
+                if group_version[1] is None:
+                    if search_text in group_name and group_version not in result:
+                        result.append(group_version)
+                    continue
+
+                version = group_version[1].lower().strip()
+
+                if (search_text in group_name or search_text in version) and group_version not in result:
+                    result.append(group_version)
+
+            return result
+
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при поиске.\nОшибка: {e}")
+            return []
+
+    def search_all(self, text):
+        """Функция выполняет поиск в таблице ПО ВСЕМ ВЕРСИЯМ И ГРУППАМ"""
+        try:
+            if not text:
+                return []
+
+            groups = self.get_groups_names()
+            if not groups:
+                return []
+
+            groups_versions = {}
+            for group in groups:
+                groups_versions[group] = self.get_group_versions(group)
+
+            result = []
+            search_text = text.lower().strip()
+            for group, versions in groups_versions.items():
+                group_text = group.lower().strip()
+
+                if not versions:
+                    if search_text in group_text and [group, None] not in result:
+                        result.append([group, None])
+                else:
+                    for version in versions:
+                        version_text = version.lower().strip() if version else ""
+                        
+                        if (search_text in group_text or search_text in version_text) and [group, version] not in result:
+                            result.append([group, version])
+
+            return result
+
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла непредвиденная ошибка при поиске по всем версиям.\nОшибка: {e}")
+            return []
+        
+    def create_new_group(self, group_name):
+        """Функция создает новую группу"""
+        try:
+            if not group_name:
+                return 1
+
+            progress_step_size = 100 // self.CREATE_NEW_GROUP_PROGRESS_BAR_STEP
+            current_step = 0
+
+            self.progress_chehged.emit("Формируем путь к группе...", current_step)
+            group_path = Path(self.config_data.get("versions_path")) / group_name
+
+            current_step += progress_step_size
+            self.progress_chehged.emit("Проверяем существование группы...", current_step)
+            if group_path.exists():
+                self.show_notification.emit("error", f"Группа с именем {group_name} уже существует.")
+                return 1
+
+            current_step += progress_step_size
+            self.progress_chehged.emit("Создаём группу...", current_step)
+            group_path.mkdir(parents=True, exist_ok=True)
+            
+            self.progress_chehged.emit("Группа создана.", 100)
+            self.show_notification.emit("info", f"Группа {group_name} успешно создана.")
+            return 0
+
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при создании новой группы.\nОшибка: {e}")
+            return 1
+
+    def delete_group(self, group_name):
+        """Функция удаляет группу"""
+        try:
+            if not group_name:
+                return 1
+            
+            progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
+            current_step = 0 
+
+            self.progress_chehged.emit("Формируем путь к группе...", current_step)
+            group_path = Path(self.config_data.get("versions_path")) / group_name
+            
+            if not group_path.exists():
+                self.show_notification.emit("error", f"Группа с именем {group_name} не существует.")
+                return 1
+            
+            current_step += progress_step_size
+            self.progress_chehged.emit("Удаляем группу...", current_step)
+            shutil.rmtree(group_path)
+
+            self.progress_chehged.emit("Группа удалена.", 100)
+            self.show_notification.emit("info", f"Группа {group_name} успешно удалена.")
+            return 0
+            
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при удалении группы.\nОшибка: {e}")
+            return 1
+        
+    def delete_file(self, data):
+        """Функция удаляет файл"""
+        try:
+            if not data:
+                return 1
+            
+            progress_step_size = 100 // self.DELETE_PROGRESS_BAR_STEP
+            current_step = 0 
+
+            self.progress_chehged.emit("Формируем путь к файлу...", current_step)
+            file_path = Path(self.config_data.get("versions_path")) / data[0] / data[1]
+
+            if not file_path.exists():
+                self.show_notification.emit("error", f"Файл не существует. Путь: {file_path}")
+                return 1
+            
+            current_step += progress_step_size
+            self.progress_chehged.emit("Удаляем файл...", current_step)
+            if file_path.is_file():
+                file_path.unlink()
+            elif file_path.is_dir():
+                shutil.rmtree(file_path)
+
+            self.progress_chehged.emit("Файл удалён.", 100)
+            self.show_notification.emit("info", f"Файл {file_path} успешно удалён.")
+            return 0
+            
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при удалении файла.\nОшибка: {e}")
+            return 1
+        
+    def add_version(self, version_path, group_name):
+        """Функция добавляет версию"""
+        try:
+            if not version_path or not group_name:
+                return 1
+            
+            progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
+            current_step = 0 
+            
+            self.progress_chehged.emit("Формируем путь к папке новой версии...", current_step)
+            src_path = Path(version_path)
+            dst_root = Path(self.config_data.get("versions_path")) / group_name / src_path.name
+            
+            if dst_root.exists():
+                self.show_notification.emit("error", f"Папка {dst_root} уже существует.")
+                return 1
+            
+            dst_root.mkdir(parents=True, exist_ok=True)
+
+            current_step += progress_step_size
+            self.progress_chehged.emit("Копируем и шифруем файлы...", current_step)
+            
+            for root, dirs, files in os.walk(version_path):
+                root_path = Path(root)
+                rel = root_path.relative_to(version_path)
+                dst_dir = dst_root / rel
+                dst_dir.mkdir(parents=True, exist_ok=True)
+
+                for filename in files:
+                    src_file = root_path / filename
+                    dst_file = dst_dir / filename
+                    self.__encrypt_file(str(src_file), str(dst_file))
+
+            self.progress_chehged.emit("Версия добавлена.", 100)
+            self.show_notification.emit("info", "Папка успешно скопирована и зашифрована.")
+            return 0
+        
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при добавлении версии.\nОшибка: {e}")
+            return 1
+    
+    def add_instruction(self, instruction_path, group_name):
+        """Функция добавляет инструкцию"""
+        try:
+            if not instruction_path or not group_name:
+                return 1
+            
+            progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
+            current_step = 0 
+            
+            self.progress_chehged.emit("Формируем путь к файлу...", current_step)
+            instruction_path_obj = Path(instruction_path)
+            dst_path = Path(self.config_data.get("versions_path")) / group_name / instruction_path_obj.name
+            
+            if dst_path.exists():
+                self.show_notification.emit("error", f"Файл {dst_path} уже существует.")
+                return 1
+
+            current_step += progress_step_size
+            self.progress_chehged.emit("Копируем и шифруем файл...", current_step)
+            self.__encrypt_file(src_path=instruction_path, dst_path=str(dst_path))
+
+            self.progress_chehged.emit("Инструкция добавлена.", 100)
+            self.show_notification.emit("info", "Инструкция успешно скопирована и зашифрована.")
+            return 0
+        
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при добавлении инструкции.\nОшибка: {e}")
+            return 1
+        
+    def download(self, group, file, save_path):
+        """Функция скачивает файл (версия/инструкция)"""
+        try:
+            file_path = Path(self.config_data.get("versions_path")) / group / file
+        
+            if not save_path:
+                save_path = self.get_desktop_path()
+                if not save_path or not save_path.exists():
+                    return 1
+            elif not Path(save_path).exists():
+                self.show_notification.emit("error", f"Директория {save_path} не существует.")
+                return 1
+            
+            if file_path.is_dir():
+                progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
+                current_step = 0 
+
+                self.progress_chehged.emit("Создаём путь исходной папки...", current_step)
+                src_path = file_path
+                if not src_path.exists():
+                    self.show_notification.emit("error", f"Директория {src_path} не существует.")
+                    return 1
+
+                current_step += progress_step_size
+                self.progress_chehged.emit("Создаём путь сохранения...", current_step)
+                dst_path = Path(save_path) / f"{group} {file}"
+                if dst_path.exists():
+                    self.show_notification.emit("error", f"Директория {dst_path} уже существует.")
+                    return 1
+                
+                dst_path.mkdir(parents=True, exist_ok=True)
+                
+                current_step += progress_step_size
+                self.progress_chehged.emit("Скачиаваем файлы...", current_step)
+                for root, dirs, files in os.walk(src_path):
+                    root_path = Path(root)
+                    rel = root_path.relative_to(src_path)
+                    dst_dir = dst_path / rel
+                    dst_dir.mkdir(parents=True, exist_ok=True)
+
+                    for filename in files:
+                        if not filename.endswith(".enc"):
+                            continue
+
+                        src_file = root_path / filename
+                        dst_file = dst_dir / filename[:-4]
+                        self.__decryprt_file(str(src_file), str(dst_file))
+
+            else:
+                progress_step_size = 100 // self.DOWNLOAD_PROGRESS_BAR_STEP
+                current_step = 0 
+
+                self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
+                src_path = Path(self.config_data.get("versions_path")) / group / f"{file}.enc"
+
+                current_step += progress_step_size
+                self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
+                dst_path = Path(save_path) / f"{file}"
+
+                current_step += progress_step_size
+                self.progress_chehged.emit(f"Скачивание файла {file}...", current_step)
+                self.__decryprt_file(str(src_path), str(dst_path))
+        
+            self.progress_chehged.emit("Скачивание завершено.", 100)
+            self.show_notification.emit("info", "Файл успешно скачан.")
+            return 0
+
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при скачивании файла.\nОшибка: {e}")
+            return 1
+
+    def get_decrypted_password(self) -> str | None:
+        """Получает и дешифрует пароль из файла password.key."""
+        if not self.password_file_path.exists():
+            return None
+        
+        try:
+            with open(self.password_file_path, 'r', encoding='utf-8') as f:
+                encrypted_password = f.read().strip()
+
+            if not encrypted_password:
+                return None
+            
+            return self._decrypt_string(encrypted_password)
+        except Exception:
             return None
 
-    def verefy_versions(self, group):
-        """Функция вызывает проверку актуальной и новой версий и возвращает результаты"""
-
-        # Возвращаемые статус коды:
-        # 0 - Есть изменения в версиях
-        # 1 - Нет изменений в версиях
-        # 2 - Нет предыдущих версий
-        # 3 - Имя новой версии совпадает с имененем предыдущей
-        # 4 - Любая другая ошибка возникшая во время выполнения функции
-        
+    def set_password(self, new_password):
+        """Функция устанавливает новый пароль в password.key."""
         try:
-            group_versions = self.get_group_files(group=group) # Получаем список версий для группы
-        
-            if not group_versions: 
-                return [2]
-        
-            actual_version_name = os.path.basename(self.new_file_path) # Имя актуальной группы
-            if actual_version_name == group_versions[0]:
-                return [3]
-
-            group_path = os.path.join(self.versions_path, group, group_versions[0]) # Путь к группе
-
-            if not os.path.exists(group_path):
-                return [4]
-
-            files_lst_1 = self.__get_all_files(group_path) # Получаем список файлов актуальной версии
-            files_lst_2 = self.__get_all_files(self.new_file_path) # Получаем список файлов новой версии
-
-            verefy_data = self.__compare_files(files_lst_1=files_lst_1, files_lst_2=files_lst_2) # Вызываем проверку актуальной и новой версий
-
-            if verefy_data[0] and all(not i for i in verefy_data[1:]):
-                return [1]
-            else:
-                return [0, verefy_data]
-        except:
-            return [4]
-
-    def add_group(self):
-        """Функция добавляет новую пустую группу на сервер с прогрессом"""
-        self.progress_changed.emit(0)
-
-        if len(self.new_group_name) == 0:
-            self.progress_changed.emit(100)  # Сначала прогресс, потом уведомление
-            self.show_notification.emit("error", "Не удалось создать группу, имя группы не задано!")
-            return
-        
-        if not os.path.exists(self.versions_path):
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", "Не удалось создать группу, путь к серверу не существует, недоступен или задан неверно в файле конфигурации!")
-            return
-        
-        path = os.path.join(self.versions_path, self.new_group_name)
-        
-        try:
-            os.mkdir(path)
-            self.progress_changed.emit(100)  # Сначала прогресс, потом уведомление
-            self.show_notification.emit("info", f"Группа '{self.new_group_name}' успешно создана!")
-        except Exception as e:
-            self.progress_changed.emit(100)
-            self.show_notification.emit("error", f"Не удалось создать новую группу! Ошибка: {e}")
-
-    def get_group_files(self, group):
-        """Функция возвращает список файлов входящих в группу"""
-        # Проверяем, что группа передана
-        if not group:
-            return []
-        
-        group_path = os.path.join(self.versions_path, group) # Путь к группе
-
-        # Проверяем, что папка группы существует
-        if os.path.exists(group_path):
-            files_lst = os.listdir(group_path) # Получаем список файлов группы
-
-            # Сортируем файлы по дате, извлеченной из имени
-            sorted_files_lst = sorted(files_lst, key=self.__extarct_date, reverse=True)
-
-            return sorted_files_lst
-        else:
-            return []
-
-    def update_versions_groups(self):
-        """Функция возвращает список групп версий"""
-        # Проверяем, что путь к папке групп версий существует
-        if not self.versions_path and not os.path.exists(self.versions_path):
-            return
-        
-        groups_versions = sorted(os.listdir(self.versions_path)) # Получаем и сортируем список групп
-        self.versions_groups = groups_versions # Сохраняем новые данные
-
-    def download_file_in_thread(self):
-        """Функция вызывает загрузку файла в новом потоке"""
-        thread = threading.Thread(target=self.__download_file) # Создаем поток для загрузки файла
-        thread.daemon = True # Делаем поток демоном
-        thread.start() # Запускаем поток
-        return thread
-    
-    def add_file_in_thread(self, group, signal):
-        """Функция вызывает добавление папки версии в новом потоке"""
-        thread = threading.Thread(target=self.__add_file, args=(group, signal,)) # Создаем поток для добавления файла
-        thread.daemon = True
-        thread.start()
-        return thread
-    
-    def delete_group_in_thread(self, group, signal):
-        """Функция вызывает удаление группы в новом потоке"""
-        thread = threading.Thread(target=self.__delete_group, args=(group, signal,)) # Создаем поток для удаления группы
-        thread.daemon = True
-        thread.start()
-        return thread
-    
-    def delete_file_in_thread(self, group, file, signal):
-        """Функция вызывает удаление группы в новом потоке"""
-        thread = threading.Thread(target=self.__delete_file, args=(group, file, signal,)) # Создаем поток для удаления файла
-        thread.daemon = True
-        thread.start()
-        return thread
-    
-    def add_instruction_in_thread(self, group, signal):
-        """Функция вызывает добавление инструкций в новом потоке"""
-        thread = threading.Thread(target=self.__add_instruction, args=(group, signal,)) # Создаем поток для добавления инструкции
-        thread.daemon = True
-        thread.start()
-        return thread
-    
-    def search(self, text, search_all):
-        """Функция возвращает список резульатов поиска для переданного текста"""
-        words_to_search = text.lower().split()
-        results = []
-        seen = set()
-
-        # Поиск внутри группы (одна колонка)
-        if self.in_group:
-            if not self.current_group_versions:
-                return []
+            print(f"--- ДИАГНОСТИКА: Вызван метод set_password ---")
+            print(f"--- ДИАГНОСТИКА: Попытка записи в файл: {self.password_file_path.resolve()} ---")
+            encrypted_password = self._encrypt_string(new_password)
+            print(f"--- ДИАГНОСТИКА: Новый зашифрованный пароль: {encrypted_password[:15]}... ---")
             
-            for version in self.current_group_versions:
-                if all(word in version.lower() for word in words_to_search):
-                    if version not in seen:
-                        results.append(version)
-                        seen.add(version)
-            return results
+            with open(self.password_file_path, 'w', encoding='utf-8') as f:
+                f.write(encrypted_password)
+            
+            print(f"--- ДИАГНОСТИКА: Файл password.key успешно записан. ---")
+            return 0
+        except Exception as e:
+            print(f"--- ДИАГНОСТИКА: ОШИБКА при смене пароля: {e} ---")
+            self.show_notification.emit("error", f"Произошла ошибка при смене пароля.\nОшибка: {e}")
+            return 1
+        
+    def _wrapper_download(self, group, file, save_path):
+        status_code = self.download(group, file, save_path)
+        self.operation_finished.emit("download", status_code)
 
-        # Глобальный поиск (две колонки)
-        self.update_versions_groups()
-        if not self.versions_groups:
-            return []
+    def download_in_thread(self, group, file, save_path):
+        """Функция скачивает файл (версию/инструкцию) в отдельном потоке."""
+        thread = threading.Thread(target=self._wrapper_download, args=(group, file, save_path))
+        thread.daemon = True
+        thread.start()
+        
+    def _wrapper_create_new_group(self, group_name):
+        status_code = self.create_new_group(group_name)
+        self.operation_finished.emit("create_group", status_code)
 
-        for group in self.versions_groups:
-            versions = self.get_group_files(group=group)
+    def create_group_in_thread(self, group_name):
+        """Функция создает группу в отдельном потоке."""
+        thread = threading.Thread(target=self._wrapper_create_new_group, args=(group_name,))
+        thread.daemon = True
+        thread.start()
+    
+    def _wrapper_add_version(self, version_path, group_name):
+        status_code = self.add_version(version_path, group_name)
+        self.operation_finished.emit("add_version", status_code)
 
-            if search_all:
-                # Поиск по всем версиям группы
-                if versions:
-                    for version in versions:
-                        combined_text = f"{group.lower()} {version.lower()}"
-                        if all(word in combined_text for word in words_to_search):
-                            if (group, version) not in seen:
-                                results.append((group, version))
-                                seen.add((group, version))
-                else:  # Обработка групп без версий
-                    if all(word in group.lower() for word in words_to_search):
-                        if (group, "") not in seen:
-                            results.append((group, ""))
-                            seen.add((group, ""))
-            else:
-                # Поиск по названию группы и последней версии
-                latest_version = versions[0] if versions else ""
-                combined_text = f"{group.lower()} {latest_version.lower()}"
-                if all(word in combined_text for word in words_to_search):
-                    if (group, latest_version) not in seen:
-                        results.append((group, latest_version))
-                        seen.add((group, latest_version))
+    def add_version_in_thread(self, version_path, group_name):
+        """Функция добавляет версию в отдельном потоке."""
+        thread = threading.Thread(target=self._wrapper_add_version, args=(version_path, group_name))
+        thread.daemon = True
+        thread.start()
 
-        return results
+    def _wrapper_add_instruction(self, instruction_path, group_name):
+        status_code = self.add_instruction(instruction_path, group_name)
+        self.operation_finished.emit("add_instruction", status_code)
+
+    def add_instruction_in_thread(self, instruction_path, group_name):
+        """Функция добавляет инструкцию в отдельном потоке."""
+        thread = threading.Thread(target=self._wrapper_add_instruction, args=(instruction_path, group_name))
+        thread.daemon = True
+        thread.start()
+    
+    def _wrapper_delete_group(self, group_name):
+        status_code = self.delete_group(group_name)
+        self.operation_finished.emit("delete_group", status_code)
+
+    def delete_group_in_thread(self, group_name):
+        """Функция удаляет группу в отдельном потоке."""
+        thread = threading.Thread(target=self._wrapper_delete_group, args=(group_name,))
+        thread.daemon = True
+        thread.start()
+
+    def _wrapper_delete_file(self, data):
+        status_code = self.delete_file(data)
+        self.operation_finished.emit("delete_file", status_code)
+
+    def delete_file_in_thread(self, data):
+        """Функция удаляет файл в отдельном потоке."""
+        thread = threading.Thread(target=self._wrapper_delete_file, args=(data,))
+        thread.daemon = True
+        thread.start()

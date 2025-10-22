@@ -1,0 +1,2530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>File Archive</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #FFFFFF;    /* Белый фон окна */
+}
+
+QLabel {
+    color: #0F172A;   /* Акцентный цвет текста */
+}
+
+QFrame {
+    background-color: #FFFFFF;
+    border: none;
+}
+
+/* === Горизонтальные линии === */
+QFrame[frameShape=&quot;4&quot;] { /* QFrame::HLine */
+    background-color: #E2E8F0;
+    min-height: 1px;
+    max-height: 1px;
+    border: none;
+}
+
+/* === Вертикальные линии === */
+QFrame[frameShape=&quot;5&quot;] { /* QFrame::VLine */
+    background-color: #E2E8F0;
+    min-width: 1px;
+    max-width: 1px;
+    border: none;
+}
+
+
+
+/* === Базовый стиль для всех QLineEdit === */
+QLineEdit {
+    background-color: #FFFFFF;       /* Белый фон */
+    border: 1px solid #E2E8F0;       /* Светлая рамка */
+    border-radius: 6px;              /* Скругления */
+    color: #64748B;                  /* Цвет текста */
+    padding: 6px 8px;                /* Внутренние отступы для аккуратности */
+}
+
+/* === При фокусе (активное поле ввода) === */
+QLineEdit:focus {
+    background-color: #FFFFFF;       /* Белый фон */
+    border: 1px solid #2563EB;       /* Синяя рамка */
+    border-radius: 6px;
+    color: #0F172A;                  /* Тёмный текст */
+    outline: none;                   /* Убираем системный контур */
+}
+
+/* === Отключенное состояние === */
+QLineEdit:disabled {
+    background-color: #FFFFFF;       /* Белый фон (не серый) */
+    border: 1px solid #F8FAFC;       /* Очень светлая рамка */
+    border-radius: 6px;
+    color: #E2E8F0;                  /* Бледный текст */
+}
+
+
+/* === Второстепенные кнопки === */
+QPushButton {
+    background-color: transparent;   /* Без заливки */
+    color: #334155;                  /* Основной цвет текста */
+    font-weight: normal;             /* Обычная жирность */
+    border: 1px solid #64748B;       /* Серо-синяя рамка */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Внутренние отступы */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    border: 1px solid #8B98AA;       /* Более светлая рамка */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    border: 1px solid #515E71;       /* Более тёмная рамка */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    color: #E2E8F0;                  /* Бледный текст */
+    border: 1px solid #F8FAFC;       /* Светлая рамка */
+}
+
+
+
+/* === Общий стиль выпадающих списков (QComboBox) === */
+QComboBox {
+    background-color: #FFFFFF;           /* Белый фон */
+    border: 1px solid #E2E8F0;           /* Светлая рамка */
+    border-radius: 6px;                  /* Скругления */
+    padding: 4px 32px 4px 8px;           /* Отступы: справа место под иконку */
+    color: #64748B;                      /* Цвет текста */
+}
+
+/* === Иконка стрелки (ресурс combobox_arrow) === */
+QComboBox::down-arrow {
+    image: url(:/icons/combobox_arrow);        /* Подключённая иконка */
+    width: 14px;
+    height: 14px;
+}
+
+/* === Позиция иконки справа === */
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 28px;
+    border: none;                        /* Без отдельной рамки */
+    margin-right: 4px;
+}
+
+/* === Фокус или раскрытое состояние === */
+QComboBox:focus,
+QComboBox:on {
+    border: 1px solid #2563EB;           /* Синяя рамка */
+    color: #0F172A;                      /* Тёмный текст */
+}
+
+/* === Меняем цвет стрелки при фокусе === */
+QComboBox:focus::down-arrow,
+QComboBox:on::down-arrow {
+    image: url(:/combobox_arrow);        /* Та же иконка, Qt не поддерживает перекраску напрямую */
+}
+
+/* Если у тебя есть возможность использовать SVG — можно будет менять цвет через fill в ресурсе */
+
+/* === Отключённое состояние === */
+QComboBox:disabled {
+    background-color: #FFFFFF;
+    border: 1px solid #F8FAFC;           /* Очень светлая рамка */
+    color: #E2E8F0;                      /* Светлый текст */
+}
+
+QComboBox:disabled::down-arrow {
+    image: url(:/combobox_arrow);        /* Та же иконка */
+    /* Qt не позволяет легко изменить цвет, поэтому сделай отдельный серый SVG для disabled */
+}
+
+/* === Стиль выпадающего списка === */
+QComboBox QAbstractItemView {
+    background-color: #FFFFFF;           /* Белый фон меню */
+    border: 1px solid #E2E8F0;           /* Та же рамка */
+    border-radius: 6px;
+    selection-background-color: #2563EB; /* Цвет выделения */
+    selection-color: #FFFFFF;            /* Цвет текста при выделении */
+}
+
+
+
+/* === Общие стили для QRadioButton === */
+QRadioButton {
+    color: #0F172A;            /* Акцентный текст */
+    font-weight: normal;
+    spacing: 8px;              /* Расстояние между индикатором и текстом */
+}
+
+/* === Индикатор === */
+QRadioButton::indicator {
+    width: 14px;
+    height: 14px;
+}
+
+/* === Активное === */
+QRadioButton::indicator:checked {
+    image: url(:/icons/radio_buttons/radio_button_checked.svg);
+}
+
+/* === Активное + наведение === */
+QRadioButton::indicator:checked:hover {
+    image: url(:/icons/radio_buttons/radio_button_checked_hover.svg);
+}
+
+/* === Активное + нажатие === */
+QRadioButton::indicator:checked:pressed {
+    image: url(:/icons/radio_buttons/radio_button_checked_pressed.svg);
+}
+
+/* === Активное Отключённое === */
+QRadioButton::indicator:checked:disabled {
+    image: url(:/icons/radio_buttons/radio_button_checked_disabled.svg);
+}
+
+/* === Неактивное === */
+QRadioButton::indicator:unchecked {
+    image: url(:/icons/radio_buttons/radio_button_unchecked.svg);
+}
+
+/* === Неактивное + наведение === */
+QRadioButton::indicator:unchecked:hover {
+    image: url(:/icons/radio_buttons/radio_button_unchecked_hover.svg);
+}
+
+/* === Неактивное + нажатие === */
+QRadioButton::indicator:unchecked:pressed {
+    image: url(:/icons/radio_buttons/radio_button_unchecked_pressed.svg);
+}
+
+/* === Неактивное Отключённое=== */
+QRadioButton::indicator:unchecked:disabled {
+    image: url(:/icons/radio_buttons/radio_button_unchecked_disabled.svg);
+}
+
+/* === Текст отключённой радиокнопки === */
+QRadioButton:disabled {
+    color: #64748B;
+}
+
+
+
+/* === Общие стили для QCheckBox === */
+QCheckBox{
+    color: #0F172A;                /* Акцентный текст */
+    font-weight: normal;
+    spacing: 8px;                  /* Расстояние между индикатором и текстом */
+}
+
+/* Индикатор */
+
+QCheckBox::indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;            /* Небольшое скругление углов */
+    border: 1px solid #64748B;     /* Второстепенная рамка */
+    background-color: #FFFFFF;     /* Белый фон */
+}
+
+/* Наведение */
+QCheckBox::indicator:hover {
+    border: 1px solid #2563EB;     /* Акцентная рамка */
+}
+
+/* Активен (галочка) */
+QCheckBox::indicator:checked {
+    border: 1px solid #2563EB;
+    background-color: #2563EB;
+    image: url(:/icons/checkbox_check);  /* Собственная белая галочка */
+}
+
+/* Фокус */
+QCheckBox::indicator:focus {
+    border: 1px solid #2563EB;
+}
+
+/* Отключён */
+QCheckBox::indicator:disabled {
+    border: 1px solid #F8FAFC;
+    background-color: #FFFFFF;
+    image: none;
+}
+
+/* Текст отключённого чекбокса */
+QCheckBox:disabled {
+    color: #64748B;
+}
+
+
+
+/* === Общий стиль прогресс-бара === */
+QProgressBar {
+    border: 1px solid #E2E8F0;     /* Светлая рамка */
+    border-radius: 6px;            /* Скругления */
+    background-color: #FFFFFF;     /* Белый фон (без заполнения) */
+    text-align: center;            /* На всякий случай, но текста нет */
+    color: transparent;            /* Полностью скрываем текст */
+}
+
+/* === Полоса заполнения === */
+QProgressBar::chunk {
+    border-radius: 6px;            /* Та же форма, чтобы совпадала с контуром */
+    background-color: #16A34A;     /* Зелёный акцент */
+    margin: 0px;                   /* Без промежутков между сегментами */
+}
+
+
+
+/* === Таблица === */
+QTableWidget {
+    background-color: #FFFFFF;       /* Белый фон */
+    border: 1px solid #E2E8F0;       /* Светло-серая рамка */
+    border-radius: 6px;              /* Скругления */
+    gridline-color: #E2E8F0;         /* Цвет линий между ячейками */
+    outline: none;                   /* Без фокуса-рамки */
+    alternate-background-color: #F8FAFC;  /* Цвет зебры */
+}
+
+/* === Заголовки === */
+QHeaderView::section {
+    background-color: #F8FAFC;
+    color: #334155;
+    border: none;
+    border-right: 1px solid #E2E8F0;
+	border-bottom: 1px solid #E2E8F0;
+    padding: 6px 8px;
+    font-weight: 600;
+}
+
+/* Последний заголовок без правой линии */
+QHeaderView::section:last {
+    border-right: none;
+}
+
+/* === Ячейки === */
+QTableWidget::item {
+    padding: 4px 8px;
+}
+
+/* === Hover (наведение) === */
+QTableWidget::item:hover {
+    background-color: #EEF4FF;       /* Мягкий синий оттенок */
+}
+
+/* === Стиль выделенной строки === */
+QTableWidget::item:selected {
+    background-color: #C8D9FF;       /* Акцент выделения */
+}
+
+/* === Скроллбар (вертикальный) === */
+QScrollBar:vertical {
+    border: none;
+    background: transparent;
+    width: 10px;
+    margin: 2px;
+    border-radius: 2px;
+}
+
+QScrollBar::handle:vertical {
+    background: #CBD5E1;
+    border-radius: 5px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #94A3B8;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0;
+}
+
+/* === Скроллбар (горизонтальный) === */
+QScrollBar:horizontal {
+    border: none;
+    background: transparent;
+    height: 10px;
+    margin: 2px;
+    border-radius: 2px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #CBD5E1;
+    border-radius: 5px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #94A3B8;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+
+/* === Угловая кнопка в левом верхнем углу === */
+QTableCornerButton::section {
+    background-color: #F8FAFC;
+    border: none;
+    border-right: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
+}
+</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QFrame" name="navigation_frame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">/* === Обычные фреймы (панели, контейнеры) === */
+QFrame {
+    border: none;
+    background-color: #F4F6F9; /* Цвет панелей */
+}
+
+/* === Горизонтальные линии === */
+QFrame[frameShape=&quot;4&quot;] { /* QFrame::HLine */
+    background-color: #DDDDDD;
+    min-height: 1px;
+    max-height: 1px;
+    border: none;
+}
+
+/* === Базовые свойства sidebar-кнопок === */
+QPushButton#download_tab_pushButton,
+QPushButton#add_tab_pushButton,
+QPushButton#delete_tab_pushButton{
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: left;                /* Текст и иконка выровнены слева */
+    font-weight: normal;
+    background-color: #DEE8FC;       /* Неактивное состояние по умолчанию */
+    color: #0F172A;                  /* Тёмный текст */
+	qproperty-iconSize: 24px 24px;
+}
+
+/* === Наведение === */
+QPushButton#download_tab_pushButton:hover,
+QPushButton#add_tab_pushButton:hover,
+QPushButton#delete_tab_pushButton:hover{
+    background-color: #C8D9FF;       /* Светло-синий hover */
+}
+
+/* === Активная (нажатая / выбранная / залипшая) кнопка === */
+QPushButton#download_tab_pushButton:checked,
+QPushButton#add_tab_pushButton:checked,
+QPushButton#delete_tab_pushButton:checked{
+    background-color: #2563EB;       /* Акцентный синий фон */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+}
+
+/* === Неактивная иконка === */
+QPushButton#download_tab_pushButton:checked::icon,
+QPushButton#add_tab_pushButton:checked::icon,
+QPushButton#delete_tab_pushButton:checked::icon{
+    color: #2563EB;                  /* Синяя иконка для неактивного состояния */
+}
+
+/* === Активная иконка === */
+QPushButton#download_tab_pushButton:checked::icon,
+QPushButton#add_tab_pushButton:checked::icon,
+QPushButton#delete_tab_pushButton:checked::icon{
+    color: #FFFFFF;                  /* Белая иконка при активной кнопке */
+}
+
+/* === Наведение при активной кнопке (мягкое осветление) === */
+QPushButton#download_tab_pushButton:checked:hover,
+QPushButton#add_tab_pushButton:checke:hoverd,
+QPushButton#delete_tab_pushButton:checked:hover{
+    background-color: #3B76F6;       /* Чуть светлее активного синего */
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>24</number>
+       </property>
+       <property name="leftMargin">
+        <number>8</number>
+       </property>
+       <property name="topMargin">
+        <number>16</number>
+       </property>
+       <property name="rightMargin">
+        <number>8</number>
+       </property>
+       <property name="bottomMargin">
+        <number>16</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="logo_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+           <pointsize>24</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>File Archive</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>1</height>
+          </size>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="buttons_frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="download_tab_pushButton">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string> Скачать</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <property name="autoRepeat">
+             <bool>false</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="add_tab_pushButton">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string> Добавить</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="delete_tab_pushButton">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string> Удалить</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>341</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="version_label">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel{
+	color: #DDDDDD;
+}</string>
+         </property>
+         <property name="text">
+          <string>Version 4.0.0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="main_frame">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QStackedWidget" name="tabs_stackedWidget">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="download_page">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="spacing">
+            <number>16</number>
+           </property>
+           <property name="leftMargin">
+            <number>8</number>
+           </property>
+           <property name="topMargin">
+            <number>16</number>
+           </property>
+           <property name="rightMargin">
+            <number>8</number>
+           </property>
+           <property name="bottomMargin">
+            <number>16</number>
+           </property>
+           <item>
+            <widget class="QFrame" name="filters_frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="spacing">
+               <number>16</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QFrame" name="search_frame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="search_label">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Поиск:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="search_lineEdit">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>35</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="frame">
+                    <bool>true</bool>
+                   </property>
+                   <property name="placeholderText">
+                    <string>Версия 1.0.2</string>
+                   </property>
+                   <property name="clearButtonEnabled">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="search_all_versions_checkBox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Segoe UI</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Поиск всех версий</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTableWidget" name="tableWidget">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderStretchLastSection">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="choose_file_frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="choose_file_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Segoe UI</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Выбрано изделие:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>604</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="back_pushButton">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>35</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Segoe UI</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Назад</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_2">
+             <property name="frameShadow">
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth">
+              <number>1</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="save_fil_path_frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <property name="spacing">
+               <number>8</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Segoe UI</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Выберите папку для сохранения файла:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="save_file_path_actions_frame">
+                <property name="font">
+                 <font>
+                  <family>MS UI Gothic</family>
+                 </font>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLineEdit" name="save_file_path_lineEdit">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>35</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="placeholderText">
+                    <string>По умолчанию файл будет сохранён на рабочем столе</string>
+                   </property>
+                   <property name="clearButtonEnabled">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="save_file_path_choose_pushButton">
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>35</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Выбрать</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="download_file_pushButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>12</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
+             </property>
+             <property name="text">
+              <string>Скачать</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="add_page">
+          <layout class="QVBoxLayout" name="verticalLayout_13">
+           <property name="spacing">
+            <number>16</number>
+           </property>
+           <property name="leftMargin">
+            <number>8</number>
+           </property>
+           <property name="topMargin">
+            <number>16</number>
+           </property>
+           <property name="rightMargin">
+            <number>8</number>
+           </property>
+           <property name="bottomMargin">
+            <number>16</number>
+           </property>
+           <item>
+            <widget class="QFrame" name="choose_or_create_frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <property name="spacing">
+               <number>8</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="choose_or_create_label">
+                <property name="font">
+                 <font>
+                  <family>Segoe UI</family>
+                  <pointsize>14</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Выберите группу или создайте новую:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="choose_or_create_actions_frame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <property name="spacing">
+                  <number>16</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QComboBox" name="groups_comboBox">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>130</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="create_group_actions_frame">
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_6">
+                    <property name="spacing">
+                     <number>8</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLineEdit" name="group_name_lineEdit">
+                      <property name="minimumSize">
+                       <size>
+                        <width>130</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Segoe UI</family>
+                        <pointsize>12</pointsize>
+                       </font>
+                      </property>
+                      <property name="placeholderText">
+                       <string>БВВ.01</string>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="create_group_pushButton">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Segoe UI</family>
+                        <pointsize>12</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Создать</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="select_add_format_frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <property name="spacing">
+               <number>16</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QFrame" name="selecet_format_frame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <property name="spacing">
+                  <number>8</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="select_type_label">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>14</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Выберите что хотите добавить:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="select_add_format_actions_frame">
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_8">
+                    <property name="spacing">
+                     <number>16</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QRadioButton" name="version_radioButton">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Segoe UI</family>
+                        <pointsize>12</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Версия</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="instruction_radioButton">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Segoe UI</family>
+                        <pointsize>12</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Инструкция</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_3">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QStackedWidget" name="add_format_stackedWidget">
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <widget class="QWidget" name="version_page">
+                 <layout class="QVBoxLayout" name="verticalLayout_14">
+                  <property name="spacing">
+                   <number>16</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="choose_version_folder_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Выберите папку или вставьте путь к ней:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="choose_version_folder_frame">
+                    <property name="frameShape">
+                     <enum>QFrame::StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_9">
+                     <property name="spacing">
+                      <number>8</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="choose_version_folder_lineEdit">
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>12</pointsize>
+                        </font>
+                       </property>
+                       <property name="placeholderText">
+                        <string>C:\</string>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="choose_version_folder_pushButton">
+                       <property name="minimumSize">
+                        <size>
+                         <width>100</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>12</pointsize>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Выбрать</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="add_version_pushButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>35</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
+                    </property>
+                    <property name="text">
+                     <string>Добавить</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="verticalSpacer_2">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>300</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="instruction_page">
+                 <layout class="QVBoxLayout" name="verticalLayout_15">
+                  <property name="spacing">
+                   <number>16</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="choose_instruction_file_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Выберите файл или вставьте путь к нему:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="choose_instruction_file_frame">
+                    <property name="frameShape">
+                     <enum>QFrame::StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_10">
+                     <property name="spacing">
+                      <number>8</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="choose_instruction_file_lineEdit">
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>12</pointsize>
+                        </font>
+                       </property>
+                       <property name="placeholderText">
+                        <string>C:\</string>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="choose_instruction_file_pushButton">
+                       <property name="enabled">
+                        <bool>true</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>100</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>12</pointsize>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Выбрать</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="add_instruction_pushButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>35</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
+                    </property>
+                    <property name="text">
+                     <string>Добавить</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="verticalSpacer_3">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>300</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="delete_page">
+          <layout class="QVBoxLayout" name="verticalLayout_17">
+           <property name="spacing">
+            <number>16</number>
+           </property>
+           <property name="leftMargin">
+            <number>8</number>
+           </property>
+           <property name="topMargin">
+            <number>16</number>
+           </property>
+           <property name="rightMargin">
+            <number>8</number>
+           </property>
+           <property name="bottomMargin">
+            <number>16</number>
+           </property>
+           <item>
+            <widget class="QFrame" name="what_delete_frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_16">
+              <property name="spacing">
+               <number>8</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="what_delete_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Segoe UI</family>
+                  <pointsize>14</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Выберите что хотите удалить:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="what_delete_actions_frame">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Segoe UI</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_11">
+                 <property name="spacing">
+                  <number>16</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QRadioButton" name="what_delete_file_radioButton">
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Файл</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="what_delete_group_radioButton">
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Группу</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QStackedWidget" name="delete_stackedWidget">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="delete_file_page">
+              <layout class="QVBoxLayout" name="verticalLayout_20">
+               <property name="spacing">
+                <number>16</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QFrame" name="choose_group_to_delete_frame">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_19">
+                  <property name="spacing">
+                   <number>8</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="choose_group_to_delete_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Выберите группу:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="choose_group_to_delete_comboBox">
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QFrame" name="choose_file_to_delete_frame">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_18">
+                  <property name="spacing">
+                   <number>8</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="choose_file_to_delete_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Выберите файл:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="choose_file_to_delete_comboBox">
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="accept_file_delete_checkBox">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Подтвердить удаление</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="delete_file_pushButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
+                 </property>
+                 <property name="text">
+                  <string>Удалить</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>283</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="delete_group_page">
+              <layout class="QVBoxLayout" name="verticalLayout_22">
+               <property name="spacing">
+                <number>16</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QFrame" name="choose_group_to_delete_frame_2">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_21">
+                  <property name="spacing">
+                   <number>8</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="choose_group_to_delete_label_2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Выберите группу:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="choose_group_to_delete_comboBox_2">
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>12</pointsize>
+                     </font>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="accept_group_delete_checkBox">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Подтвердить удаление</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="delete_group_pushButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>MS Shell Dlg 2</family>
+                   <pointsize>12</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">/* === Акцентная кнопка=== */
+QPushButton {
+    background-color: #2563EB;       /* Основной синий */
+    color: #FFFFFF;                  /* Белый текст */
+    font-weight: bold;               /* Жирный шрифт */
+    border: none;                    /* Без рамки */
+    border-radius: 6px;              /* Скругления */
+    padding: 6px 12px;               /* Отступы для аккуратности */
+}
+
+/* === Наведение (hover) === */
+QPushButton:hover {
+    background-color: #5283EF;       /* Более светлый синий */
+}
+
+/* === Нажатие (pressed / checked) === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;       /* Тёмно-синий при клике */
+}
+
+/* === Отключена (disabled) === */
+QPushButton:disabled {
+    background-color: #DEE8FC;       /* Бледно-синий фон */
+    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    border: none;
+    border-radius: 6px;
+}
+</string>
+                 </property>
+                 <property name="text">
+                  <string>Удалить</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>361</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="progress_bar_frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <property name="leftMargin">
+           <number>8</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>8</number>
+          </property>
+          <property name="bottomMargin">
+           <number>16</number>
+          </property>
+          <item>
+           <widget class="QFrame" name="progress_bar_labels_frame">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="process_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Segoe UI</family>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Процесс...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>683</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="percent_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Segoe UI</family>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>0%</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QProgressBar" name="progressBar">
+            <property name="value">
+             <number>0</number>
+            </property>
+            <property name="textVisible">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

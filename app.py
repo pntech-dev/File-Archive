@@ -1,53 +1,72 @@
 import sys
 
+from ui import Ui_MainWindow
 from resources import resources_rc
-
-from ui.main_ui import Ui_MainWindow
-
 from mvc import Model, View, Controller
-from classes.password_dialog import PasswordDialog
+from classes import Notification, PasswordDialog
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog
+
 
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.model = Model()
-        self.authentication_status = self.check_password() # Can be True, False, or None
 
+        # Проверяем что данные получены
+        if not type(self.model.config_data) == dict:
+            Notification.show_notification(msg_type="error", 
+                                           title="Ошибка", 
+                                           text="Произошла ошибка при получении данных из файла конфигурации.", 
+                                           button_text="Закрыть")
+            sys.exit()
+
+        # Проверяем пароль
+        self.authentication_status = self.check_password()
         if self.authentication_status is not None:
             self.ui = Ui_MainWindow()
             self.ui.setupUi(self)
-
+            
+            # Иконка приложения
             icon = QIcon(":/icons/icon.ico")
             self.setWindowIcon(icon)
 
             self.view = View(ui=self.ui, authenticated=self.authentication_status)
             self.controller = Controller(model=self.model, view=self.view)
+        else:
+            sys.exit()
 
     def check_password(self):
-        config_data = self.model.get_password()
-        if not config_data:
-            return False # Treat as unauthenticated
+        """Функция проверяет пароль"""
+        # Получаем пароль из файла конфигурации
+        password = self.model.get_decrypted_password()
 
-        password = config_data.get('password')
         if password:
             dialog = PasswordDialog(correct_password=password)
+            dialog.password_changed.connect(self.set_password)
             result = dialog.exec_()
 
-            if result == QDialog.Accepted: # 1
-                return True # Authenticated
-            elif result == 2:
-                return False # Unauthenticated
-            else: # 0 (Rejected) or any other case
-                return None # Exit application
-        return True # No password set, treat as authenticated
+            if result == QDialog.Accepted: # Входим в полный режим
+                return True
+            
+            elif result == 2: # Входим в обычный режим
+                return False
+        
+            else: 
+                return None
+            
+        else: # Если пароьль не задан, входим в обычный режим
+            return False
+
+    def set_password(self, new_password):
+        """Функция устанавливает новый пароль"""
+        self.model.set_password(new_password)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     application = MyWindow()
-    if application.authentication_status is not None:
-        application.show()
-        sys.exit(app.exec_())
+    application.show()
+    sys.exit(app.exec_())
