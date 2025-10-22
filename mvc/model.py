@@ -16,6 +16,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 class Model(QObject):
     progress_chehged = pyqtSignal(str, int) # Сигнал изменения прогресс бара
     show_notification = pyqtSignal(str, str) # Сигнал отображения уведомления (Тип, Текст)
+    operation_finished = pyqtSignal(str, int) # Сигнал завершения операции (имя операции, статус код)
 
     def __init__(self):
         super().__init__()
@@ -654,46 +655,62 @@ class Model(QObject):
             self.show_notification.emit("error", f"Произошла ошибка при смене пароля.\nОшибка: {e}")
             return 1
         
+    def _wrapper_download(self, group, file, save_path):
+        status_code = self.download(group, file, save_path)
+        self.operation_finished.emit("download", status_code)
+
     def download_in_thread(self, group, file, save_path):
         """Функция скачивает файл (версию/инструкцию) в отдельном потоке."""
-        thread = threading.Thread(target=self.download, args=(group, file, save_path))
+        thread = threading.Thread(target=self._wrapper_download, args=(group, file, save_path))
         thread.daemon = True
         thread.start()
-        return thread
         
+    def _wrapper_create_new_group(self, group_name):
+        status_code = self.create_new_group(group_name)
+        self.operation_finished.emit("create_group", status_code)
+
     def create_group_in_thread(self, group_name):
         """Функция создает группу в отдельном потоке."""
-        thread = threading.Thread(target=self.create_new_group, args=(group_name,))
+        thread = threading.Thread(target=self._wrapper_create_new_group, args=(group_name,))
         thread.daemon = True
         thread.start()
-        return thread
     
+    def _wrapper_add_version(self, version_path, group_name):
+        status_code = self.add_version(version_path, group_name)
+        self.operation_finished.emit("add_version", status_code)
+
     def add_version_in_thread(self, version_path, group_name):
         """Функция добавляет версию в отдельном потоке."""
-        thread = threading.Thread(target=self.add_version, args=(version_path, group_name))
+        thread = threading.Thread(target=self._wrapper_add_version, args=(version_path, group_name))
         thread.daemon = True
         thread.start()
-        return thread
 
+    def _wrapper_add_instruction(self, instruction_path, group_name):
+        status_code = self.add_instruction(instruction_path, group_name)
+        self.operation_finished.emit("add_instruction", status_code)
 
     def add_instruction_in_thread(self, instruction_path, group_name):
         """Функция добавляет инструкцию в отдельном потоке."""
-        thread = threading.Thread(target=self.add_instruction, args=(instruction_path, group_name))
+        thread = threading.Thread(target=self._wrapper_add_instruction, args=(instruction_path, group_name))
         thread.daemon = True
         thread.start()
-        return thread
     
+    def _wrapper_delete_group(self, group_name):
+        status_code = self.delete_group(group_name)
+        self.operation_finished.emit("delete_group", status_code)
+
     def delete_group_in_thread(self, group_name):
         """Функция удаляет группу в отдельном потоке."""
-        thread = threading.Thread(target=self.delete_group, args=(group_name,))
+        thread = threading.Thread(target=self._wrapper_delete_group, args=(group_name,))
         thread.daemon = True
         thread.start()
-        return thread
 
+    def _wrapper_delete_file(self, data):
+        status_code = self.delete_file(data)
+        self.operation_finished.emit("delete_file", status_code)
 
     def delete_file_in_thread(self, data):
         """Функция удаляет файл в отдельном потоке."""
-        thread = threading.Thread(target=self.delete_file, args=(data,))
+        thread = threading.Thread(target=self._wrapper_delete_file, args=(data,))
         thread.daemon = True
         thread.start()
-        return thread

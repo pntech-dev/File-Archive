@@ -54,6 +54,11 @@ class View:
         self.delete_options_dict = {self.ui.what_delete_file_radioButton: self.ui.delete_file_page,
                                     self.ui.what_delete_group_radioButton: self.ui.delete_group_page}
         
+        # Словарь страниц и их имён
+        self.pages_dict = {self.ui.download_page: "download",
+                          self.ui.add_page: "add",
+                          self.ui.delete_page: "delete"}
+        
         """=== Словари кнопок ==="""
         self.add_page_choose_push_buttons_dict = {self.ui.choose_version_folder_pushButton: self.ui.choose_version_folder_lineEdit,
                                                    self.ui.choose_instruction_file_pushButton: self.ui.choose_instruction_file_lineEdit}
@@ -94,6 +99,17 @@ class View:
         """Функция утанавливает данные в комбобоксе версий"""
         self.ui.choose_file_to_delete_comboBox.clear()
         self.ui.choose_file_to_delete_comboBox.addItems(versions)
+
+    def update_page_enabled_state(self, page=None, state=True, check_all=False):
+        """Функция обновляет состояние страницы"""
+        if check_all: # Если передан флг проверки состояни всех станиц
+            for page_obj in self.pages_dict.keys(): # Перебираем все страницы
+                page_obj.setEnabled(state) # И всем устанавливаем переданное состояние
+        else:
+            if page is not None: # Если страница передана
+                for page_obj, page_name in self.pages_dict.items(): # Перебираем все страницы
+                    if page_name == page:
+                        page_obj.setEnabled(state) # Устанаваливаем переданное состояние для страницы
 
     # === Панель НАВИГАЦИИ ===
     # Кнопки "Скачать", "Добавить", "Удалить"

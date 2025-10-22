@@ -60,6 +60,7 @@ class Controller(QObject):
         # Сигналы
         self.model.progress_chehged.connect(self.on_progress_bar_changed) # Сигнал изменения прогресс бара
         self.model.show_notification.connect(self.on_show_notification) # Сигнал показа уведомления
+        self.model.operation_finished.connect(self.on_operation_finished) # Сигнал завершения операции
 
     # === Основные функции ===
 
@@ -206,6 +207,8 @@ class Controller(QObject):
         file = re.search(r"Версия:\s*(.*)", text).group(1) # Получаем файл
         save_path = self.view.get_download_save_path() # Получаем путь сохранения
 
+        self.view.update_page_enabled_state(page="download", state=False) # Отключаем страницу
+
         self.model.download_in_thread(group=group, file=file, save_path=save_path) # Вызываем скачивание
 
     # === Вкладка ДОБАВИТЬ ===
@@ -248,13 +251,9 @@ class Controller(QObject):
         new_group_name = self.view.get_new_group_name_lineedit_text() # Получаем имя новой группы
         self.model.new_group_name = new_group_name # Запоминаем имя новой группы
 
-        status_code = self.model.create_group_in_thread(group_name=new_group_name) # Создаём группу
+        self.view.update_page_enabled_state(page="add", state=False) # Отключаем страницу
 
-        if status_code == 0:
-            self.update_layer_one_table_data() # Вызываем обновление таблицы
-            self.view.set_groups_comboboxes_data(self.model.get_groups_names()) # Обновляем данные в комбобоксах названий групп
-            self.view.set_new_group_to_combobox(new_group_name=new_group_name) # Устанавливаем новую группу в комбобоксе
-            self.update_version_combobox_data() # Обновляем данные в комбобоксе версий групп
+        self.model.create_group_in_thread(group_name=new_group_name) # Создаём группу
 
     def on_add_page_new_group_name_lineedit_text_changed(self, text):
         """Функция обрабатывает изменение текста в строке ввода имени новой группы в разделе 'Добавить'"""
@@ -271,25 +270,19 @@ class Controller(QObject):
 
     def on_add_page_add_push_button_clicked(self, button_type):
         """Функция обрабатывает нажатие на кнопку добавления в разделе 'Добавить'"""
-        status_code = 1
-
         group_name = self.view.get_add_page_combobox_current_group_name() # Получаем имя группы
 
         # Добавление версии
         if button_type == "version":
             version_path = self.view.get_version_path_lineedit_text() # Получаем путь к версии
-            status_code = self.model.add_version_in_thread(version_path=version_path, group_name=group_name) # Вызываем добавление
+            self.view.update_page_enabled_state(page="add", state=False) # Отключаем страницу
+            self.model.add_version_in_thread(version_path=version_path, group_name=group_name) # Вызываем добавление
 
         # Добавление инструкции
         elif button_type == "instruction":
             instruction_path = self.view.get_instruction_path_lineedit_text() # Получаем путь к инструкции
-            status_code = self.model.add_instruction_in_thread(instruction_path=instruction_path, group_name=group_name) # Вызываем добавление
-
-        # Если вернулся успешный статус код, обновляем элемениы UI
-        if status_code == 0:
-            self.update_layer_one_table_data()
-            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
-            self.update_version_combobox_data()
+            self.view.update_page_enabled_state(page="add", state=False) # Отключаем страницу
+            self.model.add_instruction_in_thread(instruction_path=instruction_path, group_name=group_name) # Вызываем добавление
 
     # === Вкладка УДАЛИТЬ ===
 
@@ -328,8 +321,9 @@ class Controller(QObject):
 
     def on_delete_page_delete_push_button_clicked(self, button_type):
         """Функция обрабатывает нажатие на кнопку удаления в разделе 'Удалить'"""
-        status_code = 1
-    
+        if not button_type:
+            return
+
         comboboxes_datas = self.view.get_delete_page_comboboxes_datas()
 
         if button_type == "file":
@@ -341,7 +335,8 @@ class Controller(QObject):
                     file_page_data.append(self.view.get_delete_page_combobox_text(combobox=combobox))
 
             if file_page_data:
-                status_code = self.model.delete_file_in_thread(data=file_page_data)
+                self.view.update_page_enabled_state(page="delete", state=False) # Отключаем страницу
+                self.model.delete_file_in_thread(data=file_page_data)
 
         elif button_type == "group":
             group_name = None
@@ -353,15 +348,8 @@ class Controller(QObject):
                     break
             
             if group_name: # Если текст получен, удаляем
-                status_code = self.model.delete_group_in_thread(group_name=group_name)
-        
-        # Если вернулся успешный статус код, обновляем таблицу и списки
-        if status_code == 0:
-            self.update_layer_one_table_data()
-            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
-            self.update_version_combobox_data()
-            self.view.set_delete_checkboxes_state(type=button_type, state=False)
-            self.view.set_choosen_label_text(data=None, in_group_flag=None)
+                self.view.update_page_enabled_state(page="delete", state=False) # Отключаем страницу
+                self.model.delete_group_in_thread(group_name=group_name)
 
     # === Сигналы ===
 
@@ -389,3 +377,36 @@ class Controller(QObject):
         """Функция обрабатывает показ уведомления с кнопкамими действия"""
         notification = self.view.show_action_notification(msg_type=msg_type, title=title, text=text, buttons_texts=buttons_texts)
         return notification
+
+    def on_operation_finished(self, operation_name, status_code):
+        """Функция обрабатывает завершение фоновой операции."""
+        if status_code != 0:
+            return # Если операция не успешна, ничего не делаем
+
+        if operation_name == "create_group":
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.view.set_new_group_to_combobox(new_group_name=self.model.new_group_name)
+            self.update_version_combobox_data()
+
+        elif operation_name in ["add_version", "add_instruction"]:
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.update_version_combobox_data()
+
+        elif operation_name == "delete_file":
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.update_version_combobox_data()
+            self.view.set_delete_checkboxes_state(type="file", state=False)
+            self.view.set_choosen_label_text(data=None, in_group_flag=None)
+
+        elif operation_name == "delete_group":
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.update_version_combobox_data()
+            self.view.set_delete_checkboxes_state(type="group", state=False)
+            self.view.set_choosen_label_text(data=None, in_group_flag=None)
+
+        # Обновляем состояние страниц
+        self.view.update_page_enabled_state(state=True, check_all=True)
