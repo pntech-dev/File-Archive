@@ -28,6 +28,24 @@ For the application to function correctly, the data must be stored in a specific
 
 ## Installation and Launch
 
+Before running or building the project, you need to perform a one-time setup.
+
+### Pre-build Setup
+
+1.  **Create Configuration File**:
+    -   Find the `config_template.py` file in the root directory.
+    -   Create a copy of this file and name it `config.yaml`.
+    -   Open `config.yaml` and fill in the required paths for `versions_path` and `server_program_path`.
+
+2.  **Generate Encryption Keys**:
+    -   Run the key generation script from the terminal:
+        ```bash
+        python generate_keyfiles.py
+        ```
+    -   This will create `password.key` and `keyfile.key`, which are used to encrypt and decrypt data. **Do not share or upload these files to version control.**
+
+### Running from Source
+
 To run the project from the source code, follow these steps:
 
 1.  **Clone the repository:**
@@ -47,12 +65,7 @@ To run the project from the source code, follow these steps:
     pip install -r requirments.txt
     ```
 
-4.  **Configure the application:**
-    -   Open the `config.yaml` file.
-    -   Set the correct path to the network folder with version groups in the `versions_path` parameter.
-    -   Specify the path to the folder with the current version of the program on the server in `server_program_path`.
-
-5.  **Run the application:**
+4.  **Run the application:**
     ```bash
     python app.py
     ```
@@ -111,6 +124,24 @@ To build the project into a single executable file, you can use `pyinstaller`.
 
 ## Установка и запуск
 
+Перед первым запуском или сборкой проекта необходимо выполнить разовую настройку.
+
+### Начальная настройка
+
+1.  **Создайте файл конфигурации**:
+    -   Найдите в корневой папке файл `config_template.py`.
+    -   Создайте копию этого файла и назовите её `config.yaml`.
+    -   Откройте `config.yaml` и заполните необходимые пути для `versions_path` и `server_program_path`.
+
+2.  **Сгенерируйте ключи шифрования**:
+    -   Запустите скрипт генерации ключей из терминала:
+        ```bash
+        python generate_keyfiles.py
+        ```
+    -   Это создаст файлы `password.key` и `keyfile.key`, которые используются для шифрования и дешифрования данных. **Не передавайте и не загружайте эти файлы в систему контроля версий.**
+
+### Запуск из исходного кода
+
 Для запуска проекта из исходного кода выполните следующие шаги:
 
 1.  **Клонируйте репозиторий:**
@@ -130,12 +161,7 @@ To build the project into a single executable file, you can use `pyinstaller`.
     pip install -r requirments.txt
     ```
 
-4.  **Настройте конфигурацию:**
-    -   Откройте файл `config.yaml`.
-    -   Укажите корректный путь к сетевой папке с группами версий в параметре `versions_path`.
-    -   Укажите путь к папке с актуальной версией программы на сервере в `server_program_path`.
-
-5.  **Запустите приложение:**
+4.  **Запустите приложение:**
     ```bash
     python app.py
     ```

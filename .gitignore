@@ -17,3 +17,7 @@ env/
 # IDEs
 .vscode/
 .idea/
+
+# Secret files
+config.yaml
+*.key

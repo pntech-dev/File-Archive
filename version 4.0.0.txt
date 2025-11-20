@@ -1,3 +1,3 @@
-- Переработан дизайн приложения.
-- Добавлено шифрование файлов.
-- Добавлено окно смены пароля и шифрование пароля
+- Redesigned the application design.
+- Added file encryption.
+- Added a password change window and password encryption

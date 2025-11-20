@@ -71,14 +71,16 @@ coll = COLLECT(
     name='File Archive',
 )
 
+
+
+# ----------------- Post-build copying -----------------
+
 import shutil
 import os
 
-# === Пост-сборочное копирование нужных файлов из _internal в корень ===
 dist_dir = os.path.join('dist', 'File Archive')
 internal_dir = os.path.join(dist_dir, '_internal')
 
-# Список файлов, которые нужно вытащить из _internal
 files_to_copy = [
     'config.yaml',
     'version 4.0.0.txt',
@@ -91,8 +93,8 @@ for filename in files_to_copy:
     try:
         if os.path.exists(src):
             shutil.copy2(src, dst)
-            print(f"[Post-Build] ✅ {filename} скопирован в {dist_dir}")
+            print(f"[Post-Build] {filename} copied to {dist_dir}")
         else:
-            print(f"[Post-Build] ⚠️ {filename} не найден в _internal")
+            print(f"[Post-Build] {filename} not found in _internal")
     except Exception as e:
-        print(f"[Post-Build] ❌ Ошибка при копировании {filename}: {e}")
+        print(f"[Post-Build] Error copying {filename}: {e}")
