@@ -81,45 +81,6 @@ class Controller(QObject):
 
     # === Main functions ===
 
-    def __check_program_version(self) -> None:
-        """Checks the relevance of the program version and, if necessary, launches an update.
-
-        If the version is outdated, the user is prompted to update the program.
-        If the verification fails or the update fails, the application is terminated.
-        """
-        # Checking the program version
-        is_version = self.model.check_program_version()
-
-        # If an error occurred during the version check
-        if is_version is None:
-            self.on_show_notification(
-                msg_type="error",
-                text=(
-                    "Во время проверки версии произошла ошибка!\n"
-                    "Ошибка связана с путём к файлу конфигурации."
-                ),
-            )
-            sys.exit()
-
-        # If the version does not match (an update is required)
-        if is_version:
-            action = self.on_show_action_notification(
-                msg_type="warning",
-                title="Обновление",
-                text=(
-                    "Обнаружена новая версия программы.\n"
-                    "Продолжить работу без обновления невозможно.\n"
-                    "Желаете обновить?"
-                ),
-                buttons_texts=["Обновить", "Закрыть"],
-            )
-
-            if action == 1:
-                self.model.update_program()
-                sys.exit()  # Closing the main application after launching the update
-            else:
-                sys.exit()
-
     def update_layer_one_table_data(self, data: list = None) -> None:
         """Updates the data in the group table on the first tab.
 
@@ -387,13 +348,15 @@ class Controller(QObject):
             # Adding a version
             version_path = self.view.get_version_path_lineedit_text()
             self.view.update_page_enabled_state(page="add", state=False)
-            self.model.add_version_in_thread(version_path=version_path, group_name=group_name)
+            self.model.add_version_in_thread(version_path=version_path, 
+                                             group_name=group_name)
 
         elif button_type == "instruction":
             # Adding instructions
             instruction_path = self.view.get_instruction_path_lineedit_text()
             self.view.update_page_enabled_state(page="add", state=False)
-            self.model.add_instruction_in_thread(instruction_path=instruction_path, group_name=group_name)
+            self.model.add_instruction_in_thread(instruction_path=instruction_path, 
+                                                 group_name=group_name)
 
     # === Delete tab ===
 
@@ -501,18 +464,29 @@ class Controller(QObject):
             text: The text of the message.
         """
         if msg_type == "info":
-            self.view.show_notification(msg_type=msg_type, title="Информация", text=text, button_text="Ок")
+            self.view.show_notification(msg_type=msg_type, 
+            title="Информация", 
+            text=text, 
+            button_text="Ок")
+            
         elif msg_type == "warning":
-            self.view.show_notification(msg_type=msg_type, title="Предупреждение", text=text, button_text="Ок")
+            self.view.show_notification(msg_type=msg_type, 
+            title="Предупреждение", 
+            text=text, 
+            button_text="Ок")
+            
         elif msg_type == "error":
-            self.view.show_notification(msg_type=msg_type, title="Ошибка", text=text, button_text="Закрыть")
+            self.view.show_notification(msg_type=msg_type, 
+            title="Ошибка", 
+            text=text, 
+            button_text="Закрыть")
 
         # Reset the progress bar after the message
         self.view.set_progress_bar_process_text(text="", set_to_zero=True)
         self.view.set_progress_bar_percents_text(percents="0%")
         self.view.set_progress_bar_value(value=0)
 
-    def on_show_action_notification( self, msg_type: str, title: str, text: str, buttons_texts: list[str]) -> int:
+    def on_show_action_notification(self, msg_type: str, title: str, text: str, buttons_texts: list[str]) -> int:
         """Handles the display of notifications with action buttons.
 
         Args:
@@ -570,3 +544,42 @@ class Controller(QObject):
 
         # After a successful operation, we turn on all the pages again.
         self.view.update_page_enabled_state(state=True, check_all=True)
+
+    def __check_program_version(self) -> None:
+        """Checks the relevance of the program version and, if necessary, launches an update.
+
+        If the version is outdated, the user is prompted to update the program.
+        If the verification fails or the update fails, the application is terminated.
+        """
+        # Checking the program version
+        is_version = self.model.check_program_version()
+
+        # If an error occurred during the version check
+        if is_version is None:
+            self.on_show_notification(
+                msg_type="error",
+                text=(
+                    "Во время проверки версии произошла ошибка!\n"
+                    "Ошибка связана с путём к файлу конфигурации."
+                ),
+            )
+            sys.exit()
+
+        # If the version does not match (an update is required)
+        if is_version:
+            action = self.on_show_action_notification(
+                msg_type="warning",
+                title="Обновление",
+                text=(
+                    "Обнаружена новая версия программы.\n"
+                    "Продолжить работу без обновления невозможно.\n"
+                    "Желаете обновить?"
+                ),
+                buttons_texts=["Обновить", "Закрыть"],
+            )
+
+            if action == 1:
+                self.model.update_program()
+                sys.exit()  # Closing the main application after launching the update
+            else:
+                sys.exit()
