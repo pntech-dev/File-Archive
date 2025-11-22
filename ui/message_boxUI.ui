@@ -39,11 +39,11 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {
-    background-color: #FFFFFF;    /* Белый фон окна */
+    background-color: #FFFFFF;
 }
 
 QLabel {
-    color: #0F172A;   /* Акцентный цвет текста */
+    color: #0F172A;
 }
 
 QFrame {

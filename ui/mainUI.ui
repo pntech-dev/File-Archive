@@ -15,11 +15,11 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
-    background-color: #FFFFFF;    /* Белый фон окна */
+    background-color: #FFFFFF;
 }
 
 QLabel {
-    color: #0F172A;   /* Акцентный цвет текста */
+    color: #0F172A;
 }
 
 QFrame {
@@ -27,16 +27,20 @@ QFrame {
     border: none;
 }
 
-/* === Горизонтальные линии === */
-QFrame[frameShape=&quot;4&quot;] { /* QFrame::HLine */
+
+
+/* === Horizontal lines === */
+QFrame[frameShape=&quot;4&quot;] {
     background-color: #E2E8F0;
     min-height: 1px;
     max-height: 1px;
     border: none;
 }
 
-/* === Вертикальные линии === */
-QFrame[frameShape=&quot;5&quot;] { /* QFrame::VLine */
+
+
+/* === Vertical Lines === */
+QFrame[frameShape=&quot;5&quot;] {
     background-color: #E2E8F0;
     min-width: 1px;
     max-width: 1px;
@@ -45,154 +49,153 @@ QFrame[frameShape=&quot;5&quot;] { /* QFrame::VLine */
 
 
 
-/* === Базовый стиль для всех QLineEdit === */
+/* === Base style for all QLineEdit === */
 QLineEdit {
-    background-color: #FFFFFF;       /* Белый фон */
-    border: 1px solid #E2E8F0;       /* Светлая рамка */
-    border-radius: 6px;              /* Скругления */
-    color: #64748B;                  /* Цвет текста */
-    padding: 6px 8px;                /* Внутренние отступы для аккуратности */
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    color: #64748B;
+    padding: 6px 8px;
 }
 
-/* === При фокусе (активное поле ввода) === */
+/* === Active (Focus) === */
 QLineEdit:focus {
-    background-color: #FFFFFF;       /* Белый фон */
-    border: 1px solid #2563EB;       /* Синяя рамка */
+    background-color: #FFFFFF;
+    border: 1px solid #2563EB;
     border-radius: 6px;
-    color: #0F172A;                  /* Тёмный текст */
-    outline: none;                   /* Убираем системный контур */
+    color: #0F172A;
+    outline: none;
 }
 
-/* === Отключенное состояние === */
+/* === Disabled === */
 QLineEdit:disabled {
-    background-color: #FFFFFF;       /* Белый фон (не серый) */
-    border: 1px solid #F8FAFC;       /* Очень светлая рамка */
+    background-color: #FFFFFF;
+    border: 1px solid #F8FAFC;
     border-radius: 6px;
-    color: #E2E8F0;                  /* Бледный текст */
+    color: #E2E8F0;
 }
 
 
-/* === Второстепенные кнопки === */
+
+/* ===Secondary Buttons === */
 QPushButton {
-    background-color: transparent;   /* Без заливки */
-    color: #334155;                  /* Основной цвет текста */
-    font-weight: normal;             /* Обычная жирность */
-    border: 1px solid #64748B;       /* Серо-синяя рамка */
-    border-radius: 6px;              /* Скругления */
-    padding: 6px 12px;               /* Внутренние отступы */
+    background-color: transparent;
+    color: #334155;
+    font-weight: normal;
+    border: 1px solid #64748B;
+    border-radius: 6px;
+    padding: 6px 12px;
 }
 
-/* === Наведение (hover) === */
+/* === Hover === */
 QPushButton:hover {
-    border: 1px solid #8B98AA;       /* Более светлая рамка */
+    border: 1px solid #8B98AA;
 }
 
-/* === Нажатие (pressed / checked) === */
+/* === Pressed / Checked === */
 QPushButton:pressed,
 QPushButton:checked {
-    border: 1px solid #515E71;       /* Более тёмная рамка */
+    border: 1px solid #515E71;
 }
 
-/* === Отключена (disabled) === */
+/* === Disabled === */
 QPushButton:disabled {
-    color: #E2E8F0;                  /* Бледный текст */
-    border: 1px solid #F8FAFC;       /* Светлая рамка */
+    color: #E2E8F0;
+    border: 1px solid #F8FAFC;
 }
 
 
 
-/* === Общий стиль выпадающих списков (QComboBox) === */
+/* === Base style for all QComboBox === */
 QComboBox {
-    background-color: #FFFFFF;           /* Белый фон */
-    border: 1px solid #E2E8F0;           /* Светлая рамка */
-    border-radius: 6px;                  /* Скругления */
-    padding: 4px 32px 4px 8px;           /* Отступы: справа место под иконку */
-    color: #64748B;                      /* Цвет текста */
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 4px 32px 4px 8px;
+    color: #64748B;
 }
 
-/* === Иконка стрелки (ресурс combobox_arrow) === */
+/* === Icon === */
 QComboBox::down-arrow {
-    image: url(:/icons/combobox_arrow);        /* Подключённая иконка */
+    image: url(:/icons/combobox_arrow);
     width: 14px;
     height: 14px;
 }
 
-/* === Позиция иконки справа === */
+/* === Icon position === */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
     width: 28px;
-    border: none;                        /* Без отдельной рамки */
+    border: none;
     margin-right: 4px;
 }
 
-/* === Фокус или раскрытое состояние === */
+/* === Focus and drop-down states=== */
 QComboBox:focus,
 QComboBox:on {
-    border: 1px solid #2563EB;           /* Синяя рамка */
-    color: #0F172A;                      /* Тёмный текст */
+    border: 1px solid #2563EB; 
+    color: #0F172A;
 }
 
-/* === Меняем цвет стрелки при фокусе === */
+/* === Change the arrow color when hovering === */
 QComboBox:focus::down-arrow,
 QComboBox:on::down-arrow {
-    image: url(:/combobox_arrow);        /* Та же иконка, Qt не поддерживает перекраску напрямую */
+    image: url(:/combobox_arrow);
 }
 
-/* Если у тебя есть возможность использовать SVG — можно будет менять цвет через fill в ресурсе */
-
-/* === Отключённое состояние === */
+/* === Disabled === */
 QComboBox:disabled {
     background-color: #FFFFFF;
-    border: 1px solid #F8FAFC;           /* Очень светлая рамка */
-    color: #E2E8F0;                      /* Светлый текст */
+    border: 1px solid #F8FAFC;
+    color: #E2E8F0;
 }
 
+/* === Change the arrow color when disabled === */
 QComboBox:disabled::down-arrow {
-    image: url(:/combobox_arrow);        /* Та же иконка */
-    /* Qt не позволяет легко изменить цвет, поэтому сделай отдельный серый SVG для disabled */
+    image: url(:/combobox_arrow);
 }
 
-/* === Стиль выпадающего списка === */
+/* === Dropped ComboBox === */
 QComboBox QAbstractItemView {
-    background-color: #FFFFFF;           /* Белый фон меню */
-    border: 1px solid #E2E8F0;           /* Та же рамка */
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
     border-radius: 6px;
-    selection-background-color: #2563EB; /* Цвет выделения */
-    selection-color: #FFFFFF;            /* Цвет текста при выделении */
+    selection-background-color: #2563EB;
+    selection-color: #FFFFFF;
 }
 
 
 
-/* === Общие стили для QRadioButton === */
+/* === Base style for all RadioButtons === */
 QRadioButton {
-    color: #0F172A;            /* Акцентный текст */
+    color: #0F172A;
     font-weight: normal;
-    spacing: 8px;              /* Расстояние между индикатором и текстом */
+    spacing: 8px;
 }
 
-/* === Индикатор === */
+/* === Indicator === */
 QRadioButton::indicator {
     width: 14px;
     height: 14px;
 }
 
-/* === Активное === */
+/* === Active === */
 QRadioButton::indicator:checked {
     image: url(:/icons/radio_buttons/radio_button_checked.svg);
 }
 
-/* === Активное + наведение === */
+/* === Active Hover === */
 QRadioButton::indicator:checked:hover {
     image: url(:/icons/radio_buttons/radio_button_checked_hover.svg);
 }
 
-/* === Активное + нажатие === */
+/* === Active Clicked === */
 QRadioButton::indicator:checked:pressed {
     image: url(:/icons/radio_buttons/radio_button_checked_pressed.svg);
 }
 
-/* === Активное Отключённое === */
+/* === Active Disabled === */
 QRadioButton::indicator:checked:disabled {
     image: url(:/icons/radio_buttons/radio_button_checked_disabled.svg);
 }
@@ -202,105 +205,104 @@ QRadioButton::indicator:unchecked {
     image: url(:/icons/radio_buttons/radio_button_unchecked.svg);
 }
 
-/* === Неактивное + наведение === */
+/* === Inactive Hover === */
 QRadioButton::indicator:unchecked:hover {
     image: url(:/icons/radio_buttons/radio_button_unchecked_hover.svg);
 }
 
-/* === Неактивное + нажатие === */
+/* === Inactive Clicked === */
 QRadioButton::indicator:unchecked:pressed {
     image: url(:/icons/radio_buttons/radio_button_unchecked_pressed.svg);
 }
 
-/* === Неактивное Отключённое=== */
+/* === Inactive Disabled === */
 QRadioButton::indicator:unchecked:disabled {
     image: url(:/icons/radio_buttons/radio_button_unchecked_disabled.svg);
 }
 
-/* === Текст отключённой радиокнопки === */
+/* === Text color of the disabled RadioButton === */
 QRadioButton:disabled {
     color: #64748B;
 }
 
 
 
-/* === Общие стили для QCheckBox === */
+/* === Base style for all CheckBoxes === */
 QCheckBox{
-    color: #0F172A;                /* Акцентный текст */
+    color: #0F172A;
     font-weight: normal;
-    spacing: 8px;                  /* Расстояние между индикатором и текстом */
+    spacing: 8px;
 }
 
-/* Индикатор */
-
+/* Indicator */
 QCheckBox::indicator {
     width: 14px;
     height: 14px;
-    border-radius: 3px;            /* Небольшое скругление углов */
-    border: 1px solid #64748B;     /* Второстепенная рамка */
-    background-color: #FFFFFF;     /* Белый фон */
+    border-radius: 3px;
+    border: 1px solid #64748B;
+    background-color: #FFFFFF;
 }
 
-/* Наведение */
+/* Hover */
 QCheckBox::indicator:hover {
-    border: 1px solid #2563EB;     /* Акцентная рамка */
+    border: 1px solid #2563EB;
 }
 
-/* Активен (галочка) */
+/* Checked */
 QCheckBox::indicator:checked {
     border: 1px solid #2563EB;
     background-color: #2563EB;
-    image: url(:/icons/checkbox_check);  /* Собственная белая галочка */
+    image: url(:/icons/checkbox_check);
 }
 
-/* Фокус */
+/* Focus */
 QCheckBox::indicator:focus {
     border: 1px solid #2563EB;
 }
 
-/* Отключён */
+/* Disabled */
 QCheckBox::indicator:disabled {
     border: 1px solid #F8FAFC;
     background-color: #FFFFFF;
     image: none;
 }
 
-/* Текст отключённого чекбокса */
+/* Text color of the disabled CheckBox */
 QCheckBox:disabled {
     color: #64748B;
 }
 
 
 
-/* === Общий стиль прогресс-бара === */
+/* === ProgressBar  === */
 QProgressBar {
-    border: 1px solid #E2E8F0;     /* Светлая рамка */
-    border-radius: 6px;            /* Скругления */
-    background-color: #FFFFFF;     /* Белый фон (без заполнения) */
-    text-align: center;            /* На всякий случай, но текста нет */
-    color: transparent;            /* Полностью скрываем текст */
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    text-align: center;
+    color: transparent;
 }
 
-/* === Полоса заполнения === */
+/* === Filling band === */
 QProgressBar::chunk {
-    border-radius: 6px;            /* Та же форма, чтобы совпадала с контуром */
-    background-color: #16A34A;     /* Зелёный акцент */
-    margin: 0px;                   /* Без промежутков между сегментами */
+    border-radius: 6px;
+    background-color: #16A34A;
+    margin: 0px;
 }
 
 
 
-/* === Таблица === */
+/* === Table === */
 QTableWidget {
-    background-color: #FFFFFF;       /* Белый фон */
-    border: 1px solid #E2E8F0;       /* Светло-серая рамка */
-    border-radius: 6px;              /* Скругления */
-    gridline-color: #E2E8F0;         /* Цвет линий между ячейками */
-    outline: none;                   /* Без фокуса-рамки */
-    alternate-background-color: #F8FAFC;  /* Цвет зебры */
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    gridline-color: #E2E8F0;
+    outline: none;
+    alternate-background-color: #F8FAFC;
 }
 
-/* === Заголовки === */
+/* === Headers === */
 QHeaderView::section {
     background-color: #F8FAFC;
     color: #334155;
@@ -311,27 +313,27 @@ QHeaderView::section {
     font-weight: 600;
 }
 
-/* Последний заголовок без правой линии */
+/* Last header */
 QHeaderView::section:last {
     border-right: none;
 }
 
-/* === Ячейки === */
+/* === Cells === */
 QTableWidget::item {
     padding: 4px 8px;
 }
 
-/* === Hover (наведение) === */
+/* === Hover === */
 QTableWidget::item:hover {
-    background-color: #EEF4FF;       /* Мягкий синий оттенок */
+    background-color: #EEF4FF;
 }
 
-/* === Стиль выделенной строки === */
+/* === Celected === */
 QTableWidget::item:selected {
-    background-color: #C8D9FF;       /* Акцент выделения */
+    background-color: #C8D9FF;
 }
 
-/* === Скроллбар (вертикальный) === */
+/* === Scrollbar (Vertical) === */
 QScrollBar:vertical {
     border: none;
     background: transparent;
@@ -355,7 +357,7 @@ QScrollBar::sub-line:vertical {
     height: 0;
 }
 
-/* === Скроллбар (горизонтальный) === */
+/* === Scrollbar (Horizontal) === */
 QScrollBar:horizontal {
     border: none;
     background: transparent;
@@ -379,7 +381,7 @@ QScrollBar::sub-line:horizontal {
     width: 0;
 }
 
-/* === Угловая кнопка в левом верхнем углу === */
+/* === Table corner button === */
 QTableCornerButton::section {
     background-color: #F8FAFC;
     border: none;
@@ -429,69 +431,69 @@ QTableCornerButton::section {
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">/* === Обычные фреймы (панели, контейнеры) === */
+       <string notr="true">/* === Frames === */
 QFrame {
     border: none;
-    background-color: #F4F6F9; /* Цвет панелей */
+    background-color: #F4F6F9;
 }
 
-/* === Горизонтальные линии === */
-QFrame[frameShape=&quot;4&quot;] { /* QFrame::HLine */
+/* === Horizontal Lines  === */
+QFrame[frameShape=&quot;4&quot;] {
     background-color: #DDDDDD;
     min-height: 1px;
     max-height: 1px;
     border: none;
 }
 
-/* === Базовые свойства sidebar-кнопок === */
+/* === Base features of sidebar buttons === */
 QPushButton#download_tab_pushButton,
 QPushButton#add_tab_pushButton,
 QPushButton#delete_tab_pushButton{
     border: none;
     border-radius: 6px;
     padding: 8px 12px;
-    text-align: left;                /* Текст и иконка выровнены слева */
+    text-align: left;
     font-weight: normal;
-    background-color: #DEE8FC;       /* Неактивное состояние по умолчанию */
-    color: #0F172A;                  /* Тёмный текст */
+    background-color: #DEE8FC;
+    color: #0F172A;
 	qproperty-iconSize: 24px 24px;
 }
 
-/* === Наведение === */
+/* === Hover === */
 QPushButton#download_tab_pushButton:hover,
 QPushButton#add_tab_pushButton:hover,
 QPushButton#delete_tab_pushButton:hover{
-    background-color: #C8D9FF;       /* Светло-синий hover */
+    background-color: #C8D9FF;
 }
 
-/* === Активная (нажатая / выбранная / залипшая) кнопка === */
+/* === Active === */
 QPushButton#download_tab_pushButton:checked,
 QPushButton#add_tab_pushButton:checked,
 QPushButton#delete_tab_pushButton:checked{
-    background-color: #2563EB;       /* Акцентный синий фон */
-    color: #FFFFFF;                  /* Белый текст */
-    font-weight: bold;               /* Жирный шрифт */
+    background-color: #2563EB;
+    color: #FFFFFF;
+    font-weight: bold;
 }
 
-/* === Неактивная иконка === */
+/* === Inactive Buttons === */
 QPushButton#download_tab_pushButton:checked::icon,
 QPushButton#add_tab_pushButton:checked::icon,
 QPushButton#delete_tab_pushButton:checked::icon{
-    color: #2563EB;                  /* Синяя иконка для неактивного состояния */
+    color: #2563EB;
 }
 
-/* === Активная иконка === */
+/* === Active Icon === */
 QPushButton#download_tab_pushButton:checked::icon,
 QPushButton#add_tab_pushButton:checked::icon,
 QPushButton#delete_tab_pushButton:checked::icon{
-    color: #FFFFFF;                  /* Белая иконка при активной кнопке */
+    color: #FFFFFF;
 }
 
-/* === Наведение при активной кнопке (мягкое осветление) === */
+/* === Hover (Icon) === */
 QPushButton#download_tab_pushButton:checked:hover,
 QPushButton#add_tab_pushButton:checke:hoverd,
 QPushButton#delete_tab_pushButton:checked:hover{
-    background-color: #3B76F6;       /* Чуть светлее активного синего */
+    background-color: #3B76F6;
 }</string>
       </property>
       <property name="frameShape">
@@ -1141,35 +1143,34 @@ QPushButton#delete_tab_pushButton:checked:hover{
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">/* === Акцентная кнопка=== */
+              <string notr="true">/* === Accent Button === */
 QPushButton {
-    background-color: #2563EB;       /* Основной синий */
-    color: #FFFFFF;                  /* Белый текст */
-    font-weight: bold;               /* Жирный шрифт */
-    border: none;                    /* Без рамки */
-    border-radius: 6px;              /* Скругления */
-    padding: 6px 12px;               /* Отступы для аккуратности */
-}
-
-/* === Наведение (hover) === */
-QPushButton:hover {
-    background-color: #5283EF;       /* Более светлый синий */
-}
-
-/* === Нажатие (pressed / checked) === */
-QPushButton:pressed,
-QPushButton:checked {
-    background-color: #124CC9;       /* Тёмно-синий при клике */
-}
-
-/* === Отключена (disabled) === */
-QPushButton:disabled {
-    background-color: #DEE8FC;       /* Бледно-синий фон */
-    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    background-color: #2563EB;
+    color: #FFFFFF;
+	font-weight: bold;
     border: none;
     border-radius: 6px;
+    padding: 6px 12px;
 }
-</string>
+
+/* ===Hover === */
+QPushButton:hover {
+    background-color: #5283EF;
+}
+
+/* === Pressed / Checked === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;
+}
+
+/* === Disabled === */
+QPushButton:disabled {
+    background-color: #DEE8FC;
+    color: #FFFFFF; 
+    border: none;
+    border-radius: 6px;
+}</string>
              </property>
              <property name="text">
               <string>Скачать</string>
@@ -1635,35 +1636,34 @@ QPushButton:disabled {
                      </font>
                     </property>
                     <property name="styleSheet">
-                     <string notr="true">/* === Акцентная кнопка=== */
+                     <string notr="true">/* === Accent Button === */
 QPushButton {
-    background-color: #2563EB;       /* Основной синий */
-    color: #FFFFFF;                  /* Белый текст */
-    font-weight: bold;               /* Жирный шрифт */
-    border: none;                    /* Без рамки */
-    border-radius: 6px;              /* Скругления */
-    padding: 6px 12px;               /* Отступы для аккуратности */
-}
-
-/* === Наведение (hover) === */
-QPushButton:hover {
-    background-color: #5283EF;       /* Более светлый синий */
-}
-
-/* === Нажатие (pressed / checked) === */
-QPushButton:pressed,
-QPushButton:checked {
-    background-color: #124CC9;       /* Тёмно-синий при клике */
-}
-
-/* === Отключена (disabled) === */
-QPushButton:disabled {
-    background-color: #DEE8FC;       /* Бледно-синий фон */
-    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    background-color: #2563EB;
+    color: #FFFFFF;
+	font-weight: bold;
     border: none;
     border-radius: 6px;
+    padding: 6px 12px;
 }
-</string>
+
+/* ===Hover === */
+QPushButton:hover {
+    background-color: #5283EF;
+}
+
+/* === Pressed / Checked === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;
+}
+
+/* === Disabled === */
+QPushButton:disabled {
+    background-color: #DEE8FC;
+    color: #FFFFFF; 
+    border: none;
+    border-radius: 6px;
+}</string>
                     </property>
                     <property name="text">
                      <string>Добавить</string>
@@ -1805,35 +1805,34 @@ QPushButton:disabled {
                      </font>
                     </property>
                     <property name="styleSheet">
-                     <string notr="true">/* === Акцентная кнопка=== */
+                     <string notr="true">/* === Accent Button === */
 QPushButton {
-    background-color: #2563EB;       /* Основной синий */
-    color: #FFFFFF;                  /* Белый текст */
-    font-weight: bold;               /* Жирный шрифт */
-    border: none;                    /* Без рамки */
-    border-radius: 6px;              /* Скругления */
-    padding: 6px 12px;               /* Отступы для аккуратности */
-}
-
-/* === Наведение (hover) === */
-QPushButton:hover {
-    background-color: #5283EF;       /* Более светлый синий */
-}
-
-/* === Нажатие (pressed / checked) === */
-QPushButton:pressed,
-QPushButton:checked {
-    background-color: #124CC9;       /* Тёмно-синий при клике */
-}
-
-/* === Отключена (disabled) === */
-QPushButton:disabled {
-    background-color: #DEE8FC;       /* Бледно-синий фон */
-    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    background-color: #2563EB;
+    color: #FFFFFF;
+	font-weight: bold;
     border: none;
     border-radius: 6px;
+    padding: 6px 12px;
 }
-</string>
+
+/* ===Hover === */
+QPushButton:hover {
+    background-color: #5283EF;
+}
+
+/* === Pressed / Checked === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;
+}
+
+/* === Disabled === */
+QPushButton:disabled {
+    background-color: #DEE8FC;
+    color: #FFFFFF; 
+    border: none;
+    border-radius: 6px;
+}</string>
                     </property>
                     <property name="text">
                      <string>Добавить</string>
@@ -2172,35 +2171,34 @@ QPushButton:disabled {
                   </font>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">/* === Акцентная кнопка=== */
+                  <string notr="true">/* === Accent Button === */
 QPushButton {
-    background-color: #2563EB;       /* Основной синий */
-    color: #FFFFFF;                  /* Белый текст */
-    font-weight: bold;               /* Жирный шрифт */
-    border: none;                    /* Без рамки */
-    border-radius: 6px;              /* Скругления */
-    padding: 6px 12px;               /* Отступы для аккуратности */
-}
-
-/* === Наведение (hover) === */
-QPushButton:hover {
-    background-color: #5283EF;       /* Более светлый синий */
-}
-
-/* === Нажатие (pressed / checked) === */
-QPushButton:pressed,
-QPushButton:checked {
-    background-color: #124CC9;       /* Тёмно-синий при клике */
-}
-
-/* === Отключена (disabled) === */
-QPushButton:disabled {
-    background-color: #DEE8FC;       /* Бледно-синий фон */
-    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    background-color: #2563EB;
+    color: #FFFFFF;
+	font-weight: bold;
     border: none;
     border-radius: 6px;
+    padding: 6px 12px;
 }
-</string>
+
+/* ===Hover === */
+QPushButton:hover {
+    background-color: #5283EF;
+}
+
+/* === Pressed / Checked === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;
+}
+
+/* === Disabled === */
+QPushButton:disabled {
+    background-color: #DEE8FC;
+    color: #FFFFFF; 
+    border: none;
+    border-radius: 6px;
+}</string>
                  </property>
                  <property name="text">
                   <string>Удалить</string>
@@ -2328,35 +2326,34 @@ QPushButton:disabled {
                   </font>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">/* === Акцентная кнопка=== */
+                  <string notr="true">/* === Accent Button === */
 QPushButton {
-    background-color: #2563EB;       /* Основной синий */
-    color: #FFFFFF;                  /* Белый текст */
-    font-weight: bold;               /* Жирный шрифт */
-    border: none;                    /* Без рамки */
-    border-radius: 6px;              /* Скругления */
-    padding: 6px 12px;               /* Отступы для аккуратности */
-}
-
-/* === Наведение (hover) === */
-QPushButton:hover {
-    background-color: #5283EF;       /* Более светлый синий */
-}
-
-/* === Нажатие (pressed / checked) === */
-QPushButton:pressed,
-QPushButton:checked {
-    background-color: #124CC9;       /* Тёмно-синий при клике */
-}
-
-/* === Отключена (disabled) === */
-QPushButton:disabled {
-    background-color: #DEE8FC;       /* Бледно-синий фон */
-    color: #FFFFFF;                  /* Белый текст (можно осветлить при желании) */
+    background-color: #2563EB;
+    color: #FFFFFF;
+	font-weight: bold;
     border: none;
     border-radius: 6px;
+    padding: 6px 12px;
 }
-</string>
+
+/* ===Hover === */
+QPushButton:hover {
+    background-color: #5283EF;
+}
+
+/* === Pressed / Checked === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;
+}
+
+/* === Disabled === */
+QPushButton:disabled {
+    background-color: #DEE8FC;
+    color: #FFFFFF; 
+    border: none;
+    border-radius: 6px;
+}</string>
                  </property>
                  <property name="text">
                   <string>Удалить</string>

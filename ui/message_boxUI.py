@@ -27,11 +27,11 @@ class Ui_MessageBoxDialog(object):
         font.setPointSize(12)
         MessageBoxDialog.setFont(font)
         MessageBoxDialog.setStyleSheet("QDialog {\n"
-"    background-color: #FFFFFF;    /* Белый фон окна */\n"
+"    background-color: #FFFFFF;\n"
 "}\n"
 "\n"
 "QLabel {\n"
-"    color: #0F172A;   /* Акцентный цвет текста */\n"
+"    color: #0F172A;\n"
 "}\n"
 "\n"
 "QFrame {\n"
