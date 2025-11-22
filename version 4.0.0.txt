@@ -1,3 +1,0 @@
-- Redesigned the application design.
-- Added file encryption.
-- Added a password change window and password encryption

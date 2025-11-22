@@ -11,7 +11,7 @@ a = Analysis(
         ('password.key', '.'),
         ('keyfile.key', '.'),
         ('config.yaml', '.'),
-        ('version 4.0.0.txt', '.'),
+        ('version 4.1.0.txt', '.'),
         ('updater.exe', '.')
     ] + cryptography_datas,
     hiddenimports=['PyYaml'] + cryptography_hiddenimports,
@@ -83,7 +83,7 @@ internal_dir = os.path.join(dist_dir, '_internal')
 
 files_to_copy = [
     'config.yaml',
-    'version 4.0.0.txt',
+    'version 4.1.0.txt',
     'updater.exe'
 ]
 
