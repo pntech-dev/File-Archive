@@ -246,8 +246,17 @@ class Controller(QObject):
         """
         text = self.view.get_choosen_label_text()
 
-        group_match = re.search(r"Выбрано изделие:\\s*(.*?)\\s*,\\s*Версия:", text)
-        file_match = re.search(r"Версия:\\s*(.*)", text)
+        group_match = re.search(
+            r"Выбран[ао]\s+(?:изделие|группа)\s*:\s*(.*?)\s*(?:,|\n)\s*Версия",
+            text,
+            re.IGNORECASE
+        )
+
+        file_match = re.search(
+            r"Версия\s*:\s*(.*)$",
+            text,
+            re.IGNORECASE
+)
 
         if not group_match or not file_match:
             return
