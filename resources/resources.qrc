@@ -1,5 +1,32 @@
 <RCC>
   <qresource prefix="/icons">
     <file>icon.ico</file>
+    <file>combobox_arrow.svg</file>
+    <file>checkbox_check.svg</file>
+
+    <file>tabs/download_tab.svg</file>
+    <file>tabs/add_tab.svg</file>
+    <file>tabs/delete_tab.svg</file>
+
+    <file>radio_buttons/radio_button_checked.svg</file>
+    <file>radio_buttons/radio_button_checked_hover.svg</file>
+    <file>radio_buttons/radio_button_checked_pressed.svg</file>
+    <file>radio_buttons/radio_button_checked_disabled.svg</file>
+    <file>radio_buttons/radio_button_unchecked.svg</file>
+    <file>radio_buttons/radio_button_unchecked_hover.svg</file>
+    <file>radio_buttons/radio_button_unchecked_pressed.svg</file>
+    <file>radio_buttons/radio_button_unchecked_disabled.svg</file>
+
+    <file>search/search_icon.svg</file>
+    <file>search/search_icon_focus.svg</file>
+    <file>search/search_icon_disabled.svg</file>
+
+    <file>notifications/error.svg</file>
+    <file>notifications/info.svg</file>
+    <file>notifications/warning.svg</file>
+
+    <file>auth/auth_bg_photo.png</file>
+    <file>auth/lock_white.svg</file>
+    <file>auth/lock_blue.svg</file>
   </qresource>
 </RCC>

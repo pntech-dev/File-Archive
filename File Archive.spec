@@ -1,16 +1,20 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
 
+cryptography_datas, cryptography_binaries, cryptography_hiddenimports = collect_all('cryptography')
 
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[],
+    binaries=cryptography_binaries,
     datas=[
+        ('password.key', '.'),
+        ('keyfile.key', '.'),
         ('config.yaml', '.'),
-        ('version 3.2.0.txt', '.'),
+        ('version 4.1.0.txt', '.'),
         ('updater.exe', '.')
-        ],
-    hiddenimports=[],
+    ] + cryptography_datas,
+    hiddenimports=['PyYaml'] + cryptography_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -66,3 +70,31 @@ coll = COLLECT(
     upx_exclude=[],
     name='File Archive',
 )
+
+
+
+# ----------------- Post-build copying -----------------
+
+import shutil
+import os
+
+dist_dir = os.path.join('dist', 'File Archive')
+internal_dir = os.path.join(dist_dir, '_internal')
+
+files_to_copy = [
+    'config.yaml',
+    'version 4.1.0.txt',
+    'updater.exe'
+]
+
+for filename in files_to_copy:
+    src = os.path.join(internal_dir, filename)
+    dst = os.path.join(dist_dir, filename)
+    try:
+        if os.path.exists(src):
+            shutil.copy2(src, dst)
+            print(f"[Post-Build] {filename} copied to {dist_dir}")
+        else:
+            print(f"[Post-Build] {filename} not found in _internal")
+    except Exception as e:
+        print(f"[Post-Build] Error copying {filename}: {e}")

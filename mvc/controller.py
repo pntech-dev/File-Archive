@@ -1,392 +1,594 @@
-import os
+import re
 import sys
 
-from classes.notifications import Notification
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtCore import QObject, QEvent
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSignal, QObject
 
 class Controller(QObject):
-    file_added = pyqtSignal() # Сигнал добавления файла в группу
-    delete_group = pyqtSignal() # Сиганл удаления группы
-    delete_file = pyqtSignal() # Сиганл удаления файла
+    """The main controller of the application.
 
-    def __init__(self, model, view):
+    Responsible for communication between the model and the view, signal processing,
+    updating the interface and running background operations.
+    """
+
+    def __init__(self, model: object, view: object) -> None:
+        """Initializes the controller and adjusts the initial state of the application.
+
+        Args:
+            model: An instance of a model that implements business logic.
+            view: An instance of the view (UI) responsible for displaying.
+        """
         super().__init__()
 
         self.model = model
         self.view = view
 
-        self.__check_program_version() # Проверяем версию программы
-        
-        self.load_group_comboboxes_data() # Вызываем обновление данных в комбобоксах групп
-        self.load_file_comboboxes_data() # Вызываем обновление данных в комбобоксах файлов версий
+        # Checking the current version of the program at startup
+        self.__check_program_version()
 
-        self.load_table_data() # Вызываем обновление данных в таблице
+        # Flag to prevent recursive version updates
+        self._is_updating_versions = False
 
-        # Комбобоксы
-        self.view.group_file_combobox_item_changed(handler=self.on_group_file_combobox_item_chandged) # Подключаем оброботчик изменения состояния комбобоксов
-        
-        # Чекбоксы
-        self.view.checkboxes_checked_state_changed(handler=self.on_checkboxes_checked_state_changed) # Подключаем обработчик изменения состояния включения чекбоксов
-        self.view.search_all_versions_checkbox_changed(handler=self.on_search_all_versions_checkbox_changed)
+        # Initial interface configuration
+        self.update_layer_one_table_data()  # Uploading data to the group table
+        # Uploading groups to comboboxes
+        self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+        self.update_version_combobox_data()  # Uploading versions to comboboxes
 
-        # Таблица
-        self.view.table_row_clicked(handler=self.on_table_row_clicked) # Подключаем оброботчик одинарного нажатия на строку в таблице
-        self.view.table_row_double_ckicked(handler=self.on_table_row_double_clicked) # Подключаем обработчик двойного нажатия на элемент в таблице
+        # Setting the event filter for the search field
+        self.view.ui.search_lineEdit.installEventFilter(self)
 
-        # Кнопки
-        self.view.back_button_clicked(handler=self.on_back_button_clicked) # Подключаем обработчик нажатия на кнопку "Назад"
-        self.view.clear_button_clicked(handler=self.on_clear_button_clicked) # Подключаем обработчик нажатия на кнопку "Очистить"
-        self.view.choose_folder_path_buttons_clicked(handler=self.on_choose_folder_path_buttons_clicked) # Подключаем обработчик нажатия на кнопку "Выбрать" папку
-        self.view.choose_file_path_buttons_clicked(handler=self.on_choose_file_buttons_clicked) #Подключаем обработчик нажатия на кнопку "Выбрать" файл
-        self.view.download_button_clicked(handler=self.on_download_button_clicked) # Подключаем обработчик нажатия на кнопку "Скачать"
-        self.view.add_group_button_pressed(handler=self.on_add_group_button_pressed) # Подключаем обработчк нажатия на кнопку "Добавить" группу
-        self.view.add_version_button_pressed(handler=self.on_add_version_button_pressed) # Подключаем обработчк нажатия на кнопку "Добавить" версию
-        self.view.add_instruction_button_pressed(handler=self.on_add_instruction_button_pressed) # Подключаем обработчк нажатия на кнопку "Добавить" инструкцию
-        self.view.delete_group_button_pressed(handler=self.on_delete_group_button_clicked) # Подключаем обработчик нажатия на кнопку "Удалить" группу
-        self.view.delete_file_button_pressed(handler=self.on_delete_file_button_clicked) # Подключаем обработчик нажатия на кнопку "Удалить" файл
+        # === Handlers ===
+        # Buttons
+        self.view.tab_button_clicked(self.on_tab_button_clicked)
+        self.view.download_page_choose_push_button_clicked(self.on_download_page_choose_folder_path_button_clicked)
+        self.view.add_page_choose_folder_path_push_buttons_clicked(self.on_add_page_choose_folder_path_button_clicked)
+        self.view.add_page_choose_file_path_push_buttons_clicked(self.on_add_page_choose_file_path_button_clicked)
+        self.view.add_page_create_push_buttons_clicked(self.on_add_page_create_push_button_clicked)
+        self.view.add_page_add_push_buttons_clicked(self.on_add_page_add_push_button_clicked)
+        self.view.delete_page_delete_push_buttons_clicked(self.on_delete_page_delete_push_button_clicked)
+        self.view.download_page_back_push_button_clicked(self.on_download_page_back_push_button_clicked)
+        self.view.download_page_download_push_buttons_clicked(self.on_download_page_download_push_button_clicked)
 
-        # Лайнэдиты
-        self.view.search_lineedit_text_changed(handler=self.on_search_lineedit_text_changed) # Подключаем обработчик изменения текста в строке поиска
-        self.view.new_group_lineedit_text_changed(handler=self.on_new_group_lineedit_text_changed) # Подключаем обработчик изменения текста в строке названия новой группы
-        self.view.add_version_folder_path_lineedit_text_changed(handler=self.on_add_version_folder_path_lineedit_text_changed) # Подключаем обработчик изменения текста в строке пути к версии
-        self.view.add_instruction_file_path_lineedit_text_changed(handler=self.on_add_instruction_file_path_lineedit_text_changed) # Подключаем обработчик изменения текста в строке пути к версии
-        self.view.choosen_path_to_download_lineedit_text_changed(handler=self.on_choosen_path_to_download_lineedit_text_changed) # Подключаем обработчик изменения текста в строке пути лайнэдита загрузки
+        # Radio-Buttons
+        self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked)
+        self.view.delete_page_radio_buttons_state_changed(self.on_delete_options_button_clicked)
 
-        # Сигналы
-        self.file_added.connect(self.on_file_was_added) # Подключаем обработку сигнала добавления файла
-        self.delete_group.connect(self.on_delete_group) # Подключаем обработку сигнала удаления группы
-        self.delete_file.connect(self.on_delete_file) # Подключаем обработку сигнала удаления файла
-        self.model.show_notification.connect(self.show_notification_message) # Подключаем сигнал модели к методу показа уведомления
-        self.model.progress_changed.connect(self.on_progress_changed) # Подключаем сигнал модели к методу изменения значения в прогресс баре
+        # Input Fields
+        self.view.add_page_new_group_name_lineedit_text_changed(self.on_add_page_new_group_name_lineedit_text_changed)
+        self.view.add_page_paths_lineedits_text_changed(self.on_add_page_paths_lineedits_text_changed)
+        self.view.download_page_search_lineedit_text_changed(self.on_download_page_search_lineedit_text_changed)
 
-    def __check_program_version(self):
-        """Функция проверяет версию программы"""
-        is_version = self.model.check_program_version() # Проверяем версию программы
+        # Comboboxes
+        self.view.add_page_group_name_combobox_item_changed(self.on_add_page_group_name_combobox_item_changed)
+        self.view.delete_page_group_comboboxes_state_changed(self.on_delete_page_group_comboboxes_state_changed)
 
-        # Если произошла ошибка во время проверки версии
-        if is_version is None: 
-            action = Notification().show_action_message(msg_type="error", 
-                                                        title="Ошибка проверки версии", 
-                                                        text="Во время проверки версии произошла ошибка!\nОшибка связана с путём к файлу конфигурации\nЖелаете открыть файл конфигурации?", 
-                                                        buttons=["Да", "Нет"])
+        # Checkboxes
+        self.view.delete_page_checkboxes_state_changed(self.on_delete_page_checkboxes_state_changed)
+        self.view.download_page_search_all_versions_checkbox_state_changed(
+            self.on_download_page_search_all_versions_checkbox_state_changed
+        )
 
-            if action:
-                self.model.open_config_file()
-                exit()
-            else:
-                exit()
+        # Table
+        self.view.download_page_table_row_clicked(self.on_download_page_table_row_clicked)
+        self.view.download_page_table_row_double_clicked(self.on_download_page_table_row_double_clicked)
 
-        # Если версия не совпадает (требуется обновление)
-        elif not is_version:
-            action = Notification().show_action_message(msg_type="warning", 
-                                                        title="Обновление", 
-                                                        text="Обнаружена новая версия программы\nЖелаете обновить?", 
-                                                        buttons=["Обновить", "Закрыть"])
+        # Model Signals
+        self.model.progress_chehged.connect(self.on_progress_bar_changed)
+        self.model.show_notification.connect(self.on_show_notification)
+        self.model.operation_finished.connect(self.on_operation_finished)
 
-            if action:
-                self.model.update_program()
-                sys.exit() # Закрываем основное приложение после запуска обновления
-            else:
-                sys.exit()
+    # === Main functions ===
 
-    def get_in_group_status(self):
-        """Функция которая возвращает состояние нахождения таблицы в группе"""
-        return self.model.in_group
+    def update_layer_one_table_data(self, data: list = None) -> None:
+        """Updates the data in the group table on the first tab.
 
-    def load_group_comboboxes_data(self):
-        """Функция вызывает заполнение данными комбобоксов групп"""
-        self.model.update_versions_groups() # Обновляем спсиок групп версий
-        self.view.update_group_comboboxes_data(data=self.model.versions_groups) # Вызыввем обновление комбобоксов
-
-    def load_file_comboboxes_data(self):
-        """Функция вызывает заполнение данными комбобоксов файлов версий"""
-        # Получаем словарь данных в котором ключ - текст комбобокса группы, значение - объект комбобокса
-        data = self.view.get_comboboxes_data()
-
-        for key, value in data.items(): # Перебираем значения в словаре
-            if key: # Если значение ключа не пустое
-                group_files = self.model.get_group_files(group=key) # Получаем список файлов входящих в переданную группу
-                files_data = {value: group_files} # Создаём словарь
-                self.view.update_file_combobox_data(data=files_data) # Вызываем обновление данных в комбобоксах файлов
-
-    def load_table_data(self, data=None):
-        """Функция вызывает заполнение таблицы данными"""
-        self.model.update_versions_groups() # Обновляем спсиок групп версий
-
+        Args:
+            data: Ready-made data for the table. If not transmitted, the data
+                They are formed based on the list of groups and their current versions.
+        """
         if data is None:
-            data = []
+            groups_names = self.model.get_groups_names()  # Getting a list of all the groups
 
-            if self.model.versions_groups: # Если спиок групп версий не пуст
-                for group in self.model.versions_groups: # Перебираем все группы в списке
-                    group_files = self.model.get_group_files(group=group) # Получаем список версий для группы
+            layer_one_data = []
+            for group_name in groups_names:
+                versions = self.model.get_group_versions(group_name)  # All versions of the group
+                actual_version = self.model.get_actual_version(versions)  # Current version
+                layer_one_data.append([group_name, actual_version])  # Row for the table
 
-                    if group_files:
-                        data.append((group, group_files[0]))  # Добавляем пару ключ/значение в словарь
-                    else:
-                        data.append((group, ""))  # Добавляем пару ключ/значение в словарь
-
-        self.view.update_table_data(data=data)
-
-    def load_table_group_data(self, data=None):
-        """Функция вызывает зополнение таблицы версиями для выбранной группы"""
-        if data is None:
-            files = self.model.get_group_files(group=self.model.current_group) # Получаем список версий для текущей группы
-            self.model.current_group_versions = files # Записываем список версий для текущей группы
-            self.view.update_table_files_data(data=self.model.current_group_versions) # Вызываем обновление данных в таблице
+            # Filling in the group table
+            self.view.set_layer_one_table_data(layer_one_data)
         else:
-            self.view.update_table_files_data(data=data) # Вызываем обновление данных в таблице
+            self.view.set_layer_one_table_data(data)
 
-    def load_table_group_data(self, data=[]):
-        """Функция вызывает заполнение таблицы версиями для выбранной группы"""
-        if not data:
-            files = self.model.get_group_files(group=self.model.current_group) # Получаем список версий для текущей группы
-            self.model.current_group_versions = files # Записываем список версий для текущей группы
-            self.view.update_table_files_data(data=self.model.current_group_versions) # Вызываем обновление данных в таблице
-        else:
-            self.view.update_table_files_data(data=data) # Вызываем обновление данных в таблице
-    
-    def show_notification_message(self, msg_type, text):
-        """Показывает информационное уведомление через Notification"""
-        Notification().show_notification_message(msg_type=msg_type, text=text)
-        self.view.set_progress_bar_value(0)
-
-    def on_group_file_combobox_item_chandged(self):
-        """Функция оброботывает изменение текщего объекта в комбобоксе"""
-        self.load_file_comboboxes_data() # Вызываем обновление состояния комбобоксов
-        self.view.update_add_version_button_state() # Вызываем обновление состояния кнопки добавления версии
-
-    def on_table_row_clicked(self, row):
-        """Функция обрабатывает одинарное нажатие на строку в таблице"""
-        data = self.view.get_table_row_file_data(row=row) # Получаем данные из строки
-
-        if not data: # Если список данных пуст
+    def update_version_combobox_data(self) -> None:
+        """Updates the list of versions in the combo box on the deletions tab."""
+        if self._is_updating_versions:
             return
-        
-        text = "Выберан файл: "
-        if len(data) > 1: # Если элементов в списке больше чем 1
-            text += f" {str(data[0])}, {str(data[1])}" # Формируем строку для отображения
-            self.model.choosen_group = data[0] # Записываем выбранную группу
-            self.model.choosen_version = data[1] # Записываем выбранную категорию
-        else: # Если элемент 1
-            text += f" {self.model.current_group}, {str(data[0])}"
-            self.model.choosen_group = self.model.current_group # Записываем выбранную группу
-            self.model.choosen_version = data[0] # Записываем выбранную категорию
 
-        self.view.update_choosen_file_label_text(string=text)
-        self.view.update_download_version_button_state()
+        self._is_updating_versions = True
+        try:
+            group_name = self.view.get_delete_page_version_combobox_current_text()
+            versions = self.model.get_group_versions(group_name)
+            self.view.set_version_combobox_data(versions)
+        finally:
+            self._is_updating_versions = False
 
-    def on_table_row_double_clicked(self, row):
-        """Функция обрабатывает двойное нажатие на строку в таблице"""
-        if self.model.in_group: # Если флаг отоброжения файлов группы True
-            return
-        
-        data = self.view.get_table_row_file_data(row=row) # Получаем данные из строки
-        self.model.choosen_group = data[0] # Записываем выбранную группу
-        self.model.choosen_version = data[1] # Записываем выбранную категорию
+    # === Icons and Events filter ===
 
-        self.model.in_group = True # Устанавливаем флаг как True
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        """Processes events for the search field and changes the icon depending on the focus.
 
-        self.view.update_back_button_state(flag=self.model.in_group)
+        Args:
+            obj: The object for which the event was triggered.
+            event: A Qt event.
 
-        group = self.view.get_table_row_group_data(row=row) # Получаем выбранную группу
-        self.model.current_group = group # Записываем выбранную группу
+        Returns:
+            True if the event has been processed, otherwise False.
+        """
+        if obj is self.view.ui.search_lineEdit:
+            if event.type() == QEvent.FocusIn:
+                self.view.set_search_icon_state(state=True)
+            elif event.type() == QEvent.FocusOut:
+                self.view.set_search_icon_state(state=False)
 
-        self.load_table_group_data() # Вызываем заполнение таблицы файлами версии
-        
-        self.view.set_search_all_checkbox_enabled_state(state=False)
-    
-    def on_back_button_clicked(self):
-        """Функция обрабатывает нажатие на кнопку 'Назад'"""
-        self.model.in_group = False # Изменеяем флаг нахождения в группе на False
-        self.model.current_group = None # Изменяем текущую выбранную группу
-        self.model.current_group_versions = None # Изменяем список версий для выбранной группы
+        return super().eventFilter(obj, event)
 
-        self.model.choosen_group = "" # Записываем выбранную группу
-        self.model.choosen_version = "" # Записываем выбранную категорию
+    # === Navigation Bar ===
 
-        self.view.update_back_button_state(flag=self.model.in_group) # Вызываем изменение состояния кнопки "Назад"
+    def on_tab_button_clicked(self, button: object) -> None:
+        """ Handles clicking on the tab selection button.
 
-        # Вызываем изменение текста в строке отображения выбранного файла
-        self.view.update_choosen_file_label_text(string="Выбран файл:")
-        self.view.update_download_version_button_state()
+        Args:
+            button: The tab button that the user clicked on.
+        """
+        self.view.set_tab_page(button)
 
-        if len(self.model.search_text) == 0: # Если нет текста в строке поиска
-            self.load_table_data() # Вызываем загрузку данных в табицу
+    # === Download tab ===
+
+    def update_back_push_button_state(self, state: bool = None) -> None:
+        """Updates the status of the Back button on the Download tab.
+
+        Args:
+            state: The explicit state of the button. If not specified, it is calculated
+                based on the model.in_group flag.
+        """
+        if state is None:
+            self.view.set_back_button_state(state=self.model.in_group)
         else:
-            self.on_search_lineedit_text_changed(lineedit_text=self.model.search_text) # Вызываем загрузку данных согласно поиска
+            self.view.set_back_button_state(state=state)
 
-        self.view.set_search_all_checkbox_enabled_state(state=True)
+    def update_download_button_state(self) -> None:
+        """Updates the status of the "Download" button on the "Download" tab."""
+        label_text = self.view.get_choosen_label_text().strip()
+        if label_text != "Выбрано изделие:" and not label_text.endswith("Версия:"):
+            self.view.set_download_button_state(state=True)
+        else:
+            self.view.set_download_button_state(state=False)
 
-    def on_search_lineedit_text_changed(self, lineedit_text):
-        """Функция обробатывает изменение текста в строке поиска"""
-        self.model.search_text = lineedit_text # Устанавливам флаг поиска
+    def on_download_page_search_lineedit_text_changed(self) -> None:
+        """Handles changing the text in the search bar on the Download tab."""
+        search_text = self.view.get_search_lineedit_text()
+        if search_text:
+            if not self.model.search_all_versions:
+                # Regular search by groups and current versions
+                search_results = self.model.search(text=search_text)
+                self.update_layer_one_table_data(data=search_results)
+            else:
+                # Search through all files of all versions
+                search_results = self.model.search_all(text=search_text)
+                self.update_layer_one_table_data(data=search_results)
+        else:
+            # If the search bar is empty, we show all the groups
+            self.update_layer_one_table_data()
 
-        self.view.update_clear_search_button_state() # Вызываем изменение состояния кнопки очистки
+    def on_download_page_search_all_versions_checkbox_state_changed(self, state: int) -> None:
+        """Handles changing the state of the "Search for all versions" checkbox.
 
-        if lineedit_text: # Если в строке поиска есть текст
-            search_all = self.view.get_search_all_versions_checkbox_state()
-            if self.model.in_group: # Если в группе
-                group_data = self.model.current_group_versions # Получаем список файлов текущей группы
+        Args:
+            state: The status of the checkbox (Qt state).
+        """
+        self.model.search_all_versions = state
 
-                data = [] # Список данных подходящих под результаты поиска
-                if group_data: # Если спиок файлов не пуст
-                    for file in group_data: # Перебираем все файлы в списке
-                        if all(word in file.lower() for word in lineedit_text.lower().split()): # Если все слова из строки поиска есть в имени файла
-                            data.append(file) # Добавляем файл в список результатов поиска
-                
-                self.load_table_group_data(data=data) # Вызываем заполнение таблицы данными резульата поиска
+        # We simulate changing the text in the search bar to update the table
+        self.on_download_page_search_lineedit_text_changed()
 
-            else: # Если не в группе
-                search_data = self.model.search(text=lineedit_text, search_all=search_all)
-                self.load_table_data(data=search_data)
-            
-        else: # Если в строке поиска удалили весь текст
-            if self.model.in_group: # Если в группе
-                self.load_table_group_data() # Вызываем заполнение таблицы данными для актуальной группы
-            else: # Если не в группе
-                self.load_table_data() # Вызываем заполнение таблицы данными
+    def on_download_page_choose_folder_path_button_clicked(self) -> None:
+        """Processes the selection of a folder to save files on the "Download" tab."""
+        folder_path = QFileDialog.getExistingDirectory()
+        self.view.set_download_save_path(folder_path)
 
-    def on_search_all_versions_checkbox_changed(self):
-        """Функция обрабатывает изменение состояния чекбокса 'Поиск всех версий'"""
-        self.on_search_lineedit_text_changed(self.model.search_text)
+    def on_download_page_table_row_clicked(self, row: int) -> None:
+        """ Handles a single click on a table row on the Download tab.
 
-    def on_clear_button_clicked(self):
-        """Функция обробатывает нажатие на кнопку очистки"""
-        self.model.search_text = "" # Убираем текст для поиска
-        self.view.clear_lineedit() # Вызываем очистку строки поиска
-        self.view.update_clear_search_button_state() # Вызываем изменение состояния кнопки очистки
-    
-    def on_new_group_lineedit_text_changed(self):
-        """Функция обрабатывает изменение текста в строке названия новой группы"""
-        group_name = self.view.get_new_group_lineedit_text() # Получаем текст из строки ввода названия группы
-        self.model.new_group_name = group_name # Записываем имя новой группы
-        self.view.update_add_group_button_state()
+        Args:
+            row: The index of the selected row in the table.
+        """
+        row_data = self.view.get_table_row_data(row=row)
+        self.view.set_choosen_label_text(data=row_data, in_group_flag=self.model.in_group)
+        self.update_download_button_state()
 
-    def on_add_version_folder_path_lineedit_text_changed(self):
-        """Функция обрабатывает изменение текста в строке пути к папке версии"""
-        file_path = self.view.get_new_file_lineedit_text() # Получяем текст из строки ввода пути к папке новой версии
-        self.model.new_file_path = file_path # Записываем путь к папке новой версии
-        self.view.update_add_version_button_state()
+    def on_download_page_table_row_double_clicked(self, row: int) -> None:
+        """Handles a double click on a row of the table on the "Download" tab.
 
-    def on_add_instruction_file_path_lineedit_text_changed(self):
-        """Функция обрабатывает изменение текста в строке пути к файлу инструкции"""
-        file_path = self.view.get_new_instruction_lineedit_text() # Получяем текст из строки ввода пути к файлу инструкции
-        self.model.new_instruction_path = file_path # Записываем путь к файлу инструкции
-        self.view.update_add_instruction_button_state()
+        Double-clicking on a group opens a list of versions of that group.
+        Args:
+            row: The index of the selected row in the table.
+        """
+        if not self.model.in_group:
+            row_data = self.view.get_table_row_data(row=row)
 
-    def on_checkboxes_checked_state_changed(self):
-        """Функция обрабатывает изменение состояния включения чекбоксов"""
-        self.view.update_delete_group_button_state()
-        self.view.update_delete_file_button_state()
+            # Get the versions of the group and set the data in the table
+            layer_two_data = self.model.get_group_versions(group_name=row_data[0])
+            self.view.set_layer_two_table_data(layer_two_data)
 
-    def on_choose_folder_path_buttons_clicked(self, button, lineedit):
-        """Функция которая получает путь к папке через окно проводника и вызывает запись этого пути"""
-        folder_path = QtWidgets.QFileDialog.getExistingDirectory()
+            # Setting the flag for being inside the group
+            self.model.in_group = True
 
-        if folder_path:
-            self.view.set_lineedit_path(lineedit, path=folder_path)
+            # Updating the status of the Back button
+            self.update_back_push_button_state()
 
-    def on_choose_file_buttons_clicked(self, button, lineedit):
-        """Функция которая получает путь к файлу через окно проводника и вызывает запись этого пути"""
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+    def on_download_page_back_push_button_clicked(self) -> None:
+        """Handles clicking on the "Back" button on the "Download" tab."""
+        # Going back to the list of groups
+        self.model.in_group = False
+        self.update_layer_one_table_data()
+        self.update_back_push_button_state(state=False)
+        self.view.set_choosen_label_text(data=None, in_group_flag=None)
+        self.update_download_button_state()
+
+    def on_download_page_download_push_button_clicked(self) -> None:
+        """Handles clicking on the "Download" button on the "Download" tab.
+
+        Parses the selected text, determines the group, file, and path.
+        saves, then initiates the download.
+        """
+        text = self.view.get_choosen_label_text()
+
+        group_match = re.search(
+            r"Выбран[ао]\s+(?:изделие|группа)\s*:\s*(.*?)\s*(?:,|\n)\s*Версия",
+            text,
+            re.IGNORECASE
+        )
+
+        file_match = re.search(
+            r"Версия\s*:\s*(.*)$",
+            text,
+            re.IGNORECASE
+)
+
+        if not group_match or not file_match:
+            return
+
+        group = group_match.group(1)
+        file = file_match.group(1)
+        save_path = self.view.get_download_save_path()
+
+        # Disabling the page for the download time
+        self.view.update_page_enabled_state(page="download", state=False)
+
+        # Start the download in a separate stream
+        self.model.download_in_thread(group=group, file=file, save_path=save_path)
+
+    # === Add tab ===
+
+    def update_add_push_buttons_state(self) -> None:
+        """Updates the status of the "Add" buttons on the "Add" tab."""
+        group_name = self.view.get_add_page_combobox_current_group_name()
+        lineedits_texts = self.view.get_add_page_paths_lineedits_datas()
+
+        for value in lineedits_texts.values():
+            text = value.get("text")
+            button = value.get("button")
+            self.view.set_add_button_state(state=bool(group_name and text), button=button)
+
+    def on_add_options_button_clicked(self, button: object) -> None:
+        """Handles the selection of the add option on the "Add" tab.
+
+        Args:
+            button: The radio button that is pressed is the option to add it.
+        """
+        page = self.view.get_add_option_page(button)
+        self.view.set_add_option_page(page)
+
+    def on_add_page_choose_folder_path_button_clicked(self, button: object) -> None:
+        """Handles the folder selection on the "Add" tab.
+
+        Args:
+            button: The button for which the folder path is selected.
+        """
+        lineedit = self.view.get_path_lineedit(button=button)
+        folder_path = QFileDialog.getExistingDirectory()
+        self.view.set_lineedit_path(lineedit=lineedit, path=folder_path)
+
+    def on_add_page_choose_file_path_button_clicked(self, button: object) -> None:
+        """Processes the file selection on the "Add" tab.
+
+        Args:
+            button: The button for which the file path is selected.
+        """
+        lineedit = self.view.get_path_lineedit(button=button)
+        path, _ = QFileDialog.getOpenFileName(
             None,
             "Выбрать файл",
             "",
-            "Докумен Word (*.doc *.docx);;All Files (*)"
+            "Докумен Word (*.doc *.docx);;All Files (*)",
         )
+        self.view.set_lineedit_path(lineedit=lineedit, path=path)
 
-        if file_path:
-            self.view.set_lineedit_path(lineedit, path=file_path)
+    def on_add_page_create_push_button_clicked(self) -> None:
+        """Handles the creation of a new group on the "Add" tab."""
+        new_group_name = self.view.get_new_group_name_lineedit_text()
+        self.model.new_group_name = new_group_name
 
-    def on_download_button_clicked(self):
-        """Функция обробатывает нажатие на кнопку 'Скачать'"""
-        self.model.download_file_in_thread()
+        # Disabling the page while the group is being created
+        self.view.update_page_enabled_state(page="add", state=False)
 
-    def on_choosen_path_to_download_lineedit_text_changed(self, text):
-        """Функция обрабатывает изменение текста в строке пути загрузки"""
-        self.model.choosen_path_to_download = text
+        # Creating a group in a separate thread
+        self.model.create_group_in_thread(group_name=new_group_name)
 
-    def on_add_group_button_pressed(self):
-        """Функция обрабатывает нажатие на кнопку 'Добавить' группу"""
-        self.model.add_group() # Вызываем добавление новой группы
-        self.load_group_comboboxes_data() # Вызываем обновление данных в комбобоксах
+    def on_add_page_new_group_name_lineedit_text_changed(self, text: str) -> None:
+        """Handles changing the name of a new group on the "Add" tab.
 
-        self.load_table_data()
+        Args:
+            text: The current text in the group name input field.
+        """
+        group_name = self.view.get_new_group_name_lineedit_text()
+        self.view.update_add_page_create_push_button_state(state=bool(group_name))
 
-    def on_add_version_button_pressed(self):
-        """Функция обрабатывает нажатие на кнопку 'Добавить' версию"""
-        group = self.view.get_add_group_combobox_text() # Получаем текущюю группу из комбобокса
+    def on_add_page_paths_lineedits_text_changed(self) -> None:
+        """Handles changing the text in the path fields on the "Add" tab."""
+        self.update_add_push_buttons_state()
 
-        verefy_data = self.model.verefy_versions(group=group) # Вызываем проверку версий
+    def on_add_page_group_name_combobox_item_changed(self) -> None:
+        """Handles changing the selected group in the combo box on the "Add" tab."""
+        self.update_add_push_buttons_state()
 
-        if verefy_data[0] == 4:
-            Notification().show_notification_message(msg_type="error", text="Возникла неправильная ошибка во время проверки версий")
+    def on_add_page_add_push_button_clicked(self, button_type: str) -> None:
+        """Handles clicking on the "Add" button on the "Add" tab.
 
-        elif verefy_data[0] == 3:
-            Notification().show_notification_message(msg_type="error", text="Невозможно добавить выбранную версию\nТакая версия уже существует в выбранной группе!")
+        Args:
+            button_type: The type of addition: 'version' or 'instruction'.
+        """
+        group_name = self.view.get_add_page_combobox_current_group_name()
 
-        elif verefy_data[0] == 2:
-            self.model.add_file_in_thread(group=group, signal=self.file_added) # Вызывам добавление файла
+        if button_type == "version":
+            # Adding a version
+            version_path = self.view.get_version_path_lineedit_text()
+            self.view.update_page_enabled_state(page="add", state=False)
+            self.model.add_version_in_thread(version_path=version_path, 
+                                             group_name=group_name)
 
-        elif verefy_data[0] == 1:
-            notification_action = Notification().show_action_message(title="Предупреждение", text="Нету изменений в версии\nВы уверены что хотите добавить версию?")
+        elif button_type == "instruction":
+            # Adding instructions
+            instruction_path = self.view.get_instruction_path_lineedit_text()
+            self.view.update_page_enabled_state(page="add", state=False)
+            self.model.add_instruction_in_thread(instruction_path=instruction_path, 
+                                                 group_name=group_name)
 
-            if notification_action:
-                self.model.add_file_in_thread(group=group, signal=self.file_added) # Вызывам добавление файла
-        else:
-            unchanged_files = ', '.join([os.path.basename(file) for file in verefy_data[1][0]])
-            changed_files = '\n'.join([file for file in verefy_data[1][1]])  
-            new_files_list = ', '.join([os.path.basename(file) for file in verefy_data[1][2]])
-            missing_files_list = ', '.join([os.path.basename(file) for file in verefy_data[1][3]])
+    # === Delete tab ===
 
-            notification_text = f"""
-Файлы без изменений: {unchanged_files}\n
-Файлы в которых есть изменения:\n{changed_files}\n
-Новые файлы: {new_files_list}\n
-Пропавшие файлы: {missing_files_list}
-"""
-            notification_action = Notification().show_action_message(msg_type="warning", 
-                                                                     title="Изменения в версиях", 
-                                                                     text=f"Обнаруженные изменения в новой версии:\n{notification_text}\nДобавить версию?",
-                                                                     buttons=["Да", "Нет"])
+    def update_delete_push_buttons_state(self) -> None:
+        """Updates the status of the "Delete" buttons on the "Delete" tab."""
+        comboboxes_data = self.view.get_delete_page_comboboxes_datas()
+        checkboxes_data = self.view.get_delete_page_checkboxes_datas()
 
-            if notification_action:
-                self.model.add_file_in_thread(group=group, signal=self.file_added) # Вызывам добавление файла
+        for checkbox_data in checkboxes_data.values():
+            checkbox_state = checkbox_data.get("state")
+            what_delete = checkbox_data.get("what_delete")
 
-    def on_add_instruction_button_pressed(self):
-        """Функция обрабатывает нажатие на кнопку 'Добавить' инструкцию"""
-        group = self.view.get_add_group_combobox_text() # Получаем текущюю группу из комбобокса
-        self.model.add_instruction_in_thread(group=group, signal=self.file_added) # Вызываем добавление инструкции
-        
-    def on_file_was_added(self):
-        """Функция обрабатывает добавление файла в таблицу"""
-        self.load_table_data()
-        self.load_file_comboboxes_data()
+            button_state = False
+            if checkbox_state:
+                relevant_comboboxes = [
+                    cb for cb in comboboxes_data.values() if cb.get("what_delete") == what_delete
+                ]
+                button_state = all(cb.get("text") for cb in relevant_comboboxes)
 
-    def on_delete_group_button_clicked(self):
-        """Функция обрабатывает нажатие на кнопку 'Удалить' группу"""
-        group = self.view.get_delete_group_combobox_text() # Получаем текущую группу из комбобокса
-        self.model.delete_group_in_thread(group=group, signal=self.delete_group)
+            self.view.set_delete_button_state(state=button_state, button_type=what_delete)
 
-    def on_delete_file_button_clicked(self):
-        """Функция обрабатывает нажатие на кнопку 'Удалить' файл"""
-        group = self.view.get_delete_file_group_combobox_text() # Получаем текущую группу из комбобокса
-        file = self.view.get_delete_file_combobox_text() # Получаем текущий файл из комбобокса
-        self.model.delete_file_in_thread(group=group, file=file, signal=self.delete_file)
+    def on_delete_options_button_clicked(self, button: object) -> None:
+        """Handles changing combo box values on the "Delete" tab.
 
-    def on_delete_group(self):
-        """Функция обрабатывает удаление группы"""
-        self.load_group_comboboxes_data() # Вызываем обновление данных в комбобоксах групп
-        self.load_table_data() # Вызываем обновление данных в таблице
-        self.view.set_delete_group_checkbox_state(False) # Изменяем состояние чекбокса
+        Args:
+            combobox: A combo box whose value has changed.
+        """
+        page = self.view.get_delete_option_page(button)
+        self.view.set_delete_option_page(page)
 
-    def on_delete_file(self):
-        """Функция обрабатывает удаление файла"""
-        self.load_file_comboboxes_data() # Вызываем обновление данных в комбобоксах файлов
-        self.load_table_data() # Вызываем обновление данных в таблице
-        self.view.set_delete_file_checkbox_state(False) # Изменяем состояние чекбокса
+    def on_delete_page_group_comboboxes_state_changed(self, combobox: object) -> None:
+        """Обрабатывает изменение значений комбобоксов на вкладке «Удалить».
 
-    def on_progress_changed(self, value):
-        self.view.set_progress_bar_value(value)  # Вызываем изменение значения прогресс бара
+        Args:
+            combobox: Комбобокс, значение которого изменилось.
+        """
+        # We update the list of versions only when changing the combo box of the group
+        if combobox is self.view.ui.choose_group_to_delete_comboBox:
+            self.update_version_combobox_data()
+
+        self.update_delete_push_buttons_state()
+
+    def on_delete_page_checkboxes_state_changed(self) -> None:
+        """Handles changing the status of the checkboxes on the "Delete" tab."""
+        self.update_delete_push_buttons_state()
+
+    def on_delete_page_delete_push_button_clicked(self, button_type: str) -> None:
+        """Handles clicking on the delete buttons on the "Delete" tab.
+
+        Args:
+            button_type: Deletion type: 'file' or 'group'.
+        """
+        if not button_type:
+            return
+
+        comboboxes_datas = self.view.get_delete_page_comboboxes_datas()
+
+        if button_type == "file":
+            file_page_data = []
+
+            # We are looking for combo boxes for the file deletion page
+            for combobox in comboboxes_datas.keys():
+                if comboboxes_datas[combobox].get("what_delete") == "file":
+                    # Getting selected items from comboboxes
+                    file_page_data.append(self.view.get_delete_page_combobox_text(combobox=combobox))
+
+            if file_page_data:
+                # Disabling the page while deleting files
+                self.view.update_page_enabled_state(page="delete", state=False)
+                self.model.delete_file_in_thread(data=file_page_data)
+
+        elif button_type == "group":
+            group_name = None
+
+            # We are looking for a combo box for the group deletion page
+            for combobox in comboboxes_datas.keys():
+                if comboboxes_datas[combobox].get("what_delete") == "group":
+                    # Getting the selected item from the combo box
+                    group_name = self.view.get_delete_page_combobox_text(combobox=combobox)
+                    break
+
+            if group_name:
+                # Disabling the page while deleting the group
+                self.view.update_page_enabled_state(page="delete", state=False)
+                self.model.delete_group_in_thread(group_name=group_name)
+
+    # === Signals and completion of operations ===
+
+    def on_progress_bar_changed(self, process_text: str, value: int) -> None:
+        """Handles changing the status of the progress bar.
+
+        Args:
+            process_text: The text of the operation status.
+            value: The current value of the progress bar (0-100).
+        """
+        self.view.set_progress_bar_process_text(text=process_text)
+        self.view.set_progress_bar_percents_text(percents=f"{value}%")
+        self.view.set_progress_bar_value(value=value)
+
+    def on_show_notification(self, msg_type: str, text: str) -> None:
+        """Processes the display of a standard notification.
+
+        Args:
+            msg_type: Notification type: 'info', 'warning' or 'error'.
+            text: The text of the message.
+        """
+        if msg_type == "info":
+            self.view.show_notification(msg_type=msg_type, 
+            title="Информация", 
+            text=text, 
+            button_text="Ок")
+            
+        elif msg_type == "warning":
+            self.view.show_notification(msg_type=msg_type, 
+            title="Предупреждение", 
+            text=text, 
+            button_text="Ок")
+            
+        elif msg_type == "error":
+            self.view.show_notification(msg_type=msg_type, 
+            title="Ошибка", 
+            text=text, 
+            button_text="Закрыть")
+
+        # Reset the progress bar after the message
+        self.view.set_progress_bar_process_text(text="", set_to_zero=True)
+        self.view.set_progress_bar_percents_text(percents="0%")
+        self.view.set_progress_bar_value(value=0)
+
+    def on_show_action_notification(self, msg_type: str, title: str, text: str, buttons_texts: list[str]) -> int:
+        """Handles the display of notifications with action buttons.
+
+        Args:
+            msg_type: Notification type: 'info', 'warning' or 'error'.
+            title: The title of the notification window.
+            text: The main text of the message.
+            buttons_texts: A list of captions for buttons.
+
+        Returns:
+            The index of the pressed button (0-based).
+        """
+        notification = self.view.show_action_notification(
+            msg_type=msg_type,
+            title=title,
+            text=text,
+            buttons_texts=buttons_texts,
+        )
+        return notification
+
+    def on_operation_finished(self, operation_name: str, status_code: int) -> None:
+        """Handles the completion of a background operation.
+
+        Args:
+            operation_name: Operation name (create_group, add_version, delete_file, etc.).
+            status_code: Operation completion code (0 — success).
+        """
+        # If the operation failed, we don't update anything
+        if status_code != 0:
+            return
+
+        if operation_name == "create_group":
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.view.set_new_group_to_combobox(new_group_name=self.model.new_group_name)
+            self.update_version_combobox_data()
+
+        elif operation_name in ["add_version", "add_instruction"]:
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.update_version_combobox_data()
+
+        elif operation_name == "delete_file":
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.update_version_combobox_data()
+            self.view.set_delete_checkboxes_state(type="file", state=False)
+            self.view.set_choosen_label_text(data=None, in_group_flag=None)
+
+        elif operation_name == "delete_group":
+            self.update_layer_one_table_data()
+            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+            self.update_version_combobox_data()
+            self.view.set_delete_checkboxes_state(type="group", state=False)
+            self.view.set_choosen_label_text(data=None, in_group_flag=None)
+
+        # After a successful operation, we turn on all the pages again.
+        self.view.update_page_enabled_state(state=True, check_all=True)
+
+    def __check_program_version(self) -> None:
+        """Checks the relevance of the program version and, if necessary, launches an update.
+
+        If the version is outdated, the user is prompted to update the program.
+        If the verification fails or the update fails, the application is terminated.
+        """
+        # Checking the program version
+        is_version = self.model.check_program_version()
+
+        # If an error occurred during the version check
+        if is_version is None:
+            self.on_show_notification(
+                msg_type="error",
+                text=(
+                    "Во время проверки версии произошла ошибка!\n"
+                    "Ошибка связана с путём к файлу конфигурации."
+                ),
+            )
+            sys.exit()
+
+        # If the version does not match (an update is required)
+        if is_version:
+            action = self.on_show_action_notification(
+                msg_type="warning",
+                title="Обновление",
+                text=(
+                    "Обнаружена новая версия программы.\n"
+                    "Продолжить работу без обновления невозможно.\n"
+                    "Желаете обновить?"
+                ),
+                buttons_texts=["Обновить", "Закрыть"],
+            )
+
+            if action == 1:
+                self.model.update_program()
+                sys.exit()  # Closing the main application after launching the update
+            else:
+                sys.exit()
