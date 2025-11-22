@@ -695,26 +695,6 @@ QPushButton#delete_tab_pushButton:checked:hover{
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QLabel" name="version_label">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QLabel{
-	color: #DDDDDD;
-}</string>
-         </property>
-         <property name="text">
-          <string>Version 4.0.0</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>

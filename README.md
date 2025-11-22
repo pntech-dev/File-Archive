@@ -1,189 +1,267 @@
-# File Archive (English Version)
+# File Archive
 
-A simple and powerful desktop application for managing and distributing versioned files and software.
+> Russian version available: README_RU.md
 
-## Description
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
+![Framework](https://img.shields.io/badge/Framework-PyQt5-39a)
+![Security](https://img.shields.io/badge/Encryption-Fernet-green)
+![Access Modes](https://img.shields.io/badge/Access-Full%20%2F%20Standard-orange)
+![Status](https://img.shields.io/badge/Status-Maintained-yellow)
+![License](https://img.shields.io/badge/License-MIT-success)
+![UI](https://img.shields.io/badge/UI-Modern%20Design-blueviolet)
 
-**File Archive** is a desktop application designed for teams that need to manage and distribute different versions of their files or software. It automates the process of organizing, versioning, and accessing files from a centralized location.
-
-The application scans a structured network directory where each software or file group is represented by a folder, and different versions are stored within these folders. File Archive allows users to browse these versions, download them, and, for authenticated users, add or delete versions and groups.
-
-## Key Features
-
--   **Hierarchical Browsing**: Navigate through groups and their respective file versions.
--   **Download Functionality**: Download any version of a file or software to your local machine.
--   **Version Management**: Authenticated users can add new groups, add new versions to existing groups, and delete old files or entire groups.
--   **Password Protection**: The application is password-protected to prevent unauthorized modifications.
--   **Search**: Smart search for groups and versions with support for partial matches.
--   **Auto-Update**: The application automatically checks for a new version on the server and prompts for an update.
--   **Modern UI**: A clean and responsive user interface built with PyQt5.
-
-## How It Works
-
-For the application to function correctly, the data must be stored in a specific structure within the folder specified in `config.yaml`.
-
-1.  **Root Folder**: The main folder containing all version groups, specified in the `versions_path` parameter in `config.yaml`.
-2.  **Group Folder**: Each product or file group is a folder within the root folder.
-3.  **Version Folder**: Inside each group folder, there are folders representing different versions. The version name is the name of the folder.
-
-## Installation and Launch
-
-Before running or building the project, you need to perform a one-time setup.
-
-### Pre-build Setup
-
-1.  **Create Configuration File**:
-    -   Find the `config_template.py` file in the root directory.
-    -   Create a copy of this file and name it `config.yaml`.
-    -   Open `config.yaml` and fill in the required paths for `versions_path` and `server_program_path`.
-
-2.  **Generate Encryption Keys**:
-    -   Run the key generation script from the terminal:
-        ```bash
-        python generate_keyfiles.py
-        ```
-    -   This will create `password.key` and `keyfile.key`, which are used to encrypt and decrypt data. **Do not share or upload these files to version control.**
-
-### Running from Source
-
-To run the project from the source code, follow these steps:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository URL>
-    cd "File Archive"
-    ```
-
-2.  **Create and activate a virtual environment:**
-    ```bash
-    python -m venv venv
-    venv\Scripts\activate
-    ```
-
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirments.txt
-    ```
-
-4.  **Run the application:**
-    ```bash
-    python app.py
-    ```
-
-## Building the project
-
-To build the project into a single executable file, you can use `pyinstaller`.
-
-1.  **Install pyinstaller:**
-    ```bash
-    pip install pyinstaller
-    ```
-
-2.  **Build the project:**
-    ```bash
-    pyinstaller "File Archive.spec"
-    ```
-
-## Technology Stack
-
--   **Language**: Python
--   **GUI**: PyQt5
--   **Configuration**: PyYAML
--   **Cryptography**: cryptography
--   **Architecture**: MVC (Model-View-Controller)
+Desktop application for encrypted versioned storage, distribution, and controlled access to engineering files within an organization.
 
 ---
 
-# File Archive (Русская версия)
+## 🖼 Screenshots
 
-Простое и мощное настольное приложение для управления и распространения версий программного обеспечения.
+### Authorization window:
+Secure login screen with password authentication.  
+Allows switching between Full Access mode and Standard mode, and provides an option to change the password.
 
-## Описание
+![auth_tab](screenshots/authorization.png)
 
-**File Archive** — это десктопное приложение, разработанное для команд, которым необходимо управлять и распространять различные версии своих файлов или программного обеспечения. Оно автоматизирует процесс организации, версионирования и доступа к файлам из централизованного расположения.
+### Download Tab:
+Displays all products and their latest available versions.  
+Users can search, select a product, choose a version, and download files (automatically to Desktop or to a custom location).
 
-Приложение сканирует структурированную сетевую директорию, где каждая группа программного обеспечения или файлов представлена папкой, а разные версии хранятся в этих папках. File Archive позволяет пользователям просматривать эти версии, загружать их, а аутентифицированным пользователям — добавлять или удалять версии и группы.
+![download_tab](screenshots/download_tab.png)
 
-## Ключевые возможности
+### Add Tab:
+Available in Full Access mode.  
+Allows adding new versions or attaching DOCX instruction files to existing or newly created product groups.
 
--   **Иерархический просмотр**: Навигация по группам и их соответствующим версиям файлов.
--   **Функциональность загрузки**: Загрузка любой версии файла или программного обеспечения на ваш локальный компьютер.
--   **Управление версиями**: Аутентифицированные пользователи могут добавлять новые группы, добавлять новые версии в существующие группы и удалять старые файлы или целые группы.
--   **Защита паролем**: Приложение защищено паролем для предотвращения несанкционированных изменений.
--   **Поиск**: Умный поиск по группам и версиям с поддержкой частичных совпадений.
--   **Автообновление**: Приложение автоматически проверяет наличие новой версии на сервере и предлагает выполнить обновление.
--   **Современный интерфейс**: Понятный и отзывчивый интерфейс, созданный с помощью PyQt5.
+![add_tab](screenshots/add_tab.png)
 
-## Принцип работы
+### Delete Tab:
+Available in Full Access mode.  
+Allows deleting specific versions or entire product groups, with confirmation protection to prevent accidental removal.
 
-Для корректной работы приложения необходимо соблюдать определённую структуру хранения данных в папке, указанной в `config.yaml`.
+![delete_tab](screenshots/delete_tab.png)
 
-1.  **Корневая папка**: Основная папка, содержащая все группы версий, указанная в параметре `versions_path` в `config.yaml`.
-2.  **Папка группы**: Каждая группа продуктов или файлов — это папка в корневой папке.
-3.  **Папка версии**: Внутри каждой папки группы находятся папки, представляющие разные версии. Имя версии — это имя папки.
+---
 
-## Установка и запуск
+## 📥 Download workflow
 
-Перед первым запуском или сборкой проекта необходимо выполнить разовую настройку.
+1. Select a product by clicking once in the table  
+   (the latest available version is selected automatically)
 
-### Начальная настройка
+2. Optional: double-click a product to open version listing  
+   and select **any previous version** if it was uploaded earlier
 
-1.  **Создайте файл конфигурации**:
-    -   Найдите в корневой папке файл `config_template.py`.
-    -   Создайте копию этого файла и назовите её `config.yaml`.
-    -   Откройте `config.yaml` и заполните необходимые пути для `versions_path` и `server_program_path`.
+3. Choose a save location:  
+   - by default, the file will be downloaded to the Desktop  
+   - or a custom folder can be selected
 
-2.  **Сгенерируйте ключи шифрования**:
-    -   Запустите скрипт генерации ключей из терминала:
-        ```bash
-        python generate_keyfiles.py
-        ```
-    -   Это создаст файлы `password.key` и `keyfile.key`, которые используются для шифрования и дешифрования данных. **Не передавайте и не загружайте эти файлы в систему контроля версий.**
+4. Click **Download**  
+   The selected version is decrypted and saved to the chosen destination
 
-### Запуск из исходного кода
+This workflow allows engineers to retrieve current releases  
+and operators to safely download only approved versions.
 
-Для запуска проекта из исходного кода выполните следующие шаги:
+---
 
-1.  **Клонируйте репозиторий:**
-    ```bash
-    git clone <URL репозитория>
-    cd "File Archive"
-    ```
+## 📌 Overview
 
-2.  **Создайте и активируйте виртуальное окружение:**
-    ```bash
-    python -m venv venv
-    venv\Scripts\activate
-    ```
+**File Archive** provides a secure and structured way to store, update, distribute, and retrieve versioned project files and technical documentation.  
 
-3.  **Установите зависимости:**
-    ```bash
-    pip install -r requirments.txt
-    ```
+The application ensures data confidentiality using user-generated cryptographic keys and supports different access modes for engineers and production personnel. 
 
-4.  **Запустите приложение:**
-    ```bash
-    python app.py
-    ```
+Designed for environments where controlled access, integrity, and up-to-date versions, secure distribution is critical.
 
-## Сборка проекта
+---
 
-Для сборки проекта в один исполняемый файл можно использовать `pyinstaller`.
+## 🎯 Key Features
 
-1.  **Установите pyinstaller:**
-    ```bash
-    pip install pyinstaller
-    ```
+### ✅ Versioned file storage
+- Organized by **groups (products)** and **versions**
+- Automatic latest version detection
+- Encrypted at rest
 
-2.  **Соберите проект:**
-    ```bash
-    pyinstaller "File Archive.spec"
-    ```
+### ✅ Two access modes
+#### 🔐 Full Access Mode (after password authentication)
+- Add new versions
+- Add `.docx` instruction files
+- Delete versions or entire groups
+- Manage archive structure
+- Engineers / supervisors
 
-## Технологический стек
+#### ✅ Standard Mode
+- Tabs Add/Delete are visible but **disabled**
+- Users can **only download**
+- Operators / factory workers
 
--   **Язык**: Python
--   **GUI**: PyQt5
--   **Конфигурация**: PyYAML
--   **Криптография**: cryptography
--   **Архитектура**: MVC (Model-View-Controller)
+### ✅ DOCX instructions support
+Attach documentation for each product for use in a production environment.
+
+### ✅ Encryption model
+- Fernet symmetric encryption
+- User-generated keyfile and password file
+- No shared keys in repository
+- Encrypted files stored with `.enc` extension
+
+### ✅ UI/UX highlights
+- PyQt5 interface
+- Layered navigation
+- Search across all versions
+- Progress indicators
+- Action notifications
+
+---
+
+## 🧩 Who is this for?
+
+✅ Engineering departments  
+✅ Manufacturing and production environments  
+✅ Teams distributing controlled documentation  
+✅ Organizations requiring secure versioned file access  
+✅ Workplaces with separated access levels (engineers vs operators)
+
+---
+
+## 🧠 What this project demonstrates about me
+
+✅ Python OOP  
+✅ PyQt GUI engineering  
+✅ MVC architecture  
+✅ Multithreading for blocking operations  
+✅ Secure file handling  
+✅ UX logic and state management  
+✅ Clean code and documentation discipline  
+✅ Configuration & deployment awareness  
+✅ Real-world application thinking  
+
+---
+
+## 🏗 Architecture
+```
+┌──────┐     ┌────────────┐     ┌───────┐
+│ View │ <-- │ Controller │ --> │ Model │
+└──────┘     └────────────┘     └───────┘
+```
+
+UI Layer Signal/Slot Encryption
+Widgets coordination File ops
+State visuals Flow logic Versioning
+
+---
+
+## 🛠 Tech Stack
+
+- Python **3.10**
+- PyQt5
+- cryptography (Fernet)
+- PyYAML
+- threading
+- pathlib
+
+---
+
+## 🔧 Installation
+
+```bash
+git clone ...
+cd File Archive
+pip install -r requirements.txt
+```
+
+---
+
+## 🔑 Key generation & initialization
+
+1. Run the key generation script: `python generate_keyfiles.py`
+1. A `config.yaml` file is created based on `config_template.yaml`
+2. Keys are stored locally and never committed
+3. Application can now operate securely
+   
+---
+
+## 🏗 Building (optional)
+
+The application can be packaged using PyInstaller with the provided spec:
+
+```bash
+pyinstaller "File Archive.spec"
+```
+
+---
+
+## 📂 Project Structure
+
+```
+FILE-ARCHIVE/
+│ app.py
+│ config_template.yaml
+│ generate_keyfiles.py
+│ File Archive.spec
+│ requirements.txt
+│ README.md
+│
+├─ mvc/
+│ ├─ controller.py
+│ ├─ model.py
+│ ├─ view.py
+│ └─ __init__.py
+│
+├─ classes/
+│ ├─ notifications.py
+│ ├─ password_dialog.py
+│ └─ __init__.py
+│
+├─ resources/
+│ ├─ resources.qrc
+│ ├─ resources_rc.py
+│ ├─ icon.ico
+│ ├─ checkbox_check.svg
+│ ├─ combobox_arrow.svg
+│ ├─ auth/
+│ ├─ notifications/
+│ ├─ radio_buttons/
+│ ├─ search/
+│ └─ tabs/
+│
+├─ ui/
+│ └─ (Qt Designer UI files)
+│
+└─ screenshots/
+└─ (application images)
+```
+
+---
+
+## 🔒 Security Model
+
+✅ Encrypted storage  
+✅ No plaintext password saving  
+✅ No cryptographic keys in repository  
+✅ User-specific initialization  
+✅ Safe for internal distribution  
+
+---
+
+## 🚦 Project Status
+
+✅ Stable  
+✅ Maintained when needed  
+✅ Bug fixes and improvements possible  
+❌ No active feature expansion planned  
+
+---
+
+## 📜 License
+
+MIT License
+
+Copyright (c) 2025 Pavel (PN Tech)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files...
+
+---
+
+## 👤 Author
+
+**Pavel (PN Tech)**  
+Python desktop and web developer, UI/UX designer, electronics engineer  
