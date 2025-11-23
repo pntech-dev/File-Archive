@@ -150,8 +150,8 @@
 ## 🔧 Установка
 
 ```bash
-git clone ...
-cd File Archive
+git clone https://github.com/pntech-dev/File-Archive.git
+cd File-Archive
 pip install -r requirements.txt
 ```
 
