@@ -51,6 +51,11 @@ class MyWindow(QMainWindow):
             # Exit if the user cancels authentication.
             sys.exit()
 
+    def closeEvent(self, event) -> None:
+        """Handles the window close event."""
+        if self.model.is_temp_folder_created:
+            self.model.delete_temp_folder(self.model.temp_folder_path)
+
     def check_password(self) -> bool | None:
         """Checks the user's password.
 

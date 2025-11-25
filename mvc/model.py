@@ -5,6 +5,7 @@ import yaml
 import shutil
 import datetime
 import threading
+import subprocess
 
 from pathlib import Path
 from packaging import version
@@ -41,6 +42,8 @@ class Model(QObject):
         self.in_group: bool = False  # Flag: table currently shows all versions of one group
         self.search_all_versions: bool = False  # Flag: search across all versions
         self.new_group_name = None  # Name of newly created group
+        self.is_temp_folder_created = False # Flag: temp folder was created
+        self.temp_folder_path = None  # Path to temp folder
 
         # Encryption-related paths
         self.keyfile_path: str = self.base_path / "_internal" / "keyfile.key"  # Encryption key file
@@ -731,6 +734,36 @@ class Model(QObject):
                 f"Ошибка: {e}",
             )
             return 1
+        
+    def open_file(self, group: str, file: str) -> None:
+        """"""
+        try:
+            file_path = Path(self.config_data.get("versions_path")) / group / f"{file}.enc"
+
+            if not file_path.exists():
+                self.show_notification.emit("error", "Выбранный файл не существует на сервере.")
+                return
+
+            # Create a temp folder
+            temp_folder_path = self._create_temp_folder() / file_path.name
+            
+            # Decrypt and download the instruction file to the temp folder
+            shutil.copy(file_path, temp_folder_path)
+            self._decryprt_file(temp_folder_path, temp_folder_path.with_suffix(""))
+            
+            # Open file
+            subprocess.Popen(['start', '', temp_folder_path.with_suffix("")], shell=True)
+        
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при открытии файла.\nОшибка: {e}")
+            return
+        
+    def delete_temp_folder(self, path: Path) -> None:
+        """"""
+        try:
+            shutil.rmtree(path)
+        except Exception as e:
+            print("Ошибка: ", e)
 
     # === Password management ===
 
@@ -987,6 +1020,20 @@ class Model(QObject):
             return encrypted_text
         except Exception:
             return ""
+        
+    def _create_temp_folder(self) -> Path:
+        """"""     
+        desktop_path = Path(self.get_desktop_path()) / "filearchive_temp"
+
+        if desktop_path.exists():
+            return desktop_path
+        
+        os.mkdir(path=desktop_path)
+
+        self.is_temp_folder_created = True
+        self.temp_folder_path = desktop_path
+
+        return desktop_path
 
     # === Thread wrapper helpers ===
 

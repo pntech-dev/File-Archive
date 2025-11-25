@@ -50,6 +50,7 @@ class Controller(QObject):
         self.view.delete_page_delete_push_buttons_clicked(self.on_delete_page_delete_push_button_clicked)
         self.view.download_page_back_push_button_clicked(self.on_download_page_back_push_button_clicked)
         self.view.download_page_download_push_buttons_clicked(self.on_download_page_download_push_button_clicked)
+        self.view.download_page_open_push_button_clicked(self.on_download_page_open_push_button_clicked)
 
         # Radio-Buttons
         self.view.add_page_radio_buttons_state_changed(self.on_add_options_button_clicked)
@@ -167,6 +168,14 @@ class Controller(QObject):
         else:
             self.view.set_download_button_state(state=False)
 
+    def update_open_button_state(self) -> None:
+        """"""
+        label_text = self.view.get_choosen_label_text().strip()
+        if label_text.split("Версия: ")[1].endswith((".pdf", ".doc", ".docx")):
+            self.view.set_open_button_visible_state(True)
+        else:
+            self.view.set_open_button_visible_state(False)
+
     def on_download_page_search_lineedit_text_changed(self) -> None:
         """Handles changing the text in the search bar on the Download tab."""
         search_text = self.view.get_search_lineedit_text()
@@ -208,6 +217,7 @@ class Controller(QObject):
         row_data = self.view.get_table_row_data(row=row)
         self.view.set_choosen_label_text(data=row_data, in_group_flag=self.model.in_group)
         self.update_download_button_state()
+        self.update_open_button_state()
 
     def on_download_page_table_row_double_clicked(self, row: int) -> None:
         """Handles a double click on a row of the table on the "Download" tab.
@@ -256,7 +266,7 @@ class Controller(QObject):
             r"Версия\s*:\s*(.*)$",
             text,
             re.IGNORECASE
-)
+        )
 
         if not group_match or not file_match:
             return
@@ -270,6 +280,31 @@ class Controller(QObject):
 
         # Start the download in a separate stream
         self.model.download_in_thread(group=group, file=file, save_path=save_path)
+
+    def on_download_page_open_push_button_clicked(self) -> None:
+        """"""
+        text = self.view.get_choosen_label_text()
+
+        group_match = re.search(
+            r"Выбран[ао]\s+(?:изделие|группа)\s*:\s*(.*?)\s*(?:,|\n)\s*Версия",
+            text,
+            re.IGNORECASE
+        )
+
+        file_match = re.search(
+            r"Версия\s*:\s*(.*)$",
+            text,
+            re.IGNORECASE
+        )
+
+        if not group_match or not file_match:
+            return
+
+        group = group_match.group(1)
+        file = file_match.group(1)
+
+        # Open the file
+        self.model.open_file(group=group, file=file)
 
     # === Add tab ===
 
