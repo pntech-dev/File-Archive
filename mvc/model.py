@@ -606,6 +606,10 @@ class Model(QObject):
         try:
             if not instruction_path or not group_name:
                 return 1
+            
+            if not instruction_path.endswith((".pdf", ".doc", ".docx")):
+                self.show_notification.emit("error", f"Не поддерживаемый тип файла.\nПоддерживаемые типы: .pdf, .doc, .docx")
+                return 1
 
             progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
             current_step = 0
