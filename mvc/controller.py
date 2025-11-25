@@ -313,7 +313,7 @@ class Controller(QObject):
             None,
             "Выбрать файл",
             "",
-            "Докумен Word (*.doc *.docx);;All Files (*)",
+            "Докумен Word (*.pdf *.doc *.docx);",
         )
         self.view.set_lineedit_path(lineedit=lineedit, path=path)
 
