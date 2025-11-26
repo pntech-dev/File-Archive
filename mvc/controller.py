@@ -24,6 +24,10 @@ class Controller(QObject):
         self.model = model
         self.view = view
 
+        # Selected item state
+        self._selected_group: str | None = None
+        self._selected_file: str | None = None
+
         # Checking the current version of the program at startup
         self.__check_program_version()
 
@@ -162,19 +166,15 @@ class Controller(QObject):
 
     def update_download_button_state(self) -> None:
         """Updates the status of the "Download" button on the "Download" tab."""
-        label_text = self.view.get_choosen_label_text().strip()
-        if label_text != "Выбрано изделие:" and not label_text.endswith("Версия:"):
-            self.view.set_download_button_state(state=True)
-        else:
-            self.view.set_download_button_state(state=False)
+        can_download = self._selected_group is not None and self._selected_file is not None
+        self.view.set_download_button_state(state=can_download)
 
     def update_open_button_state(self) -> None:
         """"""
-        label_text = self.view.get_choosen_label_text().strip()
-        if label_text.split("Версия: ")[1].endswith((".pdf", ".doc", ".docx")):
-            self.view.set_open_button_visible_state(True)
-        else:
-            self.view.set_open_button_visible_state(False)
+        can_open = (self._selected_file is not None and
+                    self._selected_file.endswith((".pdf", ".doc", ".docx")))
+
+        self.view.set_open_button_state(state=can_open)
 
     def on_download_page_search_lineedit_text_changed(self) -> None:
         """Handles changing the text in the search bar on the Download tab."""
@@ -215,6 +215,14 @@ class Controller(QObject):
             row: The index of the selected row in the table.
         """
         row_data = self.view.get_table_row_data(row=row)
+        if self.model.in_group:
+            # Inside a group, row_data is [file]
+            self._selected_file = row_data[0] if row_data[0] else None
+        else:
+            # In main list, row_data is [group, file]
+            self._selected_group = row_data[0]
+            self._selected_file = row_data[1] if row_data[1] else None
+
         self.view.set_choosen_label_text(data=row_data, in_group_flag=self.model.in_group)
         self.update_download_button_state()
         self.update_open_button_state()
@@ -228,6 +236,7 @@ class Controller(QObject):
         """
         if not self.model.in_group:
             row_data = self.view.get_table_row_data(row=row)
+            self._selected_group = row_data[0]
 
             # Get the versions of the group and set the data in the table
             layer_two_data = self.model.get_group_versions(group_name=row_data[0])
@@ -244,67 +253,36 @@ class Controller(QObject):
         # Going back to the list of groups
         self.model.in_group = False
         self.update_layer_one_table_data()
+        self._selected_group = None
+        self._selected_file = None
         self.update_back_push_button_state(state=False)
         self.view.set_choosen_label_text(data=None, in_group_flag=None)
         self.update_download_button_state()
+        self.update_open_button_state()
 
     def on_download_page_download_push_button_clicked(self) -> None:
         """Handles clicking on the "Download" button on the "Download" tab.
 
-        Parses the selected text, determines the group, file, and path.
-        saves, then initiates the download.
+        Initiates the download based on the currently selected item.
         """
-        text = self.view.get_choosen_label_text()
-
-        group_match = re.search(
-            r"Выбран[ао]\s+(?:изделие|группа)\s*:\s*(.*?)\s*(?:,|\n)\s*Версия",
-            text,
-            re.IGNORECASE
-        )
-
-        file_match = re.search(
-            r"Версия\s*:\s*(.*)$",
-            text,
-            re.IGNORECASE
-        )
-
-        if not group_match or not file_match:
+        if not self._selected_group or not self._selected_file:
             return
 
-        group = group_match.group(1)
-        file = file_match.group(1)
         save_path = self.view.get_download_save_path()
 
         # Disabling the page for the download time
         self.view.update_page_enabled_state(page="download", state=False)
 
         # Start the download in a separate stream
-        self.model.download_in_thread(group=group, file=file, save_path=save_path)
+        self.model.download_in_thread(group=self._selected_group, file=self._selected_file, save_path=save_path)
 
     def on_download_page_open_push_button_clicked(self) -> None:
         """"""
-        text = self.view.get_choosen_label_text()
-
-        group_match = re.search(
-            r"Выбран[ао]\s+(?:изделие|группа)\s*:\s*(.*?)\s*(?:,|\n)\s*Версия",
-            text,
-            re.IGNORECASE
-        )
-
-        file_match = re.search(
-            r"Версия\s*:\s*(.*)$",
-            text,
-            re.IGNORECASE
-        )
-
-        if not group_match or not file_match:
+        if not self._selected_group or not self._selected_file:
             return
 
-        group = group_match.group(1)
-        file = file_match.group(1)
-
         # Open the file
-        self.model.open_file(group=group, file=file)
+        self.model.open_file(group=self._selected_group, file=self._selected_file)
 
     # === Add tab ===
 
@@ -577,17 +555,24 @@ class Controller(QObject):
             self.view.set_groups_comboboxes_data(self.model.get_groups_names())
             self.update_version_combobox_data()
             self.view.set_delete_checkboxes_state(type="file", state=False)
-            self.view.set_choosen_label_text(data=None, in_group_flag=None)
 
         elif operation_name == "delete_group":
             self.update_layer_one_table_data()
             self.view.set_groups_comboboxes_data(self.model.get_groups_names())
             self.update_version_combobox_data()
             self.view.set_delete_checkboxes_state(type="group", state=False)
-            self.view.set_choosen_label_text(data=None, in_group_flag=None)
 
         # After a successful operation, we turn on all the pages again.
         self.view.update_page_enabled_state(state=True, check_all=True)
+
+        # Reset state to level one
+        self.model.in_group = False
+        self._selected_group = None
+        self._selected_file = None
+        self.view.set_choosen_label_text(data=None, in_group_flag=None)
+        self.update_download_button_state()
+        self.update_open_button_state()
+        self.update_back_push_button_state()
 
     def __check_program_version(self) -> None:
         """Checks the relevance of the program version and, if necessary, launches an update.

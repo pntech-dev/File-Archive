@@ -342,7 +342,7 @@ class View(QObject):
         """Enable or disable 'Download' button on Download tab."""
         self.ui.download_file_pushButton.setEnabled(state)
 
-    def set_open_button_visible_state(self, state: bool) -> None:
+    def set_open_button_state(self, state: bool) -> None:
         """"""
         self.ui.open_file_pushButton.setVisible(state)
         self.ui.open_file_pushButton.setEnabled(state)

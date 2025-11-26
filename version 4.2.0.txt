@@ -1,2 +1,5 @@
 - Added the ability to add instructions in PDF format
 - Added a button to open the instruction file directly from the application
+
+Bugs:
+    - Fixed a bug that could cause the table to be updated incorrectly.
