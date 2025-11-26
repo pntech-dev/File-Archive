@@ -555,29 +555,18 @@ class Controller(QObject):
             return
 
         if operation_name == "create_group":
-            self.update_layer_one_table_data()
-            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
             self.view.set_new_group_to_combobox(new_group_name=self.model.new_group_name)
-            self.update_version_combobox_data()
-
-        elif operation_name in ["add_version", "add_instruction"]:
-            self.update_layer_one_table_data()
-            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
-            self.update_version_combobox_data()
 
         elif operation_name == "delete_file":
-            self.update_layer_one_table_data()
-            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
-            self.update_version_combobox_data()
             self.view.set_delete_checkboxes_state(type="file", state=False)
 
         elif operation_name == "delete_group":
-            self.update_layer_one_table_data()
-            self.view.set_groups_comboboxes_data(self.model.get_groups_names())
-            self.update_version_combobox_data()
             self.view.set_delete_checkboxes_state(type="group", state=False)
 
         # Reset state to level one
+        self.update_layer_one_table_data()
+        self.update_version_combobox_data()
+        self.view.set_groups_comboboxes_data(self.model.get_groups_names())
         self.model.in_group = False
         self._selected_group = None
         self._selected_file = None
