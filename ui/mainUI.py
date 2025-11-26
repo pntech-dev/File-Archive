@@ -720,7 +720,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.save_file_path_choose_pushButton)
         self.verticalLayout_6.addWidget(self.save_file_path_actions_frame)
         self.verticalLayout_7.addWidget(self.save_fil_path_frame)
-        self.download_file_pushButton = QtWidgets.QPushButton(self.download_page)
+        self.actions_buttons_frma = QtWidgets.QFrame(self.download_page)
+        self.actions_buttons_frma.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.actions_buttons_frma.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.actions_buttons_frma.setObjectName("actions_buttons_frma")
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.actions_buttons_frma)
+        self.horizontalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_7.setSpacing(8)
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.download_file_pushButton = QtWidgets.QPushButton(self.actions_buttons_frma)
         self.download_file_pushButton.setEnabled(False)
         self.download_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
         font = QtGui.QFont()
@@ -758,7 +766,47 @@ class Ui_MainWindow(object):
 "    border-radius: 6px;\n"
 "}")
         self.download_file_pushButton.setObjectName("download_file_pushButton")
-        self.verticalLayout_7.addWidget(self.download_file_pushButton)
+        self.horizontalLayout_7.addWidget(self.download_file_pushButton)
+        self.open_file_pushButton = QtWidgets.QPushButton(self.actions_buttons_frma)
+        self.open_file_pushButton.setEnabled(False)
+        self.open_file_pushButton.setMinimumSize(QtCore.QSize(0, 35))
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.open_file_pushButton.setFont(font)
+        self.open_file_pushButton.setStyleSheet("/* === Accent Button === */\n"
+"QPushButton {\n"
+"    background-color: #2563EB;\n"
+"    color: #FFFFFF;\n"
+"    font-weight: bold;\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"/* ===Hover === */\n"
+"QPushButton:hover {\n"
+"    background-color: #5283EF;\n"
+"}\n"
+"\n"
+"/* === Pressed / Checked === */\n"
+"QPushButton:pressed,\n"
+"QPushButton:checked {\n"
+"    background-color: #124CC9;\n"
+"}\n"
+"\n"
+"/* === Disabled === */\n"
+"QPushButton:disabled {\n"
+"    background-color: #DEE8FC;\n"
+"    color: #FFFFFF; \n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"}")
+        self.open_file_pushButton.setObjectName("open_file_pushButton")
+        self.horizontalLayout_7.addWidget(self.open_file_pushButton)
+        self.verticalLayout_7.addWidget(self.actions_buttons_frma)
         self.tabs_stackedWidget.addWidget(self.download_page)
         self.add_page = QtWidgets.QWidget()
         self.add_page.setObjectName("add_page")
@@ -1409,6 +1457,7 @@ class Ui_MainWindow(object):
         self.save_file_path_lineEdit.setPlaceholderText(_translate("MainWindow", "По умолчанию файл будет сохранён на рабочем столе"))
         self.save_file_path_choose_pushButton.setText(_translate("MainWindow", "Выбрать"))
         self.download_file_pushButton.setText(_translate("MainWindow", "Скачать"))
+        self.open_file_pushButton.setText(_translate("MainWindow", "Открыть"))
         self.choose_or_create_label.setText(_translate("MainWindow", "Выберите группу или создайте новую:"))
         self.group_name_lineEdit.setPlaceholderText(_translate("MainWindow", "БВВ.01"))
         self.create_group_pushButton.setText(_translate("MainWindow", "Создать"))

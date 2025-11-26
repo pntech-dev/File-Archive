@@ -52,6 +52,7 @@ class View(QObject):
 
         # UI options
         self.ui.tableWidget.setAlternatingRowColors(True)
+        self.ui.open_file_pushButton.setVisible(False)
 
         # === Icons ===
         # Search line edit icon
@@ -341,6 +342,11 @@ class View(QObject):
         """Enable or disable 'Download' button on Download tab."""
         self.ui.download_file_pushButton.setEnabled(state)
 
+    def set_open_button_state(self, state: bool) -> None:
+        """Enable or disable 'Open' button on Download tab."""
+        self.ui.open_file_pushButton.setVisible(state)
+        self.ui.open_file_pushButton.setEnabled(state)
+
     def clear_table(self) -> None:
         """Clear all data and structure from the table widget."""
         self.ui.tableWidget.clear()
@@ -418,6 +424,14 @@ class View(QObject):
             handler: Callback for download button.
         """
         self.ui.download_file_pushButton.clicked.connect(handler)
+
+    def download_page_open_push_button_clicked(self, handler) -> None:
+        """Bind handler for 'Open' button click on Download tab.
+
+        Args:
+            handler: Callback for open button.
+        """
+        self.ui.open_file_pushButton.clicked.connect(handler)
 
     # === Add tab ===
 

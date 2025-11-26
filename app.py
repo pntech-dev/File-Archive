@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QCloseEvent
 from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow
 
 from ui import Ui_MainWindow
@@ -50,6 +50,22 @@ class MyWindow(QMainWindow):
         else:
             # Exit if the user cancels authentication.
             sys.exit()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        """Handles the window close event to perform cleanup.
+
+        This method is automatically called when the user closes the main window.
+        It ensures that the temporary folder, if created during the session for
+        opening files, is deleted before the application exits.
+
+        Args:
+            event: The close event object provided by Qt.
+        """
+        super().closeEvent(event)
+
+        # Delete the temporary folder if it was created
+        if self.model.is_temp_folder_created:
+            self.model.delete_temp_folder(self.model.temp_folder_path)
 
     def check_password(self) -> bool | None:
         """Checks the user's password.

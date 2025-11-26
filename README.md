@@ -31,7 +31,7 @@ Users can search, select a product, choose a version, and download files (automa
 
 ### Add Tab:
 Available in Full Access mode.  
-Allows adding new versions or attaching DOCX instruction files to existing or newly created product groups.
+Allows you to add new versions or attach instructions to existing or new product groups.
 
 ![add_tab](screenshots/add_tab.png)
 
@@ -40,6 +40,30 @@ Available in Full Access mode.
 Allows deleting specific versions or entire product groups, with confirmation protection to prevent accidental removal.
 
 ![delete_tab](screenshots/delete_tab.png)
+
+---
+
+## What's New (v4.2.0)
+
+### ✨ New Features
+- **Added support for PDF instructions**  
+  Now you can attach files with instructions in **PDF** format to groups of versions.
+
+- **Added “Open Instruction” button**  
+  Instruction files can now be opened **directly from the application**, without navigating to their folder manually.
+
+### 🐞 Bug Fixes
+- **Fixed a table refresh issue**  
+  In some cases, the table did not update correctly after certain user actions. This behavior has now been resolved.
+
+- **Fixed incorrect display of instruction file extensions**  
+  The file extension for instruction documents was sometimes shown incorrectly. This display logic has been corrected.
+
+- **Fixed an issue where the interface remained disabled after uploading a file**  
+  A UI state-lock bug caused the interface to stay unresponsive after uploading a version or instruction. This is now fixed.
+
+- **Fixed incorrect notification behavior after deleting a group**  
+  Notifications were sometimes displayed incorrectly following the deletion of a version group. This issue has been corrected.
 
 ---
 
@@ -83,7 +107,7 @@ Designed for environments where controlled access, integrity, and up-to-date ver
 ### ✅ Two access modes
 #### 🔐 Full Access Mode (after password authentication)
 - Add new versions
-- Add `.docx` instruction files
+- Add `.doc`, `.docx` and `.pdf` instruction files
 - Delete versions or entire groups
 - Manage archive structure
 - Engineers / supervisors
@@ -93,8 +117,11 @@ Designed for environments where controlled access, integrity, and up-to-date ver
 - Users can **only download**
 - Operators / factory workers
 
-### ✅ DOCX instructions support
-Attach documentation for each product for use in a production environment.
+### ✅ Support for files with instructions
+You can attach instructions to each product in the following formats: **DOC**, **DOCX** and **PDF**.
+
+### ✅ Opening files with instructions
+Open the files with instructions directly from the application.
 
 ### ✅ Encryption model
 - Fernet symmetric encryption

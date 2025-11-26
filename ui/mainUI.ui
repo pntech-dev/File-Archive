@@ -1124,26 +1124,50 @@ QPushButton#delete_tab_pushButton:checked:hover{
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="download_file_pushButton">
-             <property name="enabled">
-              <bool>false</bool>
+            <widget class="QFrame" name="actions_buttons_frma">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>35</height>
-              </size>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
              </property>
-             <property name="font">
-              <font>
-               <family>MS Shell Dlg 2</family>
-               <pointsize>12</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">/* === Accent Button === */
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <property name="spacing">
+               <number>8</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="download_file_pushButton">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>35</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>MS Shell Dlg 2</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">/* === Accent Button === */
 QPushButton {
     background-color: #2563EB;
     color: #FFFFFF;
@@ -1171,10 +1195,67 @@ QPushButton:disabled {
     border: none;
     border-radius: 6px;
 }</string>
-             </property>
-             <property name="text">
-              <string>Скачать</string>
-             </property>
+                </property>
+                <property name="text">
+                 <string>Скачать</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="open_file_pushButton">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>35</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>MS Shell Dlg 2</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">/* === Accent Button === */
+QPushButton {
+    background-color: #2563EB;
+    color: #FFFFFF;
+	font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+/* ===Hover === */
+QPushButton:hover {
+    background-color: #5283EF;
+}
+
+/* === Pressed / Checked === */
+QPushButton:pressed,
+QPushButton:checked {
+    background-color: #124CC9;
+}
+
+/* === Disabled === */
+QPushButton:disabled {
+    background-color: #DEE8FC;
+    color: #FFFFFF; 
+    border: none;
+    border-radius: 6px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Открыть</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>

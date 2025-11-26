@@ -5,6 +5,7 @@ import yaml
 import shutil
 import datetime
 import threading
+import subprocess
 
 from pathlib import Path
 from packaging import version
@@ -41,6 +42,8 @@ class Model(QObject):
         self.in_group: bool = False  # Flag: table currently shows all versions of one group
         self.search_all_versions: bool = False  # Flag: search across all versions
         self.new_group_name = None  # Name of newly created group
+        self.is_temp_folder_created = False # Flag: temp folder was created
+        self.temp_folder_path = None  # Path to temp folder
 
         # Encryption-related paths
         self.keyfile_path: str = self.base_path / "_internal" / "keyfile.key"  # Encryption key file
@@ -606,6 +609,10 @@ class Model(QObject):
         try:
             if not instruction_path or not group_name:
                 return 1
+            
+            if not instruction_path.endswith((".pdf", ".doc", ".docx")):
+                self.show_notification.emit("error", f"Не поддерживаемый тип файла.\nПоддерживаемые типы: .pdf, .doc, .docx")
+                return 1
 
             progress_step_size = 100 // self.ADD_PROGRESS_BAR_STEP
             current_step = 0
@@ -727,6 +734,50 @@ class Model(QObject):
                 f"Ошибка: {e}",
             )
             return 1
+        
+    def open_file(self, group: str, file: str) -> None:
+        """Decrypt and open a file in a temporary location.
+
+        This function decrypts the specified file into a temporary directory
+        and then opens it using the default system application. It is intended
+        for quickly viewing files like instructions without permanently saving them.
+
+        Args:
+            group: The name of the group containing the file.
+            file: The name of the file to open (without the .enc extension).
+        """
+        try:
+            file_path = Path(self.config_data.get("versions_path")) / group / f"{file}.enc"
+
+            if not file_path.exists():
+                self.show_notification.emit("error", "Выбранный файл не существует на сервере.")
+                return
+
+            # Create a temp folder and get the path for the new file
+            temp_folder_path = self._create_temp_folder() / file_path.name
+            
+            # Decrypt and download the instruction file to the temp folder
+            shutil.copy(file_path, temp_folder_path)
+            self._decryprt_file(temp_folder_path, temp_folder_path.with_suffix(""))
+            
+            # Open the decrypted file
+            subprocess.Popen(['start', '', temp_folder_path.with_suffix("")], shell=True)
+        
+        except Exception as e:
+            self.show_notification.emit("error", f"Произошла ошибка при открытии файла.\nОшибка: {e}")
+            return
+        
+    def delete_temp_folder(self, path: Path) -> None:
+        """Recursively delete the temporary folder.
+
+        Args:
+            path: The Path object representing the directory to delete.
+        """
+        try:
+            shutil.rmtree(path)
+
+        except Exception as e:
+            print("Ошибка: ", e)
 
     # === Password management ===
 
@@ -983,6 +1034,28 @@ class Model(QObject):
             return encrypted_text
         except Exception:
             return ""
+        
+    def _create_temp_folder(self) -> Path:
+        """Create a temporary folder for file operations.
+
+        Creates a 'filearchive_temp' directory inside the user's local AppData/Temp
+        folder if it doesn't already exist.
+
+        Returns:
+            The Path object for the temporary directory.
+        """
+        user_profile = Path.home()
+        desktop_path = user_profile / "AppData" / "Local" / "Temp" / "filearchive_temp"
+
+        if desktop_path.exists():
+            return desktop_path
+        
+        os.mkdir(path=desktop_path)
+
+        self.is_temp_folder_created = True
+        self.temp_folder_path = desktop_path
+
+        return desktop_path
 
     # === Thread wrapper helpers ===
 
