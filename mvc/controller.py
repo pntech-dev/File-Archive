@@ -115,8 +115,11 @@ class Controller(QObject):
         self._is_updating_versions = True
         try:
             group_name = self.view.get_delete_page_version_combobox_current_text()
-            versions = self.model.get_group_versions(group_name)
-            self.view.set_version_combobox_data(versions)
+            if group_name:
+                versions = self.model.get_group_versions(group_name)
+                # Убираем расширение .enc для отображения в combobox
+                display_versions = [re.sub(r'\.enc$', '', v) for v in versions]
+                self.view.set_version_combobox_data(display_versions)
         finally:
             self._is_updating_versions = False
 
@@ -437,15 +440,21 @@ class Controller(QObject):
         comboboxes_datas = self.view.get_delete_page_comboboxes_datas()
 
         if button_type == "file":
-            file_page_data = []
+            group_name_to_delete_from = self.view.get_delete_page_combobox_text(
+                combobox=self.view.ui.choose_group_to_delete_comboBox
+            )
+            
+            # We get the index of the selected file from the combobox
+            selected_file_index = self.view.ui.choose_file_to_delete_comboBox.currentIndex()
 
-            # We are looking for combo boxes for the file deletion page
-            for combobox in comboboxes_datas.keys():
-                if comboboxes_datas[combobox].get("what_delete") == "file":
-                    # Getting selected items from comboboxes
-                    file_page_data.append(self.view.get_delete_page_combobox_text(combobox=combobox))
+            if group_name_to_delete_from and selected_file_index != -1:
+                # We get the original list of files (with .enc)
+                original_versions = self.model.get_group_versions(group_name_to_delete_from)
+                # We find the real file name by the index
+                file_to_delete = original_versions[selected_file_index]
 
-            if file_page_data:
+                file_page_data = [group_name_to_delete_from, file_to_delete]
+
                 # Disabling the page while deleting files
                 self.view.update_page_enabled_state(page="delete", state=False)
                 self.model.delete_file_in_thread(data=file_page_data)

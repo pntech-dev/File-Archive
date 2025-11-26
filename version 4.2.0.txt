@@ -3,3 +3,4 @@
 
 Bugs:
     - Fixed a bug that could cause the table to be updated incorrectly.
+    - Fixed a bug that caused the instruction file extensions to be displayed incorrectly.
