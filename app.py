@@ -53,6 +53,9 @@ class MyWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         """Handles the window close event."""
+        super().closeEvent(event)
+
+        # Delete the temporary folder if it was created.
         if self.model.is_temp_folder_created:
             self.model.delete_temp_folder(self.model.temp_folder_path)
 

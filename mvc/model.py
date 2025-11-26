@@ -762,6 +762,7 @@ class Model(QObject):
         """"""
         try:
             shutil.rmtree(path)
+
         except Exception as e:
             print("Ошибка: ", e)
 
@@ -1022,8 +1023,9 @@ class Model(QObject):
             return ""
         
     def _create_temp_folder(self) -> Path:
-        """"""     
-        desktop_path = Path(self.get_desktop_path()) / "filearchive_temp"
+        """"""
+        user_profile = Path.home()
+        desktop_path = user_profile / "AppData" / "Local" / "Temp" / "filearchive_temp"
 
         if desktop_path.exists():
             return desktop_path
