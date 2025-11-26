@@ -736,7 +736,16 @@ class Model(QObject):
             return 1
         
     def open_file(self, group: str, file: str) -> None:
-        """"""
+        """Decrypt and open a file in a temporary location.
+
+        This function decrypts the specified file into a temporary directory
+        and then opens it using the default system application. It is intended
+        for quickly viewing files like instructions without permanently saving them.
+
+        Args:
+            group: The name of the group containing the file.
+            file: The name of the file to open (without the .enc extension).
+        """
         try:
             file_path = Path(self.config_data.get("versions_path")) / group / f"{file}.enc"
 
@@ -744,14 +753,14 @@ class Model(QObject):
                 self.show_notification.emit("error", "Выбранный файл не существует на сервере.")
                 return
 
-            # Create a temp folder
+            # Create a temp folder and get the path for the new file
             temp_folder_path = self._create_temp_folder() / file_path.name
             
             # Decrypt and download the instruction file to the temp folder
             shutil.copy(file_path, temp_folder_path)
             self._decryprt_file(temp_folder_path, temp_folder_path.with_suffix(""))
             
-            # Open file
+            # Open the decrypted file
             subprocess.Popen(['start', '', temp_folder_path.with_suffix("")], shell=True)
         
         except Exception as e:
@@ -759,7 +768,11 @@ class Model(QObject):
             return
         
     def delete_temp_folder(self, path: Path) -> None:
-        """"""
+        """Recursively delete the temporary folder.
+
+        Args:
+            path: The Path object representing the directory to delete.
+        """
         try:
             shutil.rmtree(path)
 
@@ -1023,7 +1036,14 @@ class Model(QObject):
             return ""
         
     def _create_temp_folder(self) -> Path:
-        """"""
+        """Create a temporary folder for file operations.
+
+        Creates a 'filearchive_temp' directory inside the user's local AppData/Temp
+        folder if it doesn't already exist.
+
+        Returns:
+            The Path object for the temporary directory.
+        """
         user_profile = Path.home()
         desktop_path = user_profile / "AppData" / "Local" / "Temp" / "filearchive_temp"
 

@@ -173,7 +173,7 @@ class Controller(QObject):
         self.view.set_download_button_state(state=can_download)
 
     def update_open_button_state(self) -> None:
-        """"""
+        """Updates the status of the "Open" button on the "Download" tab."""
         can_open = (self._selected_file is not None and
                     self._selected_file.endswith((".pdf", ".doc", ".docx")))
 
@@ -280,7 +280,10 @@ class Controller(QObject):
         self.model.download_in_thread(group=self._selected_group, file=self._selected_file, save_path=save_path)
 
     def on_download_page_open_push_button_clicked(self) -> None:
-        """"""
+        """Handles clicking on the "Open" button on the "Download" tab.
+
+        Opens the selected file in the default program.
+        """
         if not self._selected_group or not self._selected_file:
             return
 
