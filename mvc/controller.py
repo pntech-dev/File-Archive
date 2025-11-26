@@ -544,6 +544,9 @@ class Controller(QObject):
             operation_name: Operation name (create_group, add_version, delete_file, etc.).
             status_code: Operation completion code (0 — success).
         """
+        # After the operation, we turned on all the pages again.
+        self.view.update_page_enabled_state(state=True, check_all=True)
+
         # If the operation failed, we don't update anything
         if status_code != 0:
             return
@@ -570,9 +573,6 @@ class Controller(QObject):
             self.view.set_groups_comboboxes_data(self.model.get_groups_names())
             self.update_version_combobox_data()
             self.view.set_delete_checkboxes_state(type="group", state=False)
-
-        # After a successful operation, we turn on all the pages again.
-        self.view.update_page_enabled_state(state=True, check_all=True)
 
         # Reset state to level one
         self.model.in_group = False
