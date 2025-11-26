@@ -563,10 +563,11 @@ class Controller(QObject):
         elif operation_name == "delete_group":
             self.view.set_delete_checkboxes_state(type="group", state=False)
 
-        # Reset state to level one
+        # First, update the list of groups in all comboboxes
+        self.view.set_groups_comboboxes_data(self.model.get_groups_names())
+        # Update the dependent data
         self.update_layer_one_table_data()
         self.update_version_combobox_data()
-        self.view.set_groups_comboboxes_data(self.model.get_groups_names())
         self.model.in_group = False
         self._selected_group = None
         self._selected_file = None
